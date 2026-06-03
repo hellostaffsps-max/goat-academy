@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, MapPin, Heart, Settings, HeadphonesIcon, Calculator } from "lucide-react";
@@ -19,8 +18,22 @@ const navItems = [
   { id: "/settings", label: "الإعدادات", icon: Settings },
 ];
 
+// Wrapper that conditionally skips the full layout for admin/auth pages
+// This avoids any hook-order issues by keeping the conditional return
+// in a component that doesn't call any stateful hooks.
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // No hooks are called before this return
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/auth")) {
+    return <>{children}</>;
+  }
+
+  return <AppLayoutContent>{children}</AppLayoutContent>;
+}
+
+// Inner component holds all hooks and layout UI
+function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { favorites, settings, syncFromServer } = useStore();
 
   useEffect(() => {
@@ -53,10 +66,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [settings.reducedMotion]);
 
-  // Skip layout for admin pages
-  if (pathname?.startsWith("/admin") || pathname?.startsWith("/auth")) {
-    return <>{children}</>;
-  }
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-5xl mx-auto relative">
