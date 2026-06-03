@@ -3,31 +3,32 @@
 import Link from "next/link";
 import {
   BookOpen,
+  Camera,
   Compass,
-  Instagram,
-  Linkedin,
+  ExternalLink,
   Mail,
   MessageSquare,
   ShieldCheck,
 } from "lucide-react";
 
 const companyLinks = [
-  { href: "/explore", label: "استكشف الدروس" },
-  { href: "/paths", label: "مسارات التعلم" },
+  { href: "/courses", label: "الدورات التدريبية" },
+  { href: "/blog", label: "المدونة" },
   { href: "/tools", label: "أدوات القهوة" },
+  { href: "/services", label: "الخدمات" },
   { href: "/favorites", label: "المفضلة" },
 ];
 
 const resourceLinks = [
   { href: "/consultant", label: "طلب استشارة" },
-  { href: "/settings", label: "إعدادات العرض" },
-  { href: "/", label: "عن الأكاديمية" },
-  { href: "/", label: "الأسئلة الشائعة" },
+  { href: "/downloads", label: "تحميلات مجانية" },
+  { href: "/success-stories", label: "قصص النجاح" },
+  { href: "/about", label: "عن الأكاديمية" },
 ];
 
 const socialLinks = [
-  { href: "https://instagram.com", label: "انستاغرام", icon: Instagram },
-  { href: "https://www.linkedin.com", label: "لينكدإن", icon: Linkedin },
+  { href: "https://instagram.com", label: "انستاغرام", icon: Camera },
+  { href: "https://www.linkedin.com", label: "لينكدإن", icon: ExternalLink },
 ];
 
 export function Footer() {
@@ -56,10 +57,10 @@ export function Footer() {
                 طلب استشارة الآن
               </Link>
               <Link
-                href="/paths"
+                href="/courses"
                 className="inline-flex items-center justify-center rounded-2xl border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/80 hover:text-accent"
               >
-                عرض المسارات
+                تصفح الدورات
               </Link>
             </div>
           </div>

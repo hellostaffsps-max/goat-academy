@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, MapPin, Heart, Settings, HeadphonesIcon, Calculator } from "lucide-react";
+import { Home, BookOpen, Newspaper, Heart, Settings, Headphones, Calculator, GraduationCap, Info } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { Footer } from "@/components/layout/Footer";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { StickyCTA } from "@/components/StickyCTA";
 import BrandLogo from "@/components/BrandLogo";
 
 const navItems = [
   { id: "/", label: "الرئيسية", icon: Home },
-  { id: "/explore", label: "استكشف", icon: Search },
+  { id: "/courses", label: "الدورات", icon: GraduationCap },
+  { id: "/blog", label: "المدونة", icon: Newspaper },
   { id: "/tools", label: "الأدوات", icon: Calculator },
-  { id: "/paths", label: "مسارات", icon: MapPin },
+  { id: "/about", label: "من نحن", icon: Info },
   { id: "/favorites", label: "المفضلة", icon: Heart },
   { id: "/settings", label: "الإعدادات", icon: Settings },
 ];
@@ -85,7 +88,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
               href="/consultant"
               className="inline-flex items-center gap-1.5 bg-accent text-accent-foreground text-[10px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg border border-accent/20 transition-all duration-300 hover:opacity-90"
             >
-              <HeadphonesIcon className="w-3.5 h-3.5" />
+              <Headphones className="w-3.5 h-3.5" />
               <span>طلب استشارة</span>
             </Link>
             <div className="hidden sm:block">
@@ -140,6 +143,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
       </main>
 
       <Footer />
+      <WhatsAppButton />
+      <StickyCTA />
 
       {/* Mobile Bottom Navigation */}
       <nav

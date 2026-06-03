@@ -10,7 +10,7 @@ import {
   Store,
   LayoutGrid,
   Heart,
-  CheckCircle,
+  Check,
   Users,
 } from "lucide-react";
 import type { LessonRow, CafeRow } from "@/types/supabase";
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
     {
       label: "دروس مكتملة",
       value: completedLessons.length,
-      icon: CheckCircle,
+      icon: Check,
       color: "text-emerald-600",
       bg: "bg-emerald-500/10",
     },

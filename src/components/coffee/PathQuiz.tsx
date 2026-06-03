@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Trophy, Award, CheckCircle, XCircle, ArrowLeft, Download, RefreshCw } from "lucide-react";
+import { Trophy, Award, CheckCircle2, XCircle, ArrowLeft, Download, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Question {
@@ -476,7 +476,7 @@ export function PathQuiz({ pathId, onClose }: PathQuizProps) {
                       )}
                     >
                       <div className="flex-shrink-0">
-                        {showAnswer && oIdx === currentQuestion.correctAnswer && <CheckCircle className="w-4 h-4 text-emerald-600" />}
+                        {showAnswer && oIdx === currentQuestion.correctAnswer && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
                         {showAnswer && isSelected && oIdx !== currentQuestion.correctAnswer && <XCircle className="w-4 h-4 text-red-600" />}
                       </div>
                       <span className="flex-1 text-right leading-relaxed">{opt}</span>

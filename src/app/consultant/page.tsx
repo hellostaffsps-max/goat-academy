@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Mail, MessageSquare, Sparkles, CheckCircle } from "lucide-react";
+import { ArrowRight, Mail, MessageSquare, Sparkles, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const palestinianCities = [
@@ -127,7 +127,7 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
       {submitted ? (
         <div className="card-premium p-8 text-center space-y-4">
           <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
-            <CheckCircle className="w-6 h-6 text-emerald-600" />
+            <CheckCircle2 className="w-6 h-6 text-emerald-600" />
           </div>
           <h2 className="text-lg font-bold text-foreground">تم إعداد طلبك بنجاح!</h2>
           <p className="text-xs text-muted-foreground leading-relaxed max-w-md mx-auto">
