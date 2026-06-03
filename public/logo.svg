@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="GoatJourney">
+  <defs>
+    <style>
+      .goat-text-serif { font-family: 'Georgia', 'Garamond', serif; font-size: 64px; font-weight: 300; letter-spacing: 1px; }
+      .goat-text-journey { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+      .goat-tm { font-family: 'Arial', sans-serif; font-size: 12px; font-weight: bold; }
+    </style>
+  </defs>
+  
+  <!-- Goat Head -->
+  <g id="goat-head">
+    <!-- Left Horn (curved) -->
+    <path d="M 38 25 Q 28 8, 32 2" stroke="#2d2d2d" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right Horn (curved) -->
+    <path d="M 58 25 Q 68 8, 64 2" stroke="#2d2d2d" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Main Head Shape -->
+    <ellipse cx="48" cy="48" rx="20" ry="24" fill="#2d2d2d"/>
+    
+    <!-- Left Ear -->
+    <ellipse cx="32" cy="38" rx="5" ry="8" fill="#2d2d2d" transform="rotate(-25 32 38)"/>
+    <!-- Right Ear -->
+    <ellipse cx="64" cy="38" rx="5" ry="8" fill="#2d2d2d" transform="rotate(25 64 38)"/>
+    
+    <!-- Face/Snout -->
+    <ellipse cx="48" cy="52" rx="14" ry="16" fill="#1a1a1a"/>
+    
+    <!-- Beard/Chin -->
+    <path d="M 42 65 Q 48 74, 54 65" stroke="#2d2d2d" stroke-width="6" fill="none" stroke-linecap="round"/>
+    
+    <!-- Left nostril -->
+    <circle cx="42" cy="48" r="2" fill="#666"/>
+    <!-- Right nostril -->
+    <circle cx="54" cy="48" r="2" fill="#666"/>
+  </g>
+  
+  <!-- TM Symbol -->
+  <text x="72" y="32" class="goat-tm" fill="#2d2d2d">™</text>
+  
+  <!-- Text: goat -->
+  <text x="90" y="70" class="goat-text-serif" fill="#2d2d2d">goat</text>
+  
+  <!-- Text: JOURNEY -->
+  <text x="90" y="98" class="goat-text-journey" fill="#2d2d2d">JOURNEY</text>
+</svg>

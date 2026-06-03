@@ -1,0 +1,13 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="1200" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F9A8D4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="120" fill="url(#gradient)"/>
+  <circle cx="600" cy="500" r="240" fill="#ffffff" fill-opacity="0.15"/>
+  <path d="M600 340C696.274 340 776 419.726 776 516C776 612.274 696.274 692 600 692C503.726 692 424 612.274 424 516C424 419.726 503.726 340 600 340Z" fill="#ffffff" fill-opacity="0.65"/>
+  <path d="M695 771C695 720.577 657.423 683 607 683H593C542.577 683 505 720.577 505 771V801C505 824.673 525.327 845 549 845H651C674.673 845 695 824.673 695 801V771Z" fill="#ffffff" fill-opacity="0.65"/>
+  <text x="600" y="990" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">صورة شخصية</text>
+</svg>
