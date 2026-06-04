@@ -1,23 +1,33 @@
 import type { Metadata } from "next";
-import { getLessonBySlug } from "@/actions/lessons";
-import { lessons } from "@/data/coffeeData";
+import { getLessonByIdOrSlug } from "@/actions/lessons";
+import { getLessonById } from "@/data/coffeeData";
 import LessonPageClient from "./LessonPageClient";
 
 export function generateStaticParams() {
-  return lessons.map((lesson) => ({
+  const { lessons } = require("@/data/coffeeData");
+  return lessons.map((lesson: any) => ({
     id: lesson.id,
   }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  
+
   // Try Supabase first
   let lesson = null;
   try {
-    lesson = await getLessonBySlug(id);
+    lesson = await getLessonByIdOrSlug(id);
   } catch {
     // fallback handled below
+  }
+
+  // Fallback to local data
+  if (!lesson) {
+    try {
+      lesson = getLessonById(id);
+    } catch {
+      // ignore
+    }
   }
 
   if (!lesson) {
@@ -59,12 +69,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  
+
+  // Try to get lesson from Supabase first
   let lesson = null;
   try {
-    lesson = await getLessonBySlug(id);
+    lesson = await getLessonByIdOrSlug(id);
   } catch {
-    // Will fallback in client
+    // fallback
   }
 
   const jsonLd = lesson

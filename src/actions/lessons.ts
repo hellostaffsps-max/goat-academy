@@ -14,6 +14,7 @@ export interface LessonInput {
   read_time: string;
   difficulty: string;
   content: string;
+  image?: string | null;
 }
 
 export async function getLessons() {
@@ -37,6 +38,37 @@ export async function getLessonBySlug(slug: string) {
 
   if (error) throw error;
   return data;
+}
+
+export async function getLessonByIdOrSlug(idOrSlug: string) {
+  const supabase = await createClient();
+
+  // Try by id first (UUID)
+  const { data: byId, error: idError } = await supabase
+    .from("lessons")
+    .select("*")
+    .eq("id", idOrSlug)
+    .maybeSingle();
+
+  if (byId) return byId;
+
+  // Try by slug
+  const { data: bySlug, error: slugError } = await supabase
+    .from("lessons")
+    .select("*")
+    .eq("slug", idOrSlug)
+    .maybeSingle();
+
+  if (bySlug) return bySlug;
+
+  // Try ilike for slug
+  const { data: bySlugLike, error: slugLikeError } = await supabase
+    .from("lessons")
+    .select("*")
+    .ilike("slug", idOrSlug)
+    .maybeSingle();
+
+  return bySlugLike || null;
 }
 
 export async function createLesson(lesson: LessonInput) {

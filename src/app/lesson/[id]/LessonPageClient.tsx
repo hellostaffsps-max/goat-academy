@@ -40,7 +40,7 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
     isCompleted,
   } = useStore();
 
-  const lesson = lessons.find((l) => l.slug === lessonId) || getLessonById(lessonId);
+  const lesson = lessons.find((l) => l.id === lessonId || l.slug === lessonId) || getLessonById(lessonId);
 
   const nav = lesson ? getLessonNavigation((lesson as any).slug || lesson.id) : null;
 
