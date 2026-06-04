@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, BookOpen, ArrowLeft } from "lucide-react";
+import { Clock, BookOpen, ArrowLeft, Calendar } from "lucide-react";
 import { getCategoryMeta } from "@/lib/categoryMeta";
 
 interface ArticleCardProps {
   id: string;
   title: string;
   category: string;
+  categoryLabel?: string;
   subcategory?: string;
   description: string;
   readTime?: string;
+  date?: string;
   index?: number;
 }
 
@@ -18,18 +20,19 @@ export function ArticleCard({
   id,
   title,
   category,
+  categoryLabel,
   subcategory,
   description,
   readTime,
+  date,
   index = 0,
 }: ArticleCardProps) {
   const meta = getCategoryMeta(category);
-  const CategoryIcon = meta.icon;
-  const displayCategory = subcategory || category;
+  const displayCategory = categoryLabel || subcategory || category;
 
   return (
     <Link
-      href={`/lesson/${id}`}
+      href={`/blog/${id}`}
       className="card-premium group flex flex-col h-full"
       style={{ animationDelay: `${index * 0.05}s` }}
     >
@@ -49,6 +52,12 @@ export function ArticleCard({
             <Clock className="w-3 h-3" />
             {readTime || "١٠ دقيقة"}
           </span>
+          {date && (
+            <span className="tag tag-slate flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              {new Date(date).toLocaleDateString("ar-EG")}
+            </span>
+          )}
         </div>
 
         {/* Title */}

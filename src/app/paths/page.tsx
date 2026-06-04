@@ -17,6 +17,7 @@ import {
   Lock,
 } from "lucide-react";
 import { PathQuiz } from "@/components/coffee/PathQuiz";
+import { BadgeCollection } from "@/components/badges/BadgeDisplay";
 import { cn } from "@/lib/utils";
 
 export default function PathsPage() {
@@ -181,6 +182,11 @@ export default function PathsPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Badges */}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <BadgeCollection />
       </div>
 
       {/* Summary */}

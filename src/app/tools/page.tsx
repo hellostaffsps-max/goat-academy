@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Calculator, Coffee, BarChart, ArrowLeft, RotateCcw, CheckCircle2 } from "lucide-react";
+import { useStore } from "@/store/useStore";
+import RecipeCalculator from "@/components/tools/RecipeCalculator";
+import GrindConverter from "@/components/tools/GrindConverter";
+import DailyChecklist from "@/components/tools/DailyChecklist";
 
 // Exchange rate: 1 USD ≈ 3.7 ILS
 const USD_TO_ILS = 3.7;
@@ -264,6 +268,25 @@ function CoffeePersonalityQuiz() {
   );
 }
 
+// Tool wrapper with tracking
+function TrackedTool({ toolId, children }: { toolId: string; children: React.ReactNode }) {
+  const { trackToolUsage } = useStore();
+  const [tracked, setTracked] = useState(false);
+
+  const handleInteract = useCallback(() => {
+    if (!tracked) {
+      trackToolUsage(toolId);
+      setTracked(true);
+    }
+  }, [tracked, toolId, trackToolUsage]);
+
+  return (
+    <div onClick={handleInteract} onInput={handleInteract}>
+      {children}
+    </div>
+  );
+}
+
 export default function ToolsPage() {
   return (
     <div className="animate-fade-in space-y-8 pb-8">
@@ -281,10 +304,33 @@ export default function ToolsPage() {
 
       {/* Tools Grid */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <CafeCostCalculator />
-        <DrinkPricingCalculator />
-        <ExtractionCalculator />
-        <CoffeePersonalityQuiz />
+        <TrackedTool toolId="cafe-cost">
+          <CafeCostCalculator />
+        </TrackedTool>
+
+        <TrackedTool toolId="drink-pricing">
+          <DrinkPricingCalculator />
+        </TrackedTool>
+
+        <TrackedTool toolId="extraction">
+          <ExtractionCalculator />
+        </TrackedTool>
+
+        <TrackedTool toolId="recipe-calculator">
+          <RecipeCalculator />
+        </TrackedTool>
+
+        <TrackedTool toolId="grind-converter">
+          <GrindConverter />
+        </TrackedTool>
+
+        <TrackedTool toolId="daily-checklist">
+          <DailyChecklist />
+        </TrackedTool>
+
+        <TrackedTool toolId="personality-quiz">
+          <CoffeePersonalityQuiz />
+        </TrackedTool>
       </section>
     </div>
   );

@@ -1,40 +1,38 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BookOpen, Tag } from "lucide-react";
-import { useSupabaseLessons } from "@/hooks/useSupabaseData";
+import { BookOpen, Tag, Newspaper, Trophy, Lightbulb, BarChart3, Globe } from "lucide-react";
+import { articles, blogCategories } from "@/data/blogData";
 import { ArticleCard } from "@/components/cards/ArticleCard";
 
-const blogCategories = [
-  { id: "all", label: "الكل" },
-  { id: "costing", label: "تأسيس" },
-  { id: "cafe", label: "تشغيل" },
-  { id: "equipment", label: "معدات" },
-  { id: "drinks", label: "قهوة" },
-  { id: "beans", label: "بن" },
-  { id: "homebrew", label: "تحضير" },
-];
+const categoryIcons: Record<string, React.ReactNode> = {
+  all: <Tag className="w-3.5 h-3.5" />,
+  news: <Newspaper className="w-3.5 h-3.5" />,
+  success: <Trophy className="w-3.5 h-3.5" />,
+  tips: <Lightbulb className="w-3.5 h-3.5" />,
+  "case-study": <BarChart3 className="w-3.5 h-3.5" />,
+  exploration: <Globe className="w-3.5 h-3.5" />,
+};
 
 export default function BlogPage() {
-  const { lessons, loading } = useSupabaseLessons();
   const [activeCategory, setActiveCategory] = useState("all");
 
-  const articles = useMemo(() => {
-    if (activeCategory === "all") return lessons;
-    return lessons.filter((lesson) => lesson.category === activeCategory);
-  }, [lessons, activeCategory]);
+  const filteredArticles = useMemo(() => {
+    if (activeCategory === "all") return articles;
+    return articles.filter((article) => article.category === activeCategory);
+  }, [activeCategory]);
 
   return (
     <div className="animate-fade-in space-y-8">
       {/* Header */}
       <section className="text-center py-8">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium mb-4 border border-accent/20">
-          <Tag className="w-3.5 h-3.5" />
+          <Newspaper className="w-3.5 h-3.5" />
           المدونة
         </div>
         <h1 className="heading-xl mb-3">نصائح وإرشادات من خبرتنا</h1>
         <p className="body-base text-muted-foreground max-w-xl mx-auto">
-          مقالات تساعدك في اتخاذ قرارات أفضل في رحلتك
+          مقالات حصرية: قصص نجاح، نصائح أسبوعية، أخبار صناعة القهوة، ودراسات حالة
         </p>
       </section>
 
@@ -45,52 +43,52 @@ export default function BlogPage() {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center gap-1.5 ${
                 activeCategory === cat.id
                   ? "bg-accent text-white border-accent"
                   : "bg-card text-muted-foreground border-border hover:border-accent/40 hover:text-foreground"
               }`}
             >
+              {categoryIcons[cat.id]}
               {cat.label}
             </button>
           ))}
         </div>
       </section>
 
-      {/* Loading */}
-      {loading && (
-        <div className="text-center py-12">
-          <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">جاري التحميل...</p>
-        </div>
-      )}
-
       {/* Articles */}
-      {!loading && (
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {articles.length === 0 ? (
-            <div className="text-center py-12">
-              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">لا توجد مقالات مطابقة للتصنيف المحدد</p>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {articles.map((article, i) => (
-                <ArticleCard
-                  key={article.id}
-                  id={article.id}
-                  title={article.title}
-                  category={article.category}
-                  subcategory={article.subcategory}
-                  description={article.description}
-                  readTime={article.readTime}
-                  index={i}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs text-muted-foreground">
+            {filteredArticles.length} مقال
+          </span>
+          <h2 className="text-sm font-bold text-foreground">المقالات</h2>
+        </div>
+
+        {filteredArticles.length === 0 ? (
+          <div className="text-center py-12">
+            <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground">لا توجد مقالات مطابقة للتصنيف المحدد</p>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredArticles.map((article, i) => (
+              <ArticleCard
+                key={article.id}
+                id={article.id}
+                title={article.title}
+                category={article.category}
+                categoryLabel={article.categoryLabel}
+                subcategory={article.categoryLabel}
+                description={article.description}
+                readTime={article.readTime}
+                date={article.date}
+                index={i}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

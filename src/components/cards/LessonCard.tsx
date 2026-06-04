@@ -14,6 +14,8 @@ interface LessonCardProps {
   readTime?: string;
   difficulty?: string;
   index?: number;
+  lessonIndex?: number;
+  totalLessons?: number;
 }
 
 export function LessonCard({
@@ -25,6 +27,8 @@ export function LessonCard({
   readTime,
   difficulty,
   index = 0,
+  lessonIndex,
+  totalLessons,
 }: LessonCardProps) {
   const meta = getCategoryMeta(category);
   const LevelIcon = meta.icon;
@@ -51,6 +55,11 @@ export function LessonCard({
         <div className="flex items-center gap-2 mb-2.5 flex-wrap">
           <span className="tag tag-accent">{displayCategory}</span>
           <span className={`tag ${levelClass}`}>{levelLabels[level]}</span>
+          {typeof lessonIndex === "number" && typeof totalLessons === "number" && (
+            <span className="tag bg-slate-50 text-slate-600 border-slate-200">
+              درس {lessonIndex} من {totalLessons}
+            </span>
+          )}
         </div>
 
         {/* Title */}

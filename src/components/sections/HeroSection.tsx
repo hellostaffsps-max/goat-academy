@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Play, MessageSquare, Coffee, Award, Clock, BookOpen, Wrench } from "lucide-react";
+import { ArrowLeft, Play, MessageSquare, Coffee, Award, Clock, BookOpen, Wrench, TrendingUp, Users } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useEffect, useRef, useState } from "react";
 
 const defaultFeatures = [
   { icon: "Award", title: "Q Grader معتمد", description: "مؤسس الأكاديمية حاصل على شهادة Coffee Quality Institute العالمية" },
@@ -26,9 +27,51 @@ const defaultContent = {
   features: defaultFeatures,
 };
 
+// Live stats data
+const liveStats = [
+  { icon: BookOpen, value: 80, suffix: "+", label: "درس تعليمي" },
+  { icon: TrendingUp, value: 3, suffix: "", label: "مسار تعليمي" },
+  { icon: Wrench, value: 7, suffix: "", label: "أداة تفاعلية" },
+  { icon: Users, value: 150, suffix: "+", label: "متعلم نشط" },
+];
+
+function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const start = performance.now();
+          const duration = 2000;
+          const animate = (now: number) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * target));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
 export function HeroSection() {
   const { content } = useSiteContent("hero_section", defaultContent);
-
   const features = content.features || defaultFeatures;
 
   return (
@@ -67,14 +110,35 @@ export function HeroSection() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-slide-up stagger-4">
+          {/* Live Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8 animate-slide-up stagger-4">
+            {liveStats.map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.label}
+                  className="bg-card/80 backdrop-blur-sm border border-border/60 rounded-2xl p-4 text-center hover:border-accent/30 transition-colors"
+                  style={{ animationDelay: `${0.4 + i * 0.05}s` }}
+                >
+                  <Icon className="w-5 h-5 text-accent mx-auto mb-2" />
+                  <div className="text-xl font-bold text-foreground">
+                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Feature Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-slide-up stagger-5">
             {features.map((feature, i) => {
               const Icon = iconMap[feature.icon] || Award;
               return (
                 <div
                   key={feature.title}
                   className="bg-card/80 backdrop-blur-sm border border-border/60 rounded-2xl p-4 text-center hover:border-accent/30 transition-colors"
-                  style={{ animationDelay: `${0.4 + i * 0.05}s` }}
+                  style={{ animationDelay: `${0.6 + i * 0.05}s` }}
                 >
                   <Icon className="w-5 h-5 text-accent mx-auto mb-2" />
                   <div className="text-sm font-bold text-foreground">{feature.title}</div>

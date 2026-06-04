@@ -9,6 +9,7 @@ import {
   getUserSettings,
   updateUserSettings,
 } from "@/actions/user-data";
+import { checkBadges } from "@/lib/badges";
 
 interface AppState {
   // Favorites
@@ -28,6 +29,19 @@ interface AppState {
   completedLessons: string[];
   toggleCompleted: (id: string) => Promise<void>;
   isCompleted: (id: string) => boolean;
+
+  // Badges / Achievements
+  badges: string[];
+  awardBadges: () => void;
+  hasBadge: (id: string) => boolean;
+
+  // Quiz tracking
+  quizPassed: string[];
+  markQuizPassed: (pathId: string) => void;
+
+  // Tool usage tracking
+  toolsUsed: string[];
+  trackToolUsage: (toolId: string) => void;
 
   // Daily plan progress
   dailyProgress: number;
@@ -51,6 +65,9 @@ export const useStore = create<AppState>()((set, get) => ({
   searchQuery: "",
   selectedCategory: null,
   completedLessons: [],
+  badges: [],
+  quizPassed: [],
+  toolsUsed: [],
   dailyProgress: 0,
   settings: {
     fontSize: "medium",
@@ -84,22 +101,69 @@ export const useStore = create<AppState>()((set, get) => ({
   toggleCompleted: async (id) => {
     try {
       const isNowCompleted = await toggleUserProgress(id);
-      set((state) => ({
-        completedLessons: isNowCompleted
+      set((state) => {
+        const completedLessons = isNowCompleted
           ? [...state.completedLessons, id]
-          : state.completedLessons.filter((c) => c !== id),
-      }));
+          : state.completedLessons.filter((c) => c !== id);
+        // Re-check badges after completion
+        const newBadges = checkBadges({
+          completedLessons,
+          quizPassed: state.quizPassed,
+          toolsUsed: state.toolsUsed,
+        });
+        return { completedLessons, badges: newBadges };
+      });
     } catch {
       // Fallback: if not authenticated, toggle locally only
-      set((state) => ({
-        completedLessons: state.completedLessons.includes(id)
+      set((state) => {
+        const completedLessons = state.completedLessons.includes(id)
           ? state.completedLessons.filter((c) => c !== id)
-          : [...state.completedLessons, id],
-      }));
+          : [...state.completedLessons, id];
+        const newBadges = checkBadges({
+          completedLessons,
+          quizPassed: state.quizPassed,
+          toolsUsed: state.toolsUsed,
+        });
+        return { completedLessons, badges: newBadges };
+      });
     }
   },
 
   isCompleted: (id) => get().completedLessons.includes(id),
+
+  awardBadges: () => {
+    const { completedLessons, quizPassed, toolsUsed } = get();
+    const newBadges = checkBadges({ completedLessons, quizPassed, toolsUsed });
+    set({ badges: newBadges });
+  },
+
+  hasBadge: (id) => get().badges.includes(id),
+
+  markQuizPassed: (pathId) => {
+    set((state) => {
+      if (state.quizPassed.includes(pathId)) return state;
+      const quizPassed = [...state.quizPassed, pathId];
+      const newBadges = checkBadges({
+        completedLessons: state.completedLessons,
+        quizPassed,
+        toolsUsed: state.toolsUsed,
+      });
+      return { quizPassed, badges: newBadges };
+    });
+  },
+
+  trackToolUsage: (toolId) => {
+    set((state) => {
+      if (state.toolsUsed.includes(toolId)) return state;
+      const toolsUsed = [...state.toolsUsed, toolId];
+      const newBadges = checkBadges({
+        completedLessons: state.completedLessons,
+        quizPassed: state.quizPassed,
+        toolsUsed,
+      });
+      return { toolsUsed, badges: newBadges };
+    });
+  },
 
   setDailyProgress: (n) => set({ dailyProgress: n }),
 
@@ -123,9 +187,15 @@ export const useStore = create<AppState>()((set, get) => ({
         getUserProgress(),
         getUserSettings(),
       ]);
+      const badges = checkBadges({
+        completedLessons: progress,
+        quizPassed: get().quizPassed,
+        toolsUsed: get().toolsUsed,
+      });
       set({
         favorites,
         completedLessons: progress,
+        badges,
         settings: settings
           ? {
               fontSize: settings.font_size as "small" | "medium" | "large",
@@ -142,6 +212,9 @@ export const useStore = create<AppState>()((set, get) => ({
     set({
       favorites: [],
       completedLessons: [],
+      badges: [],
+      quizPassed: [],
+      toolsUsed: [],
       dailyProgress: 0,
       settings: { fontSize: "medium", reducedMotion: false },
     }),

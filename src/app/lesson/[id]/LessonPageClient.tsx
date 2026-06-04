@@ -6,6 +6,12 @@ import { getLessonById } from "@/data/coffeeData";
 import { useSupabaseLessons } from "@/hooks/useSupabaseData";
 import { LessonContent } from "@/components/lesson/LessonContent";
 import {
+  LessonProgressBar,
+  LessonPrevNext,
+  BackToPath,
+} from "@/components/lesson/LessonNavigation";
+import { getLessonNavigation } from "@/lib/lessonNavigation";
+import {
   Heart,
   Clock,
   Star,
@@ -35,6 +41,8 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
   } = useStore();
 
   const lesson = lessons.find((l) => l.id === lessonId) || getLessonById(lessonId);
+
+  const nav = lesson ? getLessonNavigation(lesson.id) : null;
 
   if (!lesson) {
     return (
@@ -74,10 +82,12 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
           </div>
 
           <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
-            <div className={cn(
-              "w-12 h-12 rounded-xl flex items-center justify-center mb-1 bg-gradient-to-br",
-              currentMeta.gradient
-            )}>
+            <div
+              className={cn(
+                "w-12 h-12 rounded-xl flex items-center justify-center mb-1 bg-gradient-to-br",
+                currentMeta.gradient
+              )}
+            >
               <CurrentIcon className="w-5 h-5 text-foreground/75" strokeWidth={1.5} />
             </div>
             <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
@@ -122,6 +132,11 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
             <span className="text-[9px] text-accent-foreground bg-accent/10 px-2 py-0.5 rounded-full font-medium">
               {lesson.subcategory}
             </span>
+            {nav && nav.totalLessons > 0 && (
+              <span className="text-[9px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-medium">
+                درس {nav.lessonIndex} من {nav.totalLessons}
+              </span>
+            )}
           </div>
           <h1 className="text-base font-bold text-foreground mb-1 leading-tight">
             {lesson.title}
@@ -147,6 +162,15 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
 
       {/* Content */}
       <div className="px-4 mt-4 space-y-4">
+        {/* Progress Bar */}
+        {nav && nav.totalLessons > 0 && (
+          <LessonProgressBar
+            lessonIndex={nav.lessonIndex}
+            totalLessons={nav.totalLessons}
+            pathName={nav.pathName}
+          />
+        )}
+
         {lesson.content ? (
           <div className="bg-card border border-border rounded-xl p-5 text-right">
             <LessonContent content={lesson.content} />
@@ -185,6 +209,14 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
           )}
         </button>
 
+        {/* Prev / Next Navigation */}
+        {nav && (nav.prev || nav.next) && (
+          <LessonPrevNext prev={nav.prev} next={nav.next} />
+        )}
+
+        {/* Back to Paths */}
+        {nav && <BackToPath pathId={nav.pathId} />}
+
         {/* Related Lessons */}
         {relatedLessons.length > 0 && (
           <div className="mt-6">
@@ -211,10 +243,12 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
                         {rl.description}
                       </p>
                     </div>
-                    <div className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br transition-transform duration-300 group-hover:scale-105",
-                      rlMeta.gradient
-                    )}>
+                    <div
+                      className={cn(
+                        "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br transition-transform duration-300 group-hover:scale-105",
+                        rlMeta.gradient
+                      )}
+                    >
                       <RlIcon className="w-4 h-4 text-foreground/70" strokeWidth={1.5} />
                     </div>
                   </button>
