@@ -63,10 +63,19 @@ export default function AboutPage() {
             <div className="relative rounded-3xl overflow-hidden aspect-[4/5] max-w-sm mx-auto border border-border/60 shadow-xl">
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10" />
               <Image
-                src="/master-logo.png"
+                src="/images/founder.jpg"
                 alt="يوسف خليل — مؤسس أكاديمية القهوة"
                 fill
                 className="object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = "none";
+                  target.parentElement?.classList.add("bg-gradient-to-br", "from-accent/20", "to-accent/5", "flex", "items-center", "justify-center");
+                  const fallback = document.createElement("div");
+                  fallback.className = "text-6xl font-bold text-accent/40 select-none";
+                  fallback.textContent = "Y";
+                  target.parentElement?.appendChild(fallback);
+                }}
               />
             </div>
             <div className="absolute -bottom-4 right-4 sm:right-8 bg-card border border-border rounded-2xl px-4 py-3 shadow-lg z-20">

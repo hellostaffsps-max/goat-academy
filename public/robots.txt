@@ -1,0 +1,16 @@
+# GoatJourney Academy - robots.txt
+# https://www.goatjourney.online
+
+User-Agent: *
+Allow: /
+Disallow: /settings
+Disallow: /admin
+Disallow: /api/
+Disallow: /auth/
+Disallow: /favorites
+
+# Sitemap
+Sitemap: https://www.goatjourney.online/sitemap.xml
+
+# Crawl-delay لمنع الضغط على السيرفر
+Crawl-delay: 1

@@ -29,10 +29,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: `${lesson.title} | GoatJourney Academy`,
     description: lesson.description,
+    alternates: {
+      canonical: `/lesson/${id}`,
+    },
     openGraph: {
       title: lesson.title,
       description: lesson.description,
       type: "article",
+      url: `https://www.goatjourney.online/lesson/${id}`,
     },
   };
 }
@@ -56,7 +60,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         inLanguage: "ar",
         educationalLevel: lesson.difficulty || "مبتدئ",
         learningResourceType: "Lesson",
-        url: `https://goatjourney.com/lesson/${id}`,
+        url: `https://www.goatjourney.online/lesson/${id}`,
       }
     : null;
 

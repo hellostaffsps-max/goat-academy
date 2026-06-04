@@ -1,32 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { Calculator, FlaskConical, Coffee, BarChart3, ArrowLeft, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Calculator, Coffee, BarChart, ArrowLeft, RotateCcw, CheckCircle2 } from "lucide-react";
+
+// Exchange rate: 1 USD ≈ 3.7 ILS
+const USD_TO_ILS = 3.7;
+
+function formatShekel(value: number): string {
+  return `₪${Math.round(value).toLocaleString("ar-EG")}`;
+}
 
 // --- Calculator: Cafe Opening Cost ---
 function CafeCostCalculator() {
-  const [equipment, setEquipment] = useState(15000);
-  const [furniture, setFurniture] = useState(8000);
-  const [rent, setRent] = useState(5000);
-  const [licenses, setLicenses] = useState(2000);
-  const [marketing, setMarketing] = useState(3000);
-  const [workingCapital, setWorkingCapital] = useState(10000);
+  const [equipment, setEquipment] = useState(Math.round(15000 * USD_TO_ILS));
+  const [furniture, setFurniture] = useState(Math.round(8000 * USD_TO_ILS));
+  const [rent, setRent] = useState(Math.round(5000 * USD_TO_ILS));
+  const [licenses, setLicenses] = useState(Math.round(2000 * USD_TO_ILS));
+  const [marketing, setMarketing] = useState(Math.round(3000 * USD_TO_ILS));
+  const [workingCapital, setWorkingCapital] = useState(Math.round(10000 * USD_TO_ILS));
 
   const total = equipment + furniture + rent + licenses + marketing + workingCapital;
 
   const reset = () => {
-    setEquipment(15000);
-    setFurniture(8000);
-    setRent(5000);
-    setLicenses(2000);
-    setMarketing(3000);
-    setWorkingCapital(10000);
+    setEquipment(Math.round(15000 * USD_TO_ILS));
+    setFurniture(Math.round(8000 * USD_TO_ILS));
+    setRent(Math.round(5000 * USD_TO_ILS));
+    setLicenses(Math.round(2000 * USD_TO_ILS));
+    setMarketing(Math.round(3000 * USD_TO_ILS));
+    setWorkingCapital(Math.round(10000 * USD_TO_ILS));
   };
 
   const Slider = ({ label, value, set, min, max }: { label: string; value: number; set: (v: number) => void; min: number; max: number }) => (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-xs font-bold text-accent">${value.toLocaleString()}</span>
+        <span className="text-xs font-bold text-accent">{formatShekel(value)}</span>
         <span className="text-xs text-muted-foreground">{label}</span>
       </div>
       <input
@@ -52,17 +59,17 @@ function CafeCostCalculator() {
       </div>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <Slider label="المعدات" value={equipment} set={setEquipment} min={5000} max={50000} />
-          <Slider label="الأثاث والديكور" value={furniture} set={setFurniture} min={2000} max={30000} />
-          <Slider label="الإيجار والتأمين" value={rent} set={setRent} min={1000} max={20000} />
-          <Slider label="التراخيص" value={licenses} set={setLicenses} min={500} max={10000} />
-          <Slider label="التسويق" value={marketing} set={setMarketing} min={500} max={15000} />
-          <Slider label="رأس المال العامل" value={workingCapital} set={setWorkingCapital} min={2000} max={50000} />
+          <Slider label="المعدات" value={equipment} set={setEquipment} min={Math.round(5000 * USD_TO_ILS)} max={Math.round(50000 * USD_TO_ILS)} />
+          <Slider label="الأثاث والديكور" value={furniture} set={setFurniture} min={Math.round(2000 * USD_TO_ILS)} max={Math.round(30000 * USD_TO_ILS)} />
+          <Slider label="الإيجار والتأمين" value={rent} set={setRent} min={Math.round(1000 * USD_TO_ILS)} max={Math.round(20000 * USD_TO_ILS)} />
+          <Slider label="التراخيص" value={licenses} set={setLicenses} min={Math.round(500 * USD_TO_ILS)} max={Math.round(10000 * USD_TO_ILS)} />
+          <Slider label="التسويق" value={marketing} set={setMarketing} min={Math.round(500 * USD_TO_ILS)} max={Math.round(15000 * USD_TO_ILS)} />
+          <Slider label="رأس المال العامل" value={workingCapital} set={setWorkingCapital} min={Math.round(2000 * USD_TO_ILS)} max={Math.round(50000 * USD_TO_ILS)} />
         </div>
         <div className="flex flex-col justify-center items-center text-center p-6 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
           <p className="text-xs text-muted-foreground mb-2">التكلفة الإجمالية التقديرية</p>
           <div className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-            ${total.toLocaleString()}
+            {formatShekel(total)}
           </div>
           <p className="text-[10px] text-muted-foreground">
             هذه التقديرات تقريبية وتختلف حسب الموقع والحجم
@@ -75,7 +82,7 @@ function CafeCostCalculator() {
 
 // --- Calculator: Drink Pricing ---
 function DrinkPricingCalculator() {
-  const [cost, setCost] = useState(2);
+  const [cost, setCost] = useState(8);
   const [targetMargin, setTargetMargin] = useState(65);
 
   const price = cost / (1 - targetMargin / 100);
@@ -89,10 +96,10 @@ function DrinkPricingCalculator() {
         <div>
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-accent">${cost}</span>
+              <span className="text-xs font-bold text-accent">₪{cost}</span>
               <span className="text-xs text-muted-foreground">تكلفة المشروب</span>
             </div>
-            <input type="range" min={0.5} max={10} step={0.1} value={cost} onChange={(e) => setCost(Number(e.target.value))} className="w-full h-1.5 rounded-full bg-secondary accent-accent appearance-none cursor-pointer" />
+            <input type="range" min={2} max={40} step={1} value={cost} onChange={(e) => setCost(Number(e.target.value))} className="w-full h-1.5 rounded-full bg-secondary accent-accent appearance-none cursor-pointer" />
           </div>
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1.5">
@@ -105,10 +112,10 @@ function DrinkPricingCalculator() {
         <div className="flex flex-col justify-center items-center text-center p-6 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20">
           <p className="text-xs text-muted-foreground mb-2">السعر المقترح</p>
           <div className="text-3xl sm:text-4xl font-bold text-foreground mb-1">
-            ${price.toFixed(2)}
+            ₪{price.toFixed(2)}
           </div>
           <p className="text-xs text-accent font-semibold mb-1">
-            ربح: ${profit.toFixed(2)} ({marginPercent}%)
+            ربح: ₪{profit.toFixed(2)} ({marginPercent}%)
           </p>
           <p className="text-[10px] text-muted-foreground">
             السعر النهائي يعتمد على السوق المستهدف
