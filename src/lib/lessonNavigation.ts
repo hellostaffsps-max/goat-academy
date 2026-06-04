@@ -9,10 +9,10 @@ export interface LessonNavigation {
   pathId: string | null;
 }
 
-export function getLessonNavigation(lessonId: string): LessonNavigation {
+export function getLessonNavigation(lessonSlug: string): LessonNavigation {
   // Find which path contains this lesson
   for (const path of learningPaths) {
-    const idx = path.lessons.indexOf(lessonId);
+    const idx = path.lessons.indexOf(lessonSlug);
     if (idx !== -1) {
       const prev =
         idx > 0
@@ -44,12 +44,12 @@ export function getLessonNavigation(lessonId: string): LessonNavigation {
   }
 
   // If not in any path, try to find by category order
-  const lesson = lessons.find((l) => l.id === lessonId);
+  const lesson = lessons.find((l) => l.id === lessonSlug || (l as any).slug === lessonSlug);
   if (lesson) {
     const categoryLessons = lessons.filter(
       (l) => l.category === lesson.category
     );
-    const idx = categoryLessons.findIndex((l) => l.id === lessonId);
+    const idx = categoryLessons.findIndex((l) => l.id === lessonSlug || (l as any).slug === lessonSlug);
     const prev =
       idx > 0
         ? { id: categoryLessons[idx - 1].id, title: categoryLessons[idx - 1].title }

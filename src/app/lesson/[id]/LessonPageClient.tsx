@@ -40,9 +40,9 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
     isCompleted,
   } = useStore();
 
-  const lesson = lessons.find((l) => l.id === lessonId) || getLessonById(lessonId);
+  const lesson = lessons.find((l) => l.slug === lessonId) || getLessonById(lessonId);
 
-  const nav = lesson ? getLessonNavigation(lesson.id) : null;
+  const nav = lesson ? getLessonNavigation((lesson as any).slug || lesson.id) : null;
 
   if (!lesson) {
     return (
@@ -58,8 +58,8 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
     );
   }
 
-  const completed = isCompleted(lesson.id);
-  const fav = isFavorite(lesson.id);
+  const completed = isCompleted((lesson as any).slug || lesson.id);
+  const fav = isFavorite((lesson as any).slug || lesson.id);
 
   // Get related lessons from same category
   const relatedLessons = lessons
@@ -105,7 +105,7 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
           </button>
           {/* Favorite */}
           <button
-            onClick={() => toggleFavorite(lesson.id)}
+            onClick={() => toggleFavorite((lesson as any).slug || lesson.id)}
             aria-label={fav ? "إزالة من المفضلة" : "إضافة للمفضلة"}
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-background/80 backdrop-blur-md border border-border flex items-center justify-center hover:bg-background transition-all shadow-xs"
           >
