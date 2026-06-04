@@ -145,10 +145,10 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
             {lesson.description}
           </p>
           <div className="flex items-center gap-4 mt-3 justify-end border-t border-border/50 pt-3">
-            {lesson.readTime && (
+            {((lesson as any).read_time || (lesson as any).readTime) && (
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <Clock className="w-3 h-3" />
-                {lesson.readTime}
+                {(lesson as any).read_time || (lesson as any).readTime}
               </span>
             )}
             <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">

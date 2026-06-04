@@ -32,7 +32,7 @@ export function BlogSection() {
               category={article.category}
               subcategory={article.subcategory}
               description={article.description}
-              readTime={article.readTime}
+              readTime={article.read_time}
               index={i}
             />
           ))}

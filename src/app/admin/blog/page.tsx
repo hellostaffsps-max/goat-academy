@@ -2,94 +2,101 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  getLessons,
-  createLesson,
-  updateLesson,
-  deleteLesson,
-} from "@/actions/lessons";
-import { categories } from "@/data/coffeeData";
+  getArticles,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+} from "@/actions/articles";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Plus, Pencil, Trash2, X, Search } from "lucide-react";
-import type { LessonRow } from "@/types/supabase";
+import type { ArticleRow } from "@/types/supabase";
 
-const emptyLesson = {
+const emptyArticle = {
   slug: "",
   title: "",
-  category: categories[0].id,
-  subcategory: "",
   description: "",
-  rating: 4.5,
-  tags: [] as string[],
-  read_time: "",
-  difficulty: "",
   content: "",
+  category: "tips",
+  category_label: "💡 نصائح سريعة",
+  tags: [] as string[],
+  read_time: "5 دقائق",
+  date: new Date().toISOString().split("T")[0],
+  author: "وائل أرزيقات",
   image: null as string | null,
 };
 
-export default function AdminLessonsPage() {
-  const [lessons, setLessons] = useState<LessonRow[]>([]);
+const categoryOptions = [
+  { value: "news", label: "📰 أخبار القهوة" },
+  { value: "success", label: "🏆 قصص النجاح" },
+  { value: "tips", label: "💡 نصائح سريعة" },
+  { value: "case-study", label: "📊 دراسات حالة" },
+  { value: "exploration", label: "🌍 رحلات استكشاف" },
+];
+
+export default function AdminBlogPage() {
+  const [articles, setArticles] = useState<ArticleRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState(emptyLesson);
+  const [form, setForm] = useState(emptyArticle);
   const [tagInput, setTagInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchLessons = useCallback(async () => {
+  const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getLessons();
-      setLessons(data);
+      const data = await getArticles();
+      setArticles(data);
     } catch (err) {
       console.error(err);
-      alert("فشل تحميل الدروس");
+      alert("فشل تحميل المقالات");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchLessons();
-  }, [fetchLessons]);
+    fetchArticles();
+  }, [fetchArticles]);
 
-  const filtered = lessons.filter(
-    (l) =>
-      l.title.includes(search) ||
-      l.subcategory.includes(search) ||
-      l.description.includes(search)
+  const filtered = articles.filter(
+    (a) =>
+      a.title.includes(search) ||
+      a.description.includes(search) ||
+      a.category_label.includes(search)
   );
 
   const openAdd = () => {
     setEditingId(null);
-    setForm(emptyLesson);
+    setForm(emptyArticle);
     setTagInput("");
     setShowForm(true);
   };
 
-  const openEdit = (lesson: LessonRow) => {
-    setEditingId(lesson.id);
+  const openEdit = (article: ArticleRow) => {
+    setEditingId(article.id);
     setForm({
-      slug: lesson.slug,
-      title: lesson.title,
-      category: lesson.category,
-      subcategory: lesson.subcategory,
-      description: lesson.description,
-      rating: lesson.rating,
-      tags: lesson.tags || [],
-      read_time: lesson.read_time || "",
-      difficulty: lesson.difficulty || "",
-      content: lesson.content,
-      image: lesson.image,
+      slug: article.slug,
+      title: article.title,
+      description: article.description,
+      content: article.content,
+      category: article.category,
+      category_label: article.category_label,
+      tags: article.tags || [],
+      read_time: article.read_time || "",
+      date: article.date || "",
+      author: article.author || "",
+      image: article.image,
     });
-    setTagInput((lesson.tags || []).join(", "));
+    setTagInput((article.tags || []).join(", "));
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setForm(emptyLesson);
+    setForm(emptyArticle);
     setTagInput("");
   };
 
@@ -102,29 +109,29 @@ export default function AdminLessonsPage() {
         tags: tagInput.split(",").map((t) => t.trim()).filter(Boolean),
       };
       if (editingId) {
-        await updateLesson(editingId, data);
+        await updateArticle(editingId, data);
       } else {
         if (!data.slug) data.slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
-        await createLesson(data);
+        await createArticle(data);
       }
-      await fetchLessons();
+      await fetchArticles();
       closeForm();
     } catch (err) {
       console.error(err);
-      alert("فشل حفظ الدرس");
+      alert("فشل حفظ المقال");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا الدرس؟")) return;
+    if (!confirm("هل أنت متأكد من حذف هذا المقال؟")) return;
     try {
-      await deleteLesson(id);
-      await fetchLessons();
+      await deleteArticle(id);
+      await fetchArticles();
     } catch (err) {
       console.error(err);
-      alert("فشل حذف الدرس");
+      alert("فشل حذف المقال");
     }
   };
 
@@ -137,7 +144,7 @@ export default function AdminLessonsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="بحث في الدروس..."
+            placeholder="بحث في المقالات..."
             className="w-full pr-9 pl-4 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
@@ -146,7 +153,7 @@ export default function AdminLessonsPage() {
           className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" />
-          درس جديد
+          مقال جديد
         </button>
       </div>
 
@@ -161,42 +168,36 @@ export default function AdminLessonsPage() {
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الصورة</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">العنوان</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">التصنيف</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">التقييم</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">الوقت</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">التاريخ</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((lesson) => (
-                  <tr key={lesson.id} className="hover:bg-secondary/20 transition-colors">
+                {filtered.map((article) => (
+                  <tr key={article.id} className="hover:bg-secondary/20 transition-colors">
                     <td className="px-4 py-3">
-                      {lesson.image ? (
-                        <img src={lesson.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                      {article.image ? (
+                        <img src={article.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">لا توجد</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-foreground">{lesson.title}</div>
-                      <div className="text-xs text-muted-foreground truncate max-w-[200px]">{lesson.description}</div>
+                      <div className="font-medium text-foreground">{article.title}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px]">{article.description}</div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{lesson.subcategory}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 text-xs">
-                        {lesson.rating}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{lesson.read_time}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{article.category_label}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{article.date}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => openEdit(lesson)}
+                          onClick={() => openEdit(article)}
                           className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(lesson.id)}
+                          onClick={() => handleDelete(article.id)}
                           className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -207,7 +208,7 @@ export default function AdminLessonsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                       لا توجد نتائج
                     </td>
                   </tr>
@@ -223,7 +224,7 @@ export default function AdminLessonsPage() {
           <div className="bg-card border border-border rounded-2xl shadow-xl w-full max-w-3xl my-8 animate-slide-up">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h2 className="text-base font-bold text-foreground">
-                {editingId ? "تعديل الدرس" : "درس جديد"}
+                {editingId ? "تعديل المقال" : "مقال جديد"}
               </h2>
               <button onClick={closeForm} className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
                 <X className="w-4 h-4" />
@@ -233,12 +234,11 @@ export default function AdminLessonsPage() {
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الslug (رابط الدرس)</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الslug</label>
                   <input
                     required
                     value={form.slug}
                     onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                    placeholder="espresso"
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
@@ -255,69 +255,52 @@ export default function AdminLessonsPage() {
                   <label className="block text-xs font-medium text-muted-foreground mb-1.5">التصنيف</label>
                   <select
                     value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    onChange={(e) => {
+                      const cat = categoryOptions.find(c => c.value === e.target.value);
+                      setForm({ ...form, category: e.target.value, category_label: cat?.label || "" });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.title}</option>
+                    {categoryOptions.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الفئة الفرعية</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">التاريخ</label>
                   <input
-                    value={form.subcategory}
-                    onChange={(e) => setForm({ ...form, subcategory: e.target.value })}
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوقت</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">مدة القراءة</label>
                   <input
                     value={form.read_time}
                     onChange={(e) => setForm({ ...form, read_time: e.target.value })}
-                    placeholder="مثال: 3m"
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الصعوبة</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الكاتب</label>
                   <input
-                    value={form.difficulty}
-                    onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
-                    placeholder="مثال: أساسي"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">التقييم</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="5"
-                    value={form.rating}
-                    onChange={(e) => setForm({ ...form, rating: parseFloat(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوسوم (مفصولة بفاصلة)</label>
-                  <input
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    placeholder="أساسي, متقدم, حلو..."
+                    value={form.author}
+                    onChange={(e) => setForm({ ...form, author: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
               </div>
 
-              <ImageUpload
-                value={form.image}
-                onChange={(url) => setForm({ ...form, image: url })}
-                folder="lessons"
-                label="صورة الدرس"
-              />
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوسوم (مفصولة بفاصلة)</label>
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
 
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوصف</label>
@@ -334,12 +317,19 @@ export default function AdminLessonsPage() {
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">المحتوى (Markdown)</label>
                 <textarea
                   required
-                  rows={10}
+                  rows={8}
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
                   className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono text-xs leading-relaxed"
                 />
               </div>
+
+              <ImageUpload
+                value={form.image}
+                onChange={(url) => setForm({ ...form, image: url })}
+                folder="blog"
+                label="صورة المقال"
+              />
 
               <div className="flex items-center gap-2 pt-2">
                 <button
@@ -347,7 +337,7 @@ export default function AdminLessonsPage() {
                   disabled={submitting}
                   className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  {submitting ? "جاري الحفظ..." : editingId ? "حفظ التعديلات" : "إضافة الدرس"}
+                  {submitting ? "جاري الحفظ..." : editingId ? "حفظ التعديلات" : "إضافة المقال"}
                 </button>
                 <button
                   type="button"

@@ -32,7 +32,7 @@ export function CoursesSection() {
               category={lesson.category}
               subcategory={lesson.subcategory}
               description={lesson.description}
-              readTime={lesson.readTime}
+              readTime={lesson.read_time}
               difficulty={lesson.difficulty}
               index={i}
             />

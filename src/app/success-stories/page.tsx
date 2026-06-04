@@ -2,65 +2,45 @@
 
 import Link from "next/link";
 import { ArrowLeft, Star, Quote, TrendingUp, MapPin, Coffee } from "lucide-react";
+import { useSupabaseSuccessStories } from "@/hooks/useSupabaseData";
 
-const stories = [
+const fallbackStories = [
   {
-    name: "مقهى البن العربي",
+    id: "1",
+    slug: "arabica-cafe-ramallah",
+    title: "مقهى البن العربي",
     location: "رام الله، فلسطين",
-    quote: "بعد استشارة Goat Journey Academy، زادت مبيعاتنا بنسبة 60% خلال 3 أشهر فقط. التوجيهات العملية غيّرت مسار مشروعنا بالكامل. كان الفريق محترفاً جداً وقدموا لنا خطة واضحة خطوة بخطوة.",
-    metric: "+60% مبيعات",
-    metricDetail: "في 3 أشهر",
-    services: ["استشارة", "تدريب فريق", "تطوير قائمة"],
-    color: "from-amber-600/20 to-amber-800/20 text-amber-700",
+    description: "بعد استشارة Goat Journey Academy، زادت مبيعاتنا بنسبة 60% خلال 3 أشهر فقط. التوجيهات العملية غيّرت مسار مشروعنا بالكامل.",
+    content: "",
+    image: null,
+    featured: true,
   },
   {
-    name: "روستري التخصص",
+    id: "2",
+    slug: "roastery-amman",
+    title: "روستري التخصص",
     location: "عمان، الأردن",
-    quote: "التدريب المكثف في الأكاديمية ساعد فريقنا في رفع جودة التحميص وتحقيق درجات Q Grader ممتازة. الفرق واضح بين ما قبل وبعد التدريب.",
-    metric: "جودة ممتازة",
-    metricDetail: "Q Grader",
-    services: ["تدريب", "جودة", "اختبار"],
-    color: "from-emerald-600/20 to-emerald-800/20 text-emerald-700",
+    description: "التدريب المكثف في الأكاديمية ساعد فريقنا في رفع جودة التحميص وتحقيق درجات Q Grader ممتازة.",
+    content: "",
+    image: null,
+    featured: true,
   },
   {
-    name: "كافيه نابلس الجديد",
+    id: "3",
+    slug: "nablus-cafe",
+    title: "كافيه نابلس الجديد",
     location: "نابلس، فلسطين",
-    quote: "بدأنا من الصفر بفضل خطة العمل المفصلة. اليوم لدينا مقهى ناجح بأكثر من 200 زبون يومياً. الشكر الكبير لفريق Goat Journey على الدعم المستمر.",
-    metric: "200+ زبون/يوم",
-    metricDetail: "من الصفر",
-    services: ["تأسيس", "تصميم", "تدريب"],
-    color: "from-sky-600/20 to-sky-800/20 text-sky-700",
-  },
-  {
-    name: "مقهى ديار",
-    location: "بيرزيت، فلسطين",
-    quote: "تم تقديم خطة تشغيل وبرنامج تدريبي للفريق مع قائمة مشروبات معدّة للتقديم السريع والثابت. النتائج فاقت توقعاتنا بكثير.",
-    metric: "قائمة جاهزة",
-    metricDetail: "تدريب مكتمل",
-    services: ["استشارة", "تطوير قائمة"],
-    color: "from-violet-600/20 to-violet-800/20 text-violet-700",
-  },
-  {
-    name: "مقهى الهلال",
-    location: "الخليل، فلسطين",
-    quote: "تدريب عملي للطاقم على إعداد القهوة وتقديم منيو بسيط للزبائن مع توجيهات جودة يومية. نتطلع للافتتاح قريباً بثقة كبيرة.",
-    metric: "إطلاق قريب",
-    metricDetail: "تحضيرات نهائية",
-    services: ["تدريب", "جودة"],
-    color: "from-orange-600/20 to-orange-800/20 text-orange-700",
-  },
-  {
-    name: "كافيه لمسة",
-    location: "دبي، الإمارات",
-    quote: "الاستشارة المباشرة مع يوسف خليل كانت نقطة تحول. ساعدنا في اختيار المعدات المثالية وتدريب الفريق على أعلى مستوى.",
-    metric: "100% رضا",
-    metricDetail: "فريق مدرب",
-    services: ["استشارة", "تدريب", "اختيار معدات"],
-    color: "from-pink-600/20 to-pink-800/20 text-pink-700",
+    description: "بدأنا من الصفر بفضل خطة العمل المفصلة. اليوم لدينا مقهى ناجح بأكثر من 200 زبون يومياً.",
+    content: "",
+    image: null,
+    featured: true,
   },
 ];
 
 export default function SuccessStoriesPage() {
+  const { stories: dbStories, loading } = useSupabaseSuccessStories();
+  const stories = dbStories.length > 0 ? dbStories : fallbackStories;
+
   return (
     <div className="animate-fade-in space-y-8 pb-8">
       {/* Header */}
@@ -75,12 +55,20 @@ export default function SuccessStoriesPage() {
         </p>
       </section>
 
+      {/* Loading */}
+      {loading && dbStories.length === 0 && (
+        <div className="text-center py-12">
+          <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+        </div>
+      )}
+
       {/* Stories Grid */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {stories.map((story, i) => (
             <div
-              key={story.name}
+              key={story.id}
               className="card-premium p-6 relative"
               style={{ animationDelay: `${i * 0.05}s` }}
             >
@@ -88,9 +76,13 @@ export default function SuccessStoriesPage() {
 
               {/* Avatar + Stars */}
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${story.color} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                  {story.name.charAt(0)}
-                </div>
+                {story.image ? (
+                  <img src={story.image} alt="" className="w-10 h-10 rounded-xl object-cover" />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                    {story.title.charAt(0)}
+                  </div>
+                )}
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3 h-3 fill-accent text-accent" />
@@ -99,32 +91,16 @@ export default function SuccessStoriesPage() {
               </div>
 
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                &ldquo;{story.quote}&rdquo;
+                &ldquo;{story.description}&rdquo;
               </p>
-
-              {/* Services tags */}
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {story.services.map((s) => (
-                  <span
-                    key={s}
-                    className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-border/40">
                 <div>
-                  <div className="text-sm font-bold text-foreground">{story.name}</div>
+                  <div className="text-sm font-bold text-foreground">{story.title}</div>
                   <div className="text-[11px] text-muted-foreground flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
                     {story.location}
                   </div>
-                </div>
-                <div className="text-center">
-                  <span className="text-[11px] font-bold text-accent block">{story.metric}</span>
-                  <span className="text-[9px] text-muted-foreground">{story.metricDetail}</span>
                 </div>
               </div>
             </div>

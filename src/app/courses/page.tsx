@@ -76,7 +76,7 @@ function CoursesPageContent() {
       const track = getTrackForCategory(lesson.category);
       const trackMatch = activeTrack === "all" || track === activeTrack;
       const levelMatch = activeLevel === "all" || lesson.difficulty === levelLabels[activeLevel];
-      const durationMatch = activeDuration === "all" || getDurationCategory(lesson.readTime) === activeDuration;
+      const durationMatch = activeDuration === "all" || getDurationCategory(lesson.read_time) === activeDuration;
       const typeMatch = activeType === "all" || getLessonType(lesson.category) === activeType;
       return trackMatch && levelMatch && durationMatch && typeMatch;
     });
@@ -137,7 +137,7 @@ function CoursesPageContent() {
                     category={lesson.category}
                     subcategory={lesson.subcategory}
                     description={lesson.description}
-                    readTime={lesson.readTime}
+                    readTime={lesson.read_time}
                     difficulty={lesson.difficulty}
                     index={i}
                     lessonIndex={nav.lessonIndex || undefined}
@@ -168,7 +168,7 @@ function CoursesPageContent() {
                   category={lesson.category}
                   subcategory={lesson.subcategory}
                   description={lesson.description}
-                  readTime={lesson.readTime}
+                  readTime={lesson.read_time}
                   difficulty={lesson.difficulty}
                   index={i}
                   lessonIndex={nav.lessonIndex || undefined}
@@ -300,7 +300,7 @@ function CoursesPageContent() {
                     category={lesson.category}
                     subcategory={lesson.subcategory}
                     description={lesson.description}
-                    readTime={lesson.readTime}
+                    readTime={lesson.read_time}
                     difficulty={lesson.difficulty}
                     index={i}
                     lessonIndex={nav.lessonIndex || undefined}

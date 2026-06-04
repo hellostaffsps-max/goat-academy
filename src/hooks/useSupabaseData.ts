@@ -1,70 +1,93 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { getLessons } from "@/actions/lessons";
-import { getCafes } from "@/actions/cafes";
-import { lessons as fallbackLessons, type Lesson } from "@/data/coffeeData";
-import type { LessonRow, CafeRow } from "@/types/supabase";
+import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
+import type { LessonRow, ArticleRow, SuccessStoryRow, LearningPathRow } from "@/types/supabase";
 
-function mapLessonRow(l: LessonRow): Lesson {
-  return {
-    id: l.slug,
-    title: l.title,
-    category: l.category,
-    subcategory: l.subcategory,
-    description: l.description,
-    rating: l.rating,
-    tags: l.tags || [],
-    readTime: l.read_time,
-    difficulty: l.difficulty,
-    content: l.content,
-  };
-}
-
+// Lessons
 export function useSupabaseLessons() {
-  const [lessons, setLessons] = useState<Lesson[]>(fallbackLessons);
+  const [lessons, setLessons] = useState<LessonRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchLessons = useCallback(async () => {
-    try {
-      const data = await getLessons();
-      if (data && data.length > 0) {
-        setLessons(data.map(mapLessonRow));
-      }
-    } catch (err) {
-      console.warn("Failed to fetch lessons from Supabase, using fallback", err);
-      setError("فشل الاتصال بالخادم، يتم استخدام البيانات المحلية");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    fetchLessons();
-  }, [fetchLessons]);
+    const fetch = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("lessons")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  return { lessons, loading, error, refetch: fetchLessons };
+      if (!error) setLessons(data || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  return { lessons, loading };
 }
 
-export function useSupabaseCafes() {
-  const [cafes, setCafes] = useState<CafeRow[]>([]);
+// Articles (Blog)
+export function useSupabaseArticles() {
+  const [articles, setArticles] = useState<ArticleRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCafes = useCallback(async () => {
-    try {
-      const data = await getCafes();
-      setCafes(data);
-    } catch (err) {
-      console.warn("Failed to fetch cafes from Supabase", err);
-    } finally {
+  useEffect(() => {
+    const fetch = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error) setArticles(data || []);
       setLoading(false);
-    }
+    };
+    fetch();
   }, []);
 
-  useEffect(() => {
-    fetchCafes();
-  }, [fetchCafes]);
+  return { articles, loading };
+}
 
-  return { cafes, loading, refetch: fetchCafes };
+// Success Stories
+export function useSupabaseSuccessStories() {
+  const [stories, setStories] = useState<SuccessStoryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("success_stories")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error) setStories(data || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  return { stories, loading };
+}
+
+// Learning Paths
+export function useSupabaseLearningPaths() {
+  const [paths, setPaths] = useState<LearningPathRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("learning_paths")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (!error) setPaths(data || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  return { paths, loading };
 }

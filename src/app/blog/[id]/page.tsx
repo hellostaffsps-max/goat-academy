@@ -40,7 +40,7 @@ export default function ArticlePage() {
 
           <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
             <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              {article.categoryLabel}
+              {article.category_label}
             </span>
           </div>
 
@@ -66,7 +66,7 @@ export default function ArticlePage() {
               </span>
             ))}
             <span className="text-[9px] text-accent-foreground bg-accent/10 px-2 py-0.5 rounded-full font-medium">
-              {article.categoryLabel}
+              {article.category_label}
             </span>
           </div>
           <h1 className="text-base font-bold text-foreground mb-1 leading-tight">
@@ -86,7 +86,7 @@ export default function ArticlePage() {
             </span>
             <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
               <Clock className="w-3 h-3" />
-              {article.readTime}
+              {article.read_time}
             </span>
             <SocialShare title={article.title} />
           </div>

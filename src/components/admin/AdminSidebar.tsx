@@ -11,6 +11,9 @@ import {
   LogOut,
   Menu,
   X,
+  Newspaper,
+  Trophy,
+  Route,
 } from "lucide-react";
 import { useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
@@ -18,6 +21,9 @@ import BrandLogo from "@/components/BrandLogo";
 const navItems = [
   { href: "/admin", label: "الرئيسية", icon: LayoutDashboard },
   { href: "/admin/lessons", label: "الدروس", icon: BookOpen },
+  { href: "/admin/paths", label: "مسارات التعلم", icon: Route },
+  { href: "/admin/blog", label: "المدونة", icon: Newspaper },
+  { href: "/admin/success-stories", label: "قصص النجاح", icon: Trophy },
   { href: "/admin/cafes", label: "المقاهي", icon: Store },
   { href: "/admin/site-content", label: "محتوى الموقع", icon: Settings },
 ];
@@ -70,7 +76,7 @@ export function AdminSidebar() {
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}

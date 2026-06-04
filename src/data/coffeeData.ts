@@ -24,6 +24,8 @@ export interface LearningPath {
   lessonCount: number;
   description: string;
   lessons: string[];
+  icon?: string;
+  color?: string;
 }
 
 export const categories: Category[] = [
@@ -4479,6 +4481,8 @@ export const learningPaths: LearningPath[] = [
     title: "مسار هاوي القهوة",
     lessonCount: 46,
     description: "تعلم المشروبات، طرق التحضير المنزلية، وفهم النكهات بدون تعقيد.",
+    icon: "Coffee",
+    color: "from-sky-500 to-blue-600",
     lessons: ["espresso","americano","cappuccino","latte","cortado","macchiato","mocha","cold-brew","iced-latte","affogato","filter-coffee","v60","chemex","french-press","aeropress","moka-pot","turkish-coffee","clever-dripper","iced-filter","coffee-scale","gooseneck-kettle","bean-sprayer","arabica","robusta","liberica","excelsa","coffee-processing","roast-levels","grind-size","coffee-freshness","single-origin","espresso-blend","bloom","crema","body","extraction","brew-ratio","microfoam","cupping","acidity","bitterness","sweetness","aftertaste","origin","degassing","yield"]
   },
   {
@@ -4486,6 +4490,8 @@ export const learningPaths: LearningPath[] = [
     title: "مسار الباريستا",
     lessonCount: 60,
     description: "ركز على الاستخلاص، الطحن، التبخير، المصطلحات، وثبات الوصفة.",
+    icon: "Award",
+    color: "from-amber-500 to-orange-600",
     lessons: ["espresso","ristretto","lungo","cappuccino","latte","flat-white","cortado","macchiato","spanish-latte","filter-coffee","v60","chemex","aeropress","batch-brew","iced-filter","siphon","coffee-grinder","espresso-machine","coffee-scale","gooseneck-kettle","tamper","leveling-tamper","distribution-tool","bean-sprayer","milk-pitcher","water-filtration","knock-box","rinser","batch-brewer","water-boiler","arabica","robusta","liberica","excelsa","coffee-processing","roast-levels","grind-size","coffee-freshness","single-origin","espresso-blend","bloom","crema","body","extraction","brew-ratio","tds","channeling","microfoam","dial-in","cupping","acidity","bitterness","sweetness","aftertaste","origin","varietal","degassing","retention","yield","preinfusion"]
   },
   {
@@ -4493,6 +4499,8 @@ export const learningPaths: LearningPath[] = [
     title: "مسار صاحب المقهى",
     lessonCount: 63,
     description: "ابدأ من المعدات والمنيو والتشغيل وتجربة العميل ودراسة التكاليف الخاصة.",
+    icon: "BookOpen",
+    color: "from-emerald-500 to-teal-600",
     lessons: ["espresso","americano","cappuccino","latte","flat-white","mocha","cold-brew","iced-latte","spanish-latte","affogato","batch-brew","siphon","coffee-grinder","espresso-machine","coffee-scale","tamper","leveling-tamper","distribution-tool","milk-pitcher","water-filtration","knock-box","rinser","batch-brewer","refrigeration","pos-system","water-boiler","display-fridge","body","extraction","brew-ratio","tds","channeling","microfoam","dial-in","cupping","acidity","bitterness","sweetness","aftertaste","origin","varietal","degassing","retention","yield","preinfusion","before-opening-cafe","building-coffee-menu","bar-workflow","cafe-branding","location-choice","customer-experience","staff-training","supplier-selection","opening-menu-test","small-kiosk","drive-thru","coffee-corner","why-no-generic-costs","cost-items","kiosk-vs-cafe-cost","rent-risk","equipment-budget","request-cost-study"]
   }
 ];

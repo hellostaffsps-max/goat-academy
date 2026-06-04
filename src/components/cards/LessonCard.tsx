@@ -12,6 +12,7 @@ interface LessonCardProps {
   subcategory?: string;
   description: string;
   readTime?: string;
+  read_time?: string;
   difficulty?: string;
   index?: number;
   lessonIndex?: number;
@@ -25,6 +26,7 @@ export function LessonCard({
   subcategory,
   description,
   readTime,
+  read_time,
   difficulty,
   index = 0,
   lessonIndex,
@@ -76,7 +78,7 @@ export function LessonCard({
         <div className="card-meta mt-auto">
           <span className="card-meta-item">
             <Clock className="w-3 h-3" />
-            {readTime || "١٥ دقيقة"}
+            {readTime || read_time || "١٥ دقيقة"}
           </span>
           <span className="card-meta-item">
             <Users className="w-3 h-3" />

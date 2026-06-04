@@ -173,10 +173,10 @@ function ExploreContent() {
                   {lesson.description}
                 </p>
                 <div className="flex items-center gap-3 mt-2 justify-end">
-                  {lesson.readTime && (
+                  {lesson.read_time && (
                     <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      {lesson.readTime}
+                      {lesson.read_time}
                     </span>
                   )}
                   <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground font-medium">

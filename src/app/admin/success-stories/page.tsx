@@ -2,129 +2,112 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  getLessons,
-  createLesson,
-  updateLesson,
-  deleteLesson,
-} from "@/actions/lessons";
-import { categories } from "@/data/coffeeData";
+  getSuccessStories,
+  createSuccessStory,
+  updateSuccessStory,
+  deleteSuccessStory,
+} from "@/actions/success-stories";
 import { ImageUpload } from "@/components/admin/ImageUpload";
-import { Plus, Pencil, Trash2, X, Search } from "lucide-react";
-import type { LessonRow } from "@/types/supabase";
+import { Plus, Pencil, Trash2, X, Search, Star } from "lucide-react";
+import type { SuccessStoryRow } from "@/types/supabase";
 
-const emptyLesson = {
+const emptyStory = {
   slug: "",
   title: "",
-  category: categories[0].id,
-  subcategory: "",
   description: "",
-  rating: 4.5,
-  tags: [] as string[],
-  read_time: "",
-  difficulty: "",
   content: "",
+  location: "",
   image: null as string | null,
+  featured: false,
 };
 
-export default function AdminLessonsPage() {
-  const [lessons, setLessons] = useState<LessonRow[]>([]);
+export default function AdminSuccessStoriesPage() {
+  const [stories, setStories] = useState<SuccessStoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState(emptyLesson);
-  const [tagInput, setTagInput] = useState("");
+  const [form, setForm] = useState(emptyStory);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchLessons = useCallback(async () => {
+  const fetchStories = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getLessons();
-      setLessons(data);
+      const data = await getSuccessStories();
+      setStories(data);
     } catch (err) {
       console.error(err);
-      alert("فشل تحميل الدروس");
+      alert("فشل تحميل قصص النجاح");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchLessons();
-  }, [fetchLessons]);
+    fetchStories();
+  }, [fetchStories]);
 
-  const filtered = lessons.filter(
-    (l) =>
-      l.title.includes(search) ||
-      l.subcategory.includes(search) ||
-      l.description.includes(search)
+  const filtered = stories.filter(
+    (s) =>
+      s.title.includes(search) ||
+      s.description.includes(search) ||
+      s.location.includes(search)
   );
 
   const openAdd = () => {
     setEditingId(null);
-    setForm(emptyLesson);
-    setTagInput("");
+    setForm(emptyStory);
     setShowForm(true);
   };
 
-  const openEdit = (lesson: LessonRow) => {
-    setEditingId(lesson.id);
+  const openEdit = (story: SuccessStoryRow) => {
+    setEditingId(story.id);
     setForm({
-      slug: lesson.slug,
-      title: lesson.title,
-      category: lesson.category,
-      subcategory: lesson.subcategory,
-      description: lesson.description,
-      rating: lesson.rating,
-      tags: lesson.tags || [],
-      read_time: lesson.read_time || "",
-      difficulty: lesson.difficulty || "",
-      content: lesson.content,
-      image: lesson.image,
+      slug: story.slug,
+      title: story.title,
+      description: story.description,
+      content: story.content,
+      location: story.location || "",
+      image: story.image,
+      featured: story.featured || false,
     });
-    setTagInput((lesson.tags || []).join(", "));
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setForm(emptyLesson);
-    setTagInput("");
+    setForm(emptyStory);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const data = {
-        ...form,
-        tags: tagInput.split(",").map((t) => t.trim()).filter(Boolean),
-      };
       if (editingId) {
-        await updateLesson(editingId, data);
+        await updateSuccessStory(editingId, form);
       } else {
-        if (!data.slug) data.slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
-        await createLesson(data);
+        if (!form.slug) form.slug = form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
+        await createSuccessStory(form);
       }
-      await fetchLessons();
+      await fetchStories();
       closeForm();
     } catch (err) {
       console.error(err);
-      alert("فشل حفظ الدرس");
+      alert("فشل حفظ القصة");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا الدرس؟")) return;
+    if (!confirm("هل أنت متأكد من حذف هذه القصة؟")) return;
     try {
-      await deleteLesson(id);
-      await fetchLessons();
+      await deleteSuccessStory(id);
+      await fetchStories();
     } catch (err) {
       console.error(err);
-      alert("فشل حذف الدرس");
+      alert("فشل حذف القصة");
     }
   };
 
@@ -137,7 +120,7 @@ export default function AdminLessonsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="بحث في الدروس..."
+            placeholder="بحث في قصص النجاح..."
             className="w-full pr-9 pl-4 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
@@ -146,7 +129,7 @@ export default function AdminLessonsPage() {
           className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" />
-          درس جديد
+          قصة جديدة
         </button>
       </div>
 
@@ -160,43 +143,43 @@ export default function AdminLessonsPage() {
                 <tr className="border-b border-border bg-secondary/30">
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الصورة</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">العنوان</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">التصنيف</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">التقييم</th>
-                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">الوقت</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">الموقع</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">مميز</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.map((lesson) => (
-                  <tr key={lesson.id} className="hover:bg-secondary/20 transition-colors">
+                {filtered.map((story) => (
+                  <tr key={story.id} className="hover:bg-secondary/20 transition-colors">
                     <td className="px-4 py-3">
-                      {lesson.image ? (
-                        <img src={lesson.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                      {story.image ? (
+                        <img src={story.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">لا توجد</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-foreground">{lesson.title}</div>
-                      <div className="text-xs text-muted-foreground truncate max-w-[200px]">{lesson.description}</div>
+                      <div className="font-medium text-foreground">{story.title}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px]">{story.description}</div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{lesson.subcategory}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{story.location}</td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 text-xs">
-                        {lesson.rating}
-                      </span>
+                      {story.featured ? (
+                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{lesson.read_time}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => openEdit(lesson)}
+                          onClick={() => openEdit(story)}
                           className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(lesson.id)}
+                          onClick={() => handleDelete(story.id)}
                           className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -207,7 +190,7 @@ export default function AdminLessonsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                       لا توجد نتائج
                     </td>
                   </tr>
@@ -223,7 +206,7 @@ export default function AdminLessonsPage() {
           <div className="bg-card border border-border rounded-2xl shadow-xl w-full max-w-3xl my-8 animate-slide-up">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h2 className="text-base font-bold text-foreground">
-                {editingId ? "تعديل الدرس" : "درس جديد"}
+                {editingId ? "تعديل القصة" : "قصة جديدة"}
               </h2>
               <button onClick={closeForm} className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
                 <X className="w-4 h-4" />
@@ -233,12 +216,11 @@ export default function AdminLessonsPage() {
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الslug (رابط الدرس)</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الslug</label>
                   <input
                     required
                     value={form.slug}
                     onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                    placeholder="espresso"
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
@@ -252,72 +234,24 @@ export default function AdminLessonsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">التصنيف</label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.title}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الفئة الفرعية</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الموقع</label>
                   <input
-                    value={form.subcategory}
-                    onChange={(e) => setForm({ ...form, subcategory: e.target.value })}
+                    value={form.location}
+                    onChange={(e) => setForm({ ...form, location: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوقت</label>
+                <div className="flex items-center gap-2 pt-6">
                   <input
-                    value={form.read_time}
-                    onChange={(e) => setForm({ ...form, read_time: e.target.value })}
-                    placeholder="مثال: 3m"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    type="checkbox"
+                    id="featured"
+                    checked={form.featured}
+                    onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+                    className="w-4 h-4 accent-primary"
                   />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الصعوبة</label>
-                  <input
-                    value={form.difficulty}
-                    onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
-                    placeholder="مثال: أساسي"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">التقييم</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="5"
-                    value={form.rating}
-                    onChange={(e) => setForm({ ...form, rating: parseFloat(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوسوم (مفصولة بفاصلة)</label>
-                  <input
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    placeholder="أساسي, متقدم, حلو..."
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
+                  <label htmlFor="featured" className="text-sm text-foreground">مميزة في الصفحة الرئيسية</label>
                 </div>
               </div>
-
-              <ImageUpload
-                value={form.image}
-                onChange={(url) => setForm({ ...form, image: url })}
-                folder="lessons"
-                label="صورة الدرس"
-              />
 
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوصف</label>
@@ -334,12 +268,19 @@ export default function AdminLessonsPage() {
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">المحتوى (Markdown)</label>
                 <textarea
                   required
-                  rows={10}
+                  rows={8}
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
                   className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono text-xs leading-relaxed"
                 />
               </div>
+
+              <ImageUpload
+                value={form.image}
+                onChange={(url) => setForm({ ...form, image: url })}
+                folder="success-stories"
+                label="صورة القصة"
+              />
 
               <div className="flex items-center gap-2 pt-2">
                 <button
@@ -347,7 +288,7 @@ export default function AdminLessonsPage() {
                   disabled={submitting}
                   className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  {submitting ? "جاري الحفظ..." : editingId ? "حفظ التعديلات" : "إضافة الدرس"}
+                  {submitting ? "جاري الحفظ..." : editingId ? "حفظ التعديلات" : "إضافة القصة"}
                 </button>
                 <button
                   type="button"

@@ -2,25 +2,30 @@
 
 import { useMemo, useState } from "react";
 import { BookOpen, Tag, Newspaper, Trophy, Lightbulb, BarChart3, Globe } from "lucide-react";
-import { articles, blogCategories } from "@/data/blogData";
+import { useSupabaseArticles } from "@/hooks/useSupabaseData";
+import { articles as fallbackArticles } from "@/data/blogData";
 import { ArticleCard } from "@/components/cards/ArticleCard";
 
-const categoryIcons: Record<string, React.ReactNode> = {
-  all: <Tag className="w-3.5 h-3.5" />,
-  news: <Newspaper className="w-3.5 h-3.5" />,
-  success: <Trophy className="w-3.5 h-3.5" />,
-  tips: <Lightbulb className="w-3.5 h-3.5" />,
-  "case-study": <BarChart3 className="w-3.5 h-3.5" />,
-  exploration: <Globe className="w-3.5 h-3.5" />,
-};
+const categoryOptions = [
+  { id: "all", label: "الكل", icon: <Tag className="w-3.5 h-3.5" /> },
+  { id: "news", label: "📰 أخبار القهوة", icon: <Newspaper className="w-3.5 h-3.5" /> },
+  { id: "success", label: "🏆 قصص النجاح", icon: <Trophy className="w-3.5 h-3.5" /> },
+  { id: "tips", label: "💡 نصائح سريعة", icon: <Lightbulb className="w-3.5 h-3.5" /> },
+  { id: "case-study", label: "📊 دراسات حالة", icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  { id: "exploration", label: "🌍 رحلات استكشاف", icon: <Globe className="w-3.5 h-3.5" /> },
+];
 
 export default function BlogPage() {
+  const { articles: dbArticles, loading } = useSupabaseArticles();
   const [activeCategory, setActiveCategory] = useState("all");
+
+  // Use DB articles if available, otherwise fallback to local
+  const articles = dbArticles.length > 0 ? dbArticles : fallbackArticles;
 
   const filteredArticles = useMemo(() => {
     if (activeCategory === "all") return articles;
     return articles.filter((article) => article.category === activeCategory);
-  }, [activeCategory]);
+  }, [articles, activeCategory]);
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -39,7 +44,7 @@ export default function BlogPage() {
       {/* Category filters */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-2 justify-center">
-          {blogCategories.map((cat) => (
+          {categoryOptions.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
@@ -49,12 +54,20 @@ export default function BlogPage() {
                   : "bg-card text-muted-foreground border-border hover:border-accent/40 hover:text-foreground"
               }`}
             >
-              {categoryIcons[cat.id]}
+              {cat.icon}
               {cat.label}
             </button>
           ))}
         </div>
       </section>
+
+      {/* Loading */}
+      {loading && dbArticles.length === 0 && (
+        <div className="text-center py-12">
+          <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+        </div>
+      )}
 
       {/* Articles */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,10 +91,10 @@ export default function BlogPage() {
                 id={article.id}
                 title={article.title}
                 category={article.category}
-                categoryLabel={article.categoryLabel}
-                subcategory={article.categoryLabel}
+                categoryLabel={article.category_label}
+                subcategory={article.category_label}
                 description={article.description}
-                readTime={article.readTime}
+                readTime={article.read_time}
                 date={article.date}
                 index={i}
               />

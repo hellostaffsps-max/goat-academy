@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/store/useStore";
-import { learningPaths } from "@/data/coffeeData";
-import { useSupabaseLessons } from "@/hooks/useSupabaseData";
+import { useSupabaseLessons, useSupabaseLearningPaths } from "@/hooks/useSupabaseData";
+import { learningPaths as fallbackPaths } from "@/data/coffeeData";
 import {
   GraduationCap,
   ChevronLeft,
@@ -15,22 +15,35 @@ import {
   Circle,
   Trophy,
   Lock,
+  Star,
+  Heart,
+  Zap,
 } from "lucide-react";
 import { PathQuiz } from "@/components/coffee/PathQuiz";
 import { BadgeCollection } from "@/components/badges/BadgeDisplay";
 import { cn } from "@/lib/utils";
 
+const pathIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  Coffee, Award, BookOpen, GraduationCap, Star, Heart, Zap,
+};
+
 export default function PathsPage() {
   const { isCompleted } = useStore();
   const { lessons } = useSupabaseLessons();
+  const { paths: dbPaths, loading } = useSupabaseLearningPaths();
   const [quizPathId, setQuizPathId] = useState<string | null>(null);
 
-  const pathIcons = [Coffee, Award, GraduationCap];
-  const pathColors = [
-    "from-secondary via-background to-secondary/30 text-foreground border border-border",
-    "from-secondary via-background to-secondary/30 text-foreground border border-border",
-    "from-secondary via-background to-secondary/30 text-foreground border border-border",
-  ];
+  const learningPaths = dbPaths.length > 0
+    ? dbPaths.map((p) => ({
+        id: p.slug,
+        title: p.title,
+        lessonCount: p.lesson_count,
+        description: p.description,
+        lessons: p.lessons,
+        icon: p.icon,
+        color: p.color,
+      }))
+    : fallbackPaths;
 
   return (
     <div className="space-y-6 animate-fade-in pb-8">
@@ -43,15 +56,21 @@ export default function PathsPage() {
         </p>
       </div>
 
+      {loading && dbPaths.length === 0 && (
+        <div className="text-center py-12">
+          <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+        </div>
+      )}
+
       <div className="space-y-6">
         {learningPaths.map((path, pathIdx) => {
-          const Icon = pathIcons[pathIdx] || Coffee;
-          const colorClass = pathColors[pathIdx];
+          const Icon = pathIcons[path.icon || "Coffee"] || Coffee;
           const pathLessons = path.lessons
-            .map((lid) => lessons.find((l) => l.id === lid))
+            .map((lid) => lessons.find((l) => l.slug === lid))
             .filter(Boolean);
           const completedInPath = pathLessons.filter((l) =>
-            isCompleted(l!.id)
+            isCompleted(l!.slug)
           ).length;
           const progress =
             pathLessons.length > 0
@@ -65,7 +84,7 @@ export default function PathsPage() {
               className="rounded-2xl border border-border overflow-hidden bg-card"
             >
               {/* Path Header */}
-              <div className={cn("p-5 text-right bg-gradient-to-br", colorClass)}>
+              <div className={cn("p-5 text-right bg-gradient-to-br", path.color || "from-secondary via-background to-secondary/30")}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
                     <Icon className="w-6 h-6 text-foreground/80" />
@@ -108,13 +127,7 @@ export default function PathsPage() {
                     onClick={(e) => {
                       e.preventDefault();
                       if (!isPathFullyCompleted) return;
-                      setQuizPathId(
-                        path.id === "amateur"
-                          ? "homebrew-path"
-                          : path.id === "barista"
-                          ? "barista-path"
-                          : "owner-path"
-                      );
+                      setQuizPathId(path.id);
                     }}
                     className={cn(
                       "w-full sm:w-auto text-[10px] font-bold py-2 px-3.5 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-xs",
@@ -145,11 +158,11 @@ export default function PathsPage() {
               <div className="bg-card divide-y divide-border/60 max-h-[400px] overflow-y-auto">
                 {pathLessons.map((lesson) => {
                   if (!lesson) return null;
-                  const completed = isCompleted(lesson.id);
+                  const completed = isCompleted(lesson.slug);
                   return (
                     <Link
                       key={lesson.id}
-                      href={`/lesson/${lesson.id}`}
+                      href={`/lesson/${lesson.slug}`}
                       className="block w-full p-4 text-right flex items-center gap-3 hover:bg-secondary/40 transition-colors"
                     >
                       <div className="flex-shrink-0">

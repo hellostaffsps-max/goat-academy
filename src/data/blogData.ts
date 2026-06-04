@@ -4,9 +4,9 @@ export interface Article {
   description: string;
   content: string;
   category: string;
-  categoryLabel: string;
+  category_label: string;
   tags: string[];
-  readTime: string;
+  read_time: string;
   date: string;
   author: string;
 }
@@ -26,9 +26,9 @@ export const articles: Article[] = [
     title: "كم يتقاضى الباريستا في فلسطين 2026؟",
     description: "دليل شامل لرواتب الباريستا في المقاهي الفلسطينية من المبتدئ إلى المحترف، وكيف تزيد دخلك بالشهادات والخبرة.",
     category: "news",
-    categoryLabel: "📰 أخبار القهوة",
+    category_label: "📰 أخبار القهوة",
     tags: ["رواتب", "باريستا", "فلسطين"],
-    readTime: "5 دقائق",
+    read_time: "5 دقائق",
     date: "2026-05-15",
     author: "وائل أرزيقات",
     content: `## رواتب الباريستا في فلسطين
@@ -51,9 +51,9 @@ export const articles: Article[] = [
     title: "من كشك صغير إلى علامة تجارية: قصة مقهى رام الله",
     description: "كيف حول صاحب مقهى في رام الله كشكاً صغيراً باستثمار 15 ألف شيكل إلى علامة تجارية معروفة في غضون 3 سنوات.",
     category: "success",
-    categoryLabel: "🏆 قصص النجاح",
+    category_label: "🏆 قصص النجاح",
     tags: ["نجاح", "تأسيس", "رام الله"],
-    readTime: "8 دقائق",
+    read_time: "8 دقائق",
     date: "2026-04-20",
     author: "وائل أرزيقات",
     content: `## البداية
@@ -75,9 +75,9 @@ export const articles: Article[] = [
     title: "نصيحة الأسبوع: لماذا يتغير طعم القهوة كل يوم؟",
     description: "السر يكمن في ثبات الطحن. إليك 3 نصائح لضمان استقرار الطعم يومياً في مقهاك.",
     category: "tips",
-    categoryLabel: "💡 نصائح سريعة",
+    category_label: "💡 نصائح سريعة",
     tags: ["طحن", "استقرار", "جودة"],
-    readTime: "3 دقائق",
+    read_time: "3 دقائق",
     date: "2026-06-01",
     author: "وائل أرزيقات",
     content: `## المشكلة
@@ -98,9 +98,9 @@ export const articles: Article[] = [
     title: "دراسة حالة: تكلفة فتح مقهى متوسط في نابلس",
     description: "تحليل تفصيلي لكل بند من بنود التكلفة لفتح مقهى 80 متر مربع في نابلس مع تقديرات واقعية لعام 2026.",
     category: "case-study",
-    categoryLabel: "📊 دراسات حالة",
+    category_label: "📊 دراسات حالة",
     tags: ["تكاليف", "نابلس", "دراسة"],
-    readTime: "10 دقائق",
+    read_time: "10 دقائق",
     date: "2026-03-10",
     author: "وائل أرزيقات",
     content: `## نظرة عامة
@@ -123,9 +123,9 @@ export const articles: Article[] = [
     title: "رحلة إلى موطن القهوة: إثيوبيا يirgacheffe",
     description: "رحلة استكشافية إلى منطقة يirgacheffe في إثيوبيا، موطن أجود أنواع البن العربي في العالم.",
     category: "exploration",
-    categoryLabel: "🌍 رحلات استكشاف",
+    category_label: "🌍 رحلات استكشاف",
     tags: ["إثيوبيا", "بن", "سنقل أوريجن"],
-    readTime: "7 دقائق",
+    read_time: "7 دقائق",
     date: "2026-02-15",
     author: "وائل أرزيقات",
     content: `## المنطقة
@@ -144,9 +144,9 @@ export const articles: Article[] = [
     title: "5 خطوات لتسويق مقهاك على إنستغرام بشكل احترافي",
     description: "كيف تبني حضوراً رقمياً لمقهاك على إنستغرام دون ميزانية ضخمة، مع أمثلة عملية من مقاهي ناجحة.",
     category: "tips",
-    categoryLabel: "💡 نصائح سريعة",
+    category_label: "💡 نصائح سريعة",
     tags: ["تسويق", "إنستغرام", "رقمي"],
-    readTime: "6 دقائق",
+    read_time: "6 دقائق",
     date: "2026-05-01",
     author: "وائل أرزيقات",
     content: `## الخطوات
