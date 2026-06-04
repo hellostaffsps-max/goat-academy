@@ -6,10 +6,10 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useEffect, useRef, useState } from "react";
 
 const defaultFeatures = [
-  { icon: "Award", title: "Q Grader معتمد", description: "مؤسس الأكاديمية حاصل على شهادة Coffee Quality Institute العالمية" },
-  { icon: "Clock", title: "15+ سنة خبرة", description: "خبرة عملية في صناعة القهوة المختصة والاستشارات" },
+  { icon: "Award", title: "SCA Certified", description: "وائل أرزيقات حاصل على شهادة SCA و Espresso Academy Florence المعتمدة عالمياً" },
+  { icon: "Clock", title: "+9 سنوات خبرة", description: "خبرة عملية في القهوة المختصة والضيافة منذ عام 2015" },
   { icon: "BookOpen", title: "محتوى عربي متخصص", description: "أول منصة عربية تجمع التعليم العملي والاستشارات في مكان واحد" },
-  { icon: "Wrench", title: "تعليم عملي", description: "محتوى مبني على تجربة حقيقية وليس نظريات عامة" },
+  { icon: "Wrench", title: "تعليم عملي", description: "محتوى مبني على تجربة حقيقية في تدريب الباريستا وتأسيس المقاهي" },
 ];
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -20,7 +20,7 @@ const defaultContent = {
   badge: "أكاديمية القهوة المختصة الأولى بالعربية",
   heading: "من شغف القهوة",
   headingAccent: "إلى الاحتراف",
-  description: "تعلم القهوة المختصة، تطوير المقاهي، تدريب الباريستا، وبناء مشاريع ناجحة من خلال خبرة عملية ومعايير عالمية.",
+  description: "مع وائل أرزيقات — SCA Certified Coffee Professional ومؤسس Goat Journey Academy. تعلم القهوة المختصة، تطوير المقاهي، وتدريب الباريستا بمعايير عالمية.",
   ctaPrimary: { text: "ابدأ التعلم", href: "/explore" },
   ctaSecondary: { text: "احجز استشارة", href: "/consultant" },
   ctaTertiary: { text: "تصفح الدورات", href: "/courses" },
