@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   BookOpen,
   Store,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/admin", label: "الرئيسية", icon: LayoutDashboard },
   { href: "/admin/lessons", label: "الدروس", icon: BookOpen },
   { href: "/admin/cafes", label: "المقاهي", icon: Store },
+  { href: "/admin/site-content", label: "محتوى الموقع", icon: Settings },
 ];
 
 export function AdminSidebar() {

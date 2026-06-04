@@ -7,6 +7,20 @@ const nextConfig = {
   turbopack: {
     root: ".",
   },
+  async redirects() {
+    return [
+      {
+        source: "/services",
+        destination: "/consultant",
+        permanent: true,
+      },
+      {
+        source: "/services/:path*",
+        destination: "/consultant",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -162,13 +162,56 @@
   }
 }
 
-/* Premium card */
+/* Premium card — enhanced */
 .card-premium {
   @apply bg-card border border-border rounded-2xl transition-all duration-300;
+  box-shadow: 0 1px 3px -1px hsl(var(--foreground) / 0.05), 0 1px 2px -1px hsl(var(--foreground) / 0.03);
 }
 .card-premium:hover {
-  @apply -translate-y-1.5 shadow-xl;
-  border-color: hsl(var(--accent) / 0.4);
+  @apply -translate-y-1 shadow-lg;
+  border-color: hsl(var(--accent) / 0.35);
+  box-shadow: 0 20px 40px -12px hsl(var(--accent) / 0.15), 0 8px 16px -8px hsl(var(--foreground) / 0.08);
+}
+
+/* Card image wrapper */
+.card-image {
+  @apply relative overflow-hidden rounded-xl;
+}
+.card-image img,
+.card-image > div {
+  @apply transition-transform duration-500;
+}
+.card-premium:hover .card-image img,
+.card-premium:hover .card-image > div {
+  @apply scale-105;
+}
+
+/* Tag / Badge pill */
+.tag {
+  @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full border;
+}
+.tag-accent {
+  @apply bg-accent/10 text-accent border-accent/20;
+}
+.tag-green {
+  @apply bg-emerald-50 text-emerald-700 border-emerald-200;
+}
+.tag-yellow {
+  @apply bg-amber-50 text-amber-700 border-amber-200;
+}
+.tag-red {
+  @apply bg-red-50 text-red-700 border-red-200;
+}
+.tag-slate {
+  @apply bg-secondary text-muted-foreground border-border;
+}
+
+/* Card metadata row */
+.card-meta {
+  @apply flex items-center gap-3 text-[11px] text-muted-foreground;
+}
+.card-meta-item {
+  @apply inline-flex items-center gap-1;
 }
 
 /* Premium button */

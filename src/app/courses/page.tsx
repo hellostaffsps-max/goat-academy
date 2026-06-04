@@ -1,11 +1,39 @@
 "use client";
 
+import { useMemo, useState, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Clock, GraduationCap, ChevronLeft } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, GraduationCap, BookOpen } from "lucide-react";
 import { useSupabaseLessons } from "@/hooks/useSupabaseData";
+import { LessonCard } from "@/components/cards/LessonCard";
+import {
+  trackLabels,
+  trackDescriptions,
+  getTrackForCategory,
+  levelLabels,
+  type LearningTrack,
+  type DifficultyLevel,
+} from "@/lib/trackMapping";
 
-export default function CoursesPage() {
+function CoursesPageContent() {
   const { lessons, loading } = useSupabaseLessons();
+  const searchParams = useSearchParams();
+  const urlTrack = searchParams.get("track") as LearningTrack | null;
+
+  const [activeTrack, setActiveTrack] = useState<LearningTrack>(urlTrack || "all");
+  const [activeLevel, setActiveLevel] = useState<DifficultyLevel>("all");
+
+  const tracks: LearningTrack[] = ["all", "barista", "startup", "growth"];
+  const levels: DifficultyLevel[] = ["all", "beginner", "intermediate", "advanced"];
+
+  const filteredLessons = useMemo(() => {
+    return lessons.filter((lesson) => {
+      const track = getTrackForCategory(lesson.category);
+      const trackMatch = activeTrack === "all" || track === activeTrack;
+      const levelMatch = activeLevel === "all" || lesson.difficulty === levelLabels[activeLevel];
+      return trackMatch && levelMatch;
+    });
+  }, [lessons, activeTrack, activeLevel]);
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -15,10 +43,52 @@ export default function CoursesPage() {
           <GraduationCap className="w-3.5 h-3.5" />
           الدورات التدريبية
         </div>
-        <h1 className="heading-xl mb-3">تعلم القهوة المختصة</h1>
+        <h1 className="heading-xl mb-3">دورات القهوة المختصة</h1>
         <p className="body-base text-muted-foreground max-w-xl mx-auto">
-          دورات احترافية من المبتدئين إلى المتقدمين في عالم القهوة المختصة.
+          دورات عملية من المبتدئين إلى المتقدمين
         </p>
+      </section>
+
+      {/* Filters */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">الفلتر حسب المسار:</h3>
+          <div className="flex flex-wrap gap-2">
+            {tracks.map((track) => (
+              <button
+                key={track}
+                onClick={() => setActiveTrack(track)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+                  activeTrack === track
+                    ? "bg-accent text-white border-accent"
+                    : "bg-card text-muted-foreground border-border hover:border-accent/40 hover:text-foreground"
+                }`}
+                title={trackDescriptions[track]}
+              >
+                {trackLabels[track]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">حسب المستوى:</h3>
+          <div className="flex flex-wrap gap-2">
+            {levels.map((level) => (
+              <button
+                key={level}
+                onClick={() => setActiveLevel(level)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+                  activeLevel === level
+                    ? "bg-accent text-white border-accent"
+                    : "bg-card text-muted-foreground border-border hover:border-accent/40 hover:text-foreground"
+                }`}
+              >
+                {levelLabels[level]}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Loading */}
@@ -32,43 +102,28 @@ export default function CoursesPage() {
       {/* Courses Grid */}
       {!loading && (
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {lessons.map((lesson: typeof lessons[0], i: number) => (
-              <Link
-                key={lesson.id}
-                href={`/lesson/${lesson.id}`}
-                className="card-premium group hover:scale-[1.02] transition-all duration-300 flex flex-col"
-                style={{ animationDelay: `${i * 0.03}s` }}
-              >
-                <div className="aspect-[16/10] rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 mb-4 flex items-center justify-center">
-                  <BookOpen className="w-8 h-8 text-accent/60" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
-                      {lesson.category}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      ١٥ دقيقة
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground mb-2 line-clamp-2 leading-snug">
-                    {lesson.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                    {lesson.description}
-                  </p>
-                </div>
-                <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-accent group-hover:underline">
-                    ابدأ التعلم
-                  </span>
-                  <ChevronLeft className="w-3.5 h-3.5 text-accent transition-transform group-hover:-translate-x-1" />
-                </div>
-              </Link>
-            ))}
-          </div>
+          {filteredLessons.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">لا توجد دورات مطابقة للفلتر المحدد</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredLessons.map((lesson, i) => (
+                <LessonCard
+                  key={lesson.id}
+                  id={lesson.id}
+                  title={lesson.title}
+                  category={lesson.category}
+                  subcategory={lesson.subcategory}
+                  description={lesson.description}
+                  readTime={lesson.readTime}
+                  difficulty={lesson.difficulty}
+                  index={i}
+                />
+              ))}
+            </div>
+          )}
         </section>
       )}
 
@@ -86,5 +141,20 @@ export default function CoursesPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function CoursesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="text-center py-12">
+          <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+        </div>
+      }
+    >
+      <CoursesPageContent />
+    </Suspense>
   );
 }

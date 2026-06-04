@@ -6,6 +6,7 @@ const titles: Record<string, string> = {
   "/admin": "الرئيسية",
   "/admin/lessons": "إدارة الدروس",
   "/admin/cafes": "إدارة المقاهي",
+  "/admin/site-content": "إدارة محتوى الموقع",
 };
 
 export function AdminHeader() {

@@ -15,7 +15,7 @@ const companyLinks = [
   { href: "/courses", label: "الدورات التدريبية" },
   { href: "/blog", label: "المدونة" },
   { href: "/tools", label: "أدوات القهوة" },
-  { href: "/services", label: "الخدمات" },
+  { href: "/consultant", label: "الاستشارة" },
   { href: "/favorites", label: "المفضلة" },
 ];
 

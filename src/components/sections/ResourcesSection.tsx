@@ -1,30 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Download, FileText, CheckCircle2, Mail } from "lucide-react";
+import { Download, FileText, CheckCircle2, Mail, Sparkles } from "lucide-react";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 
-const resources = [
-  {
-    icon: FileText,
-    title: "دليل فتح مقهى ناجح",
-    description: "كتاب إلكتروني شامل يغطي كل مراحل تأسيس مقهى من الصفر حتى الافتتاح.",
-    pages: "45 صفحة",
-  },
-  {
-    icon: FileText,
-    title: "قائمة أسعار المعدات",
-    description: "جدول مفصل لأسعار المعدات الأساسية والاختيارية لمقهى القهوة المختصة.",
-    pages: "12 صفحة",
-  },
-  {
-    icon: FileText,
-    title: "نموذج خطة عمل مقهى",
-    description: "نموذج جاهز لخطة عمل مالية وتسويقية يمكن تعديلها حسب مشروعك.",
-    pages: "28 صفحة",
-  },
+const defaultResources = [
+  { icon: "FileText", title: "دليل فتح مقهى ناجح", description: "دليل شامل يغطي كل مراحل التأسيس", pages: "45 صفحة" },
+  { icon: "FileText", title: "قائمة أسعار المعدات", description: "جدول مفصل للمعدات الأساسية والاختيارية", pages: "12 صفحة" },
+  { icon: "FileText", title: "نموذج خطة عمل مقهى", description: "نموذج جاهز يمكن تعديله", pages: "28 صفحة" },
 ];
 
+const defaultContent = {
+  badge: "مصادر مجانية",
+  heading: "تحميلات مجانية",
+  description: "احصل على مصادر قيمة مجاناً لتساعدك في رحلتك في عالم القهوة.",
+  resources: defaultResources,
+  formTitle: "اشترك في نصائحنا الأسبوعية",
+  formDescription: "أدخل بريدك الإلكتروني واحصل على الوصول الفوري لجميع المصادر المجانية.",
+  submitText: "احصل على المصادر الآن",
+  successText: "تم الإرسال بنجاح!",
+  privacyText: "لا نشارك بريدك مع أي طرف ثالث. يمكنك إلغاء الاشتراك في أي وقت.",
+};
+
 export function ResourcesSection() {
+  const { content } = useSiteContent("resources_section", defaultContent);
+  const resources = content.resources || defaultResources;
+
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -40,58 +42,35 @@ export function ResourcesSection() {
     <section id="resources" className="section-padding gradient-card">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-          {/* Resources */}
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium mb-4 border border-accent/20">
               <Download className="w-3.5 h-3.5" />
-              مصادر مجانية
+              {content.badge}
             </div>
-            <h2 className="heading-lg mb-3">تحميلات مجانية</h2>
-            <p className="body-base text-muted-foreground mb-6">
-              احصل على مصادر قيمة مجاناً لتساعدك في رحلتك في عالم القهوة.
-            </p>
+            <h2 className="heading-lg mb-3">{content.heading}</h2>
+            <p className="body-base text-muted-foreground mb-6">{content.description}</p>
 
             <div className="space-y-3">
-              {resources.map((resource) => {
-                const Icon = resource.icon;
-                return (
-                  <div
-                    key={resource.title}
-                    className="flex items-start gap-4 p-4 rounded-2xl bg-card border border-border/60 hover:border-accent/30 transition-all group"
-                  >
-                    <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors">
-                      <Icon className="w-5 h-5 text-accent" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-foreground mb-1">
-                        {resource.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed mb-1">
-                        {resource.description}
-                      </p>
-                      <span className="text-[10px] text-accent font-medium">
-                        {resource.pages}
-                      </span>
-                    </div>
-                    <Download className="w-4 h-4 text-muted-foreground flex-shrink-0 group-hover:text-accent transition-colors" />
-                  </div>
-                );
-              })}
+              {resources.map((resource, i) => (
+                <ResourceCard
+                  key={resource.title}
+                  icon={resource.icon}
+                  title={resource.title}
+                  description={resource.description}
+                  pages={resource.pages}
+                  index={i}
+                />
+              ))}
             </div>
           </div>
 
-          {/* Lead capture form */}
           <div className="bg-card border border-border/60 rounded-3xl p-6 sm:p-8 shadow-lg">
             <div className="text-center mb-6">
               <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
                 <Mail className="w-7 h-7 text-accent" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2">
-                اشترك واحصل على المصادر المجانية
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                أدخل بريدك الإلكتروني واحصل على الوصول الفوري لجميع المصادر المجانية.
-              </p>
+              <h3 className="text-lg font-bold text-foreground mb-2">{content.formTitle}</h3>
+              <p className="text-sm text-muted-foreground">{content.formDescription}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -113,20 +92,18 @@ export function ResourcesSection() {
                 {submitted ? (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    تم الإرسال بنجاح!
+                    {content.successText}
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4" />
-                    احصل على المصادر الآن
+                    <Sparkles className="w-4 h-4" />
+                    {content.submitText}
                   </>
                 )}
               </button>
             </form>
 
-            <p className="text-[10px] text-muted-foreground text-center mt-4">
-              لا نشارك بريدك مع أي طرف ثالث. يمكنك إلغاء الاشتراك في أي وقت.
-            </p>
+            <p className="text-[10px] text-muted-foreground text-center mt-4">{content.privacyText}</p>
           </div>
         </div>
       </div>
