@@ -7,10 +7,21 @@ import {
   updateLesson,
   deleteLesson,
 } from "@/actions/lessons";
-import { categories } from "@/data/coffeeData";
+import { categories, learningPaths } from "@/data/coffeeData";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Plus, Pencil, Trash2, X, Search } from "lucide-react";
 import type { LessonRow } from "@/types/supabase";
+
+const difficultyOptions = [
+  { value: "beginner", label: "مبتدئ" },
+  { value: "intermediate", label: "متوسط" },
+  { value: "advanced", label: "متقدم" },
+];
+
+const pathOptions = [
+  { value: "", label: "بدون مسار" },
+  ...learningPaths.map((p) => ({ value: p.id, label: p.title })),
+];
 
 const emptyLesson = {
   slug: "",
@@ -22,6 +33,7 @@ const emptyLesson = {
   tags: [] as string[],
   read_time: "",
   difficulty: "",
+  path: "" as string,
   content: "",
   image: null as string | null,
 };
@@ -79,6 +91,7 @@ export default function AdminLessonsPage() {
       tags: lesson.tags || [],
       read_time: lesson.read_time || "",
       difficulty: lesson.difficulty || "",
+      path: lesson.path || "",
       content: lesson.content,
       image: lesson.image,
     });
@@ -100,6 +113,7 @@ export default function AdminLessonsPage() {
       const data = {
         ...form,
         tags: tagInput.split(",").map((t) => t.trim()).filter(Boolean),
+        path: form.path || null,
       };
       if (editingId) {
         await updateLesson(editingId, data);
@@ -126,6 +140,26 @@ export default function AdminLessonsPage() {
       console.error(err);
       alert("فشل حذف الدرس");
     }
+  };
+
+  const getDifficultyLabel = (val?: string | null) => {
+    const opt = difficultyOptions.find((o) => o.value === val);
+    return opt?.label || val || "—";
+  };
+
+  const getDifficultyBadgeColor = (val?: string | null) => {
+    switch (val) {
+      case "beginner": return "bg-emerald-500/10 text-emerald-700";
+      case "intermediate": return "bg-amber-500/10 text-amber-700";
+      case "advanced": return "bg-rose-500/10 text-rose-700";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const getPathLabel = (val?: string | null) => {
+    if (!val) return "—";
+    const opt = pathOptions.find((o) => o.value === val);
+    return opt?.label || val;
   };
 
   return (
@@ -161,6 +195,8 @@ export default function AdminLessonsPage() {
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الصورة</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">العنوان</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">التصنيف</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">المستوى</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">المسار</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">التقييم</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الوقت</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">الإجراءات</th>
@@ -181,6 +217,12 @@ export default function AdminLessonsPage() {
                       <div className="text-xs text-muted-foreground truncate max-w-[200px]">{lesson.description}</div>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{lesson.subcategory}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs ${getDifficultyBadgeColor(lesson.difficulty)}`}>
+                        {getDifficultyLabel(lesson.difficulty)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{getPathLabel(lesson.path)}</td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 text-xs">
                         {lesson.rating}
@@ -207,7 +249,7 @@ export default function AdminLessonsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                       لا توجد نتائج
                     </td>
                   </tr>
@@ -272,20 +314,36 @@ export default function AdminLessonsPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">المستوى</label>
+                  <select
+                    value={form.difficulty}
+                    onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  >
+                    <option value="">اختر المستوى...</option>
+                    {difficultyOptions.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">المسار التعليمي</label>
+                  <select
+                    value={form.path}
+                    onChange={(e) => setForm({ ...form, path: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  >
+                    {pathOptions.map((o) => (
+                      <option key={o.value || "none"} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوقت</label>
                   <input
                     value={form.read_time}
                     onChange={(e) => setForm({ ...form, read_time: e.target.value })}
                     placeholder="مثال: 3m"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">الصعوبة</label>
-                  <input
-                    value={form.difficulty}
-                    onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
-                    placeholder="مثال: أساسي"
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
@@ -301,7 +359,7 @@ export default function AdminLessonsPage() {
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-xs font-medium text-muted-foreground mb-1.5">الوسوم (مفصولة بفاصلة)</label>
                   <input
                     value={tagInput}

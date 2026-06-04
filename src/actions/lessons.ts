@@ -13,6 +13,7 @@ export interface LessonInput {
   tags: string[];
   read_time: string;
   difficulty: string;
+  path?: string | null;
   content: string;
   image?: string | null;
 }

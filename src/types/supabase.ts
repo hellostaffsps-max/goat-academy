@@ -9,6 +9,7 @@ export interface LessonRow {
   tags: string[];
   read_time: string;
   difficulty: string;
+  path: string | null;
   content: string;
   image: string | null;
   created_at: string;
