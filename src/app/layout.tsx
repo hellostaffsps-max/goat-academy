@@ -5,6 +5,7 @@ import "./globals.css";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ThemeProvider } from "@/components/theme-provider";
 import { StructuredData } from "@/components/StructuredData";
+import { ReCaptchaProvider } from "@/components/ReCaptchaProvider";
 
 const rubik = Rubik({
   subsets: ["arabic", "latin"],
@@ -84,14 +85,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="ar" dir="rtl" className={rubik.variable} suppressHydrationWarning>
       <body className={rubik.className}>
         <StructuredData />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AppLayout>{children}</AppLayout>
-        </ThemeProvider>
+        <ReCaptchaProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AppLayout>{children}</AppLayout>
+          </ThemeProvider>
+        </ReCaptchaProvider>
       </body>
     </html>
   );

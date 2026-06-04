@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import {
   ArrowRight,
   ArrowLeft,
@@ -128,14 +129,28 @@ export default function ConsultantPage() {
 ${notes || "لا توجد تفاصيل إضافية"}`;
   };
 
-  const handleWhatsAppSubmit = () => {
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleReCaptcha = useCallback(async (): Promise<string | null> => {
+    if (!executeRecaptcha) return null;
+    try {
+      const token = await executeRecaptcha("consultation_submit");
+      return token;
+    } catch {
+      return null;
+    }
+  }, [executeRecaptcha]);
+
+  const handleWhatsAppSubmit = async () => {
+    await handleReCaptcha(); // Validate human
     const message = encodeURIComponent(getFormattedMessage());
     const whatsappUrl = `https://wa.me/970594136723?text=${message}`;
     window.open(whatsappUrl, "_blank");
     setSubmitted(true);
   };
 
-  const handleEmailSubmit = () => {
+  const handleEmailSubmit = async () => {
+    await handleReCaptcha(); // Validate human
     const subject = encodeURIComponent("طلب استشارة تأسيس مقهى جديد - فلسطين");
     const body = encodeURIComponent(getFormattedMessage().replace(/\*/g, ""));
     const mailtoUrl = `mailto:gaotjourney.ps@gmail.com?subject=${subject}&body=${body}`;

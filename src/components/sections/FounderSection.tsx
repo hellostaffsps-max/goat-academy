@@ -23,6 +23,7 @@ export function FounderSection() {
                 src="/images/founder.jpg"
                 alt="يوسف خليل — مؤسس أكاديمية القهوة"
                 fill
+                loading="lazy"
                 className="object-cover"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
