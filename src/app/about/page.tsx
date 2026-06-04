@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Target, TrendingUp, Coffee, BookOpen, Users, MapPin } from "lucide-react";
+import { Award, Target, GraduationCap, Users, Store, BookOpen, Coffee, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -29,11 +29,11 @@ const values = [
 ];
 
 const milestones = [
-  { year: "2015", title: "بداية الرحلة", description: "بدأ يوسف خليل رحلته في عالم القهوة المختصة." },
-  { year: "2018", title: "شهادة Q Grader", description: "حصوله على شهادة Coffee Quality Institute معتمدة عالمياً." },
-  { year: "2020", title: "أول استشارات", description: "تقديم أول استشارات تأسيس مقاهٍ في فلسطين." },
-  { year: "2023", title: "إطلاق الأكاديمية", description: "إطلاق المنصة التعليمية الأولى باللغة العربية في القهوة المختصة." },
-  { year: "2024", title: "500+ متدرب", description: "وصول عدد المتدربين والمستفيدين لأكثر من 500 شخص حول العالم." },
+  { year: "2015", title: "بداية الرحلة", description: "بدأ وائل أرزيقات رحلته في عالم القهوة المختصة والضيافة." },
+  { year: "2018", title: "شهادات SCA", description: "حصوله على شهادات احترافية من Specialty Coffee Association." },
+  { year: "2020", title: "دبلوم إيطاليا", description: "إتمام دبلوم تخصصي من Espresso Academy في فلورنسا – إيطاليا." },
+  { year: "2023", title: "إطلاق الأكاديمية", description: "إطلاق Goat Journey Academy لتقديم تدريب واستشارات احترافية." },
+  { year: "2024", title: "تأثير عربي", description: "توسيع نطاق التدريب والاستشارات لتشمل السوق العربي." },
 ];
 
 export default function AboutPage() {
@@ -59,65 +59,74 @@ export default function AboutPage() {
       {/* Founder */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-10 items-center">
-          <div className="relative">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/5] max-w-sm mx-auto border border-border/60 shadow-xl">
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10" />
+          <div className="relative group">
+            {/* Decorative glow */}
+            <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-accent/20 via-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl" />
+
+            <div className="relative rounded-3xl overflow-hidden aspect-[4/5] max-w-sm mx-auto border border-border/60 shadow-2xl ring-1 ring-white/10">
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent z-10" />
               <Image
-                src="/images/founder.jpg"
-                alt="يوسف خليل — مؤسس أكاديمية القهوة"
+                src="/images/founder.webp"
+                alt="وائل أرزيقات — مدرب واستشاري قهوة مختصة"
                 fill
                 loading="lazy"
-                className="object-cover"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
                   target.style.display = "none";
                   target.parentElement?.classList.add("bg-gradient-to-br", "from-accent/20", "to-accent/5", "flex", "items-center", "justify-center");
                   const fallback = document.createElement("div");
                   fallback.className = "text-6xl font-bold text-accent/40 select-none";
-                  fallback.textContent = "Y";
+                  fallback.textContent = "و";
                   target.parentElement?.appendChild(fallback);
                 }}
               />
             </div>
-            <div className="absolute -bottom-4 right-4 sm:right-8 bg-card border border-border rounded-2xl px-4 py-3 shadow-lg z-20">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-accent/15 flex items-center justify-center">
-                  <Award className="w-4 h-4 text-accent" />
+
+            <div className="absolute -bottom-5 right-4 sm:right-10 bg-card/95 backdrop-blur-md border border-border rounded-2xl px-5 py-3 shadow-2xl z-20 transition-transform duration-300 hover:-translate-y-1">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center ring-2 ring-accent/20">
+                  <Award className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-foreground">Q Grader معتمد</div>
-                  <div className="text-[10px] text-muted-foreground">CQI معتمد</div>
+                  <div className="text-xs font-bold text-foreground leading-tight">
+                    مدرب واستشاري قهوة مختصة
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    SCA Certified Coffee Professional
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
           <div>
-            <h2 className="heading-lg mb-4">يوسف خليل</h2>
-            <p className="text-sm text-accent font-semibold mb-4">مؤسس Goat Journey Academy</p>
-            <div className="space-y-3 text-muted-foreground body-base">
+            <h2 className="heading-lg mb-2">وائل أرزيقات</h2>
+            <p className="text-sm text-accent font-semibold mb-5">مؤسس Goat Journey Academy</p>
+            <div className="space-y-4 text-muted-foreground body-base">
               <p>
-                يحمل شهادة Q Grader من Coffee Quality Institute، ويملك خبرة واسعة في صناعة القهوة
-                المختصة امتدت لأكثر من 15 عاماً.
+                وائل أرزيقات، مدرب واستشاري قهوة مختصة حاصل على شهادات احترافية من Specialty Coffee Association (SCA) ودبلوم من Espresso Academy في فلورنسا – إيطاليا.
               </p>
               <p>
-                بدأ رحلته من تقديم استشارات للمقاهي الناشئة، إلى بناء منصة تعليمية شاملة تهدف
-                لرفع مستوى صناعة القهوة العربية وتقديم المعرفة بأعلى المعايير العالمية.
+                يمتلك خبرة عملية تزيد عن 9 سنوات في صناعة القهوة المختصة، وتشغيل المقاهي، وتطوير فرق الباريستا، وتصميم المشروبات، وبناء برامج تدريبية احترافية تجمع بين المعرفة الأكاديمية والتطبيق العملي.
               </p>
               <p>
-                رسالته واضحة: مساعدة كل من يحلم بفتح مقهى أو الاحتراف في القهوة المختصة
-                على تحقيق هدفه من خلال تعليم عملي واستشارات مبنية على خبرة حقيقية.
+                كرّس مسيرته المهنية لنشر ثقافة القهوة المختصة وتطوير مهارات العاملين في القطاع من خلال التدريب والاستشارات ونقل أفضل الممارسات العالمية إلى السوق المحلي والعربي.
+              </p>
+              <p>
+                أؤمن أن نجاح أي مقهى يبدأ من المعرفة الصحيحة، والتدريب المستمر، والاهتمام بالتفاصيل التي تصنع تجربة استثنائية للعميل.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-6">
               {[
-                { icon: Award, label: "شهادة Q Grader" },
-                { icon: TrendingUp, label: "15+ سنة خبرة" },
-                { icon: Coffee, label: "بناء علامات تجارية" },
-                { icon: Users, label: "500+ متدرب" },
+                { icon: Target, label: "9+ سنوات خبرة" },
+                { icon: GraduationCap, label: "شهادات SCA عالمية" },
+                { icon: Users, label: "تدريب الباريستا" },
+                { icon: Store, label: "تشغيل المقاهي" },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.label} className="flex items-center gap-2 p-3 rounded-xl bg-card border border-border/60">
+                  <div key={item.label} className="flex items-center gap-2 p-3 rounded-xl bg-card border border-border/60 hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300">
                     <Icon className="w-4 h-4 text-accent" />
                     <span className="text-xs font-medium text-foreground">{item.label}</span>
                   </div>
