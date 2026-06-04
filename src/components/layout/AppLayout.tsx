@@ -9,6 +9,10 @@ import { useEffect } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { StickyCTA } from "@/components/StickyCTA";
+import { BreadcrumbNav } from "@/components/BreadcrumbNav";
+import { SkipToContent } from "@/components/SkipToContent";
+import { ExitIntentPopup } from "@/components/ExitIntentPopup";
+import { SearchBar } from "@/components/SearchBar";
 import BrandLogo from "@/components/BrandLogo";
 
 const navItems = [
@@ -84,14 +88,15 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
           <div className="flex items-center gap-3">
+            <SearchBar />
             <Link
               href="/consultant"
               className="inline-flex items-center gap-1.5 bg-accent text-accent-foreground text-[10px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg border border-accent/20 transition-all duration-300 hover:opacity-90"
             >
               <Headphones className="w-3.5 h-3.5" />
-              <span>طلب استشارة</span>
+              <span className="hidden sm:inline">طلب استشارة</span>
             </Link>
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
                 أكاديمية تفاعلية
               </span>
@@ -137,14 +142,19 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
+      {/* Skip to content + Breadcrumb */}
+      <SkipToContent />
+      <BreadcrumbNav />
+
       {/* Main Content */}
-      <main className="flex-1 px-4 sm:px-5 pt-6 pb-24 sm:pb-6">
+      <main id="main-content" className="flex-1 px-4 sm:px-5 pt-6 pb-24 sm:pb-6">
         {children}
       </main>
 
       <Footer />
       <WhatsAppButton />
       <StickyCTA />
+      <ExitIntentPopup />
 
       {/* Mobile Bottom Navigation */}
       <nav

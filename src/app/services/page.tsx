@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, GraduationCap, Store, Users, Headphones, Target, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, GraduationCap, Store, Users, Headphones, Target, CheckCircle2, Flame, Sparkles, Clock } from "lucide-react";
 
 const services = [
   {
@@ -16,6 +16,7 @@ const services = [
       "متابعة بعد التدريب",
     ],
     price: "ابتداءً من ₪750",
+    badge: { text: "الأكثر طلباً", icon: Flame, color: "bg-orange-100 text-orange-700 border-orange-200" },
   },
   {
     id: "cafe",
@@ -29,6 +30,7 @@ const services = [
       "تدريب الفريق قبل الافتتاح",
     ],
     price: "ابتداءً من ₪1,850",
+    badge: { text: "جديد", icon: Sparkles, color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   },
   {
     id: "corporate",
@@ -42,6 +44,7 @@ const services = [
       "ورش عمل جماعية",
     ],
     price: "حسب الاتفاق",
+    badge: null,
   },
   {
     id: "quality",
@@ -55,6 +58,7 @@ const services = [
       "تقارير جودة مفصلة",
     ],
     price: "حسب المشروع",
+    badge: { text: "عرض محدود", icon: Clock, color: "bg-red-100 text-red-700 border-red-200" },
   },
 ];
 
@@ -90,13 +94,21 @@ export default function ServicesPage() {
             >
               <div className="grid md:grid-cols-[1fr_auto] gap-6 items-start">
                 <div>
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-3 mb-4 flex-wrap">
                     <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center">
                       <Icon className="w-6 h-6 text-accent" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-foreground">{service.title}</h2>
-                      <p className="text-xs text-muted-foreground">{service.price}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-muted-foreground">{service.price}</p>
+                        {service.badge && (
+                          <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border ${service.badge.color}`}>
+                            <service.badge.icon className="w-3 h-3" />
+                            {service.badge.text}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">

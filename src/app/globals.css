@@ -309,3 +309,17 @@ html.reduce-motion .group-hover\:scale-105 {
 .sticky-cta {
   @apply fixed bottom-0 left-0 right-0 z-40 glass border-t border-border py-3 px-4 sm:px-6;
 }
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}

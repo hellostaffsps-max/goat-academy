@@ -9,6 +9,7 @@ import { SuccessStoriesSection } from "@/components/sections/SuccessStoriesSecti
 import { ResourcesSection } from "@/components/sections/ResourcesSection";
 import { ToolsPreviewSection } from "@/components/sections/ToolsPreviewSection";
 import { NewsletterSection } from "@/components/sections/NewsletterSection";
+import { ClientLogosSection } from "@/components/sections/ClientLogos";
 
 export default function HomePage() {
   return (
@@ -19,6 +20,7 @@ export default function HomePage() {
       <CoursesSection />
       <BlogSection />
       <SuccessStoriesSection />
+      <ClientLogosSection />
       <ToolsPreviewSection />
       <ResourcesSection />
       <NewsletterSection />

@@ -11,6 +11,7 @@ const stories = [
     metric: "+60% مبيعات",
     metricDetail: "في 3 أشهر",
     services: ["استشارة", "تدريب فريق", "تطوير قائمة"],
+    color: "from-amber-600/20 to-amber-800/20 text-amber-700",
   },
   {
     name: "روستري التخصص",
@@ -19,6 +20,7 @@ const stories = [
     metric: "جودة ممتازة",
     metricDetail: "Q Grader",
     services: ["تدريب", "جودة", "اختبار"],
+    color: "from-emerald-600/20 to-emerald-800/20 text-emerald-700",
   },
   {
     name: "كافيه نابلس الجديد",
@@ -27,6 +29,7 @@ const stories = [
     metric: "200+ زبون/يوم",
     metricDetail: "من الصفر",
     services: ["تأسيس", "تصميم", "تدريب"],
+    color: "from-sky-600/20 to-sky-800/20 text-sky-700",
   },
   {
     name: "مقهى ديار",
@@ -35,6 +38,7 @@ const stories = [
     metric: "قائمة جاهزة",
     metricDetail: "تدريب مكتمل",
     services: ["استشارة", "تطوير قائمة"],
+    color: "from-violet-600/20 to-violet-800/20 text-violet-700",
   },
   {
     name: "مقهى الهلال",
@@ -43,6 +47,7 @@ const stories = [
     metric: "إطلاق قريب",
     metricDetail: "تحضيرات نهائية",
     services: ["تدريب", "جودة"],
+    color: "from-orange-600/20 to-orange-800/20 text-orange-700",
   },
   {
     name: "كافيه لمسة",
@@ -51,6 +56,7 @@ const stories = [
     metric: "100% رضا",
     metricDetail: "فريق مدرب",
     services: ["استشارة", "تدريب", "اختيار معدات"],
+    color: "from-pink-600/20 to-pink-800/20 text-pink-700",
   },
 ];
 
@@ -79,14 +85,24 @@ export default function SuccessStoriesPage() {
               style={{ animationDelay: `${i * 0.05}s` }}
             >
               <Quote className="w-8 h-8 text-accent/20 absolute top-4 right-4" />
-              <div className="flex items-center gap-2 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
-                ))}
+
+              {/* Avatar + Stars */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${story.color} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+                  {story.name.charAt(0)}
+                </div>
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3 h-3 fill-accent text-accent" />
+                  ))}
+                </div>
               </div>
+
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 &ldquo;{story.quote}&rdquo;
               </p>
+
+              {/* Services tags */}
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {story.services.map((s) => (
                   <span
@@ -97,6 +113,7 @@ export default function SuccessStoriesPage() {
                   </span>
                 ))}
               </div>
+
               <div className="flex items-center justify-between pt-4 border-t border-border/40">
                 <div>
                   <div className="text-sm font-bold text-foreground">{story.name}</div>

@@ -26,6 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
   }
 
+  const ogImage = `https://www.goatjourney.online/og-${lesson.category || "default"}.jpg`;
+
   return {
     title: `${lesson.title} | GoatJourney Academy`,
     description: lesson.description,
@@ -37,6 +39,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description: lesson.description,
       type: "article",
       url: `https://www.goatjourney.online/lesson/${id}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: lesson.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: lesson.title,
+      description: lesson.description,
+      images: [ogImage],
     },
   };
 }

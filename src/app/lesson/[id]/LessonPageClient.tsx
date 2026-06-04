@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { BrewTimer } from "@/components/coffee/BrewTimer";
+import { SocialShare } from "@/components/SocialShare";
 import { cn } from "@/lib/utils";
 import { getCategoryMeta } from "@/lib/categoryMeta";
 
@@ -139,6 +140,7 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
               <Star className="w-3 h-3 text-accent" fill="currentColor" />
               {lesson.rating}
             </span>
+            <SocialShare title={lesson.title} />
           </div>
         </div>
       </div>

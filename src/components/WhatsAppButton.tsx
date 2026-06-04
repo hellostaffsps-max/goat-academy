@@ -2,7 +2,7 @@
 
 import { MessageSquare } from "lucide-react";
 
-const WHATSAPP_NUMBER = "+972567777777";
+const WHATSAPP_NUMBER = "+970594136723";
 const WHATSAPP_MESSAGE = "مرحباً، أود الاستفسار عن خدمات Goat Journey Academy";
 
 export function WhatsAppButton() {
