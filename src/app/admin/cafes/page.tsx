@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getCafes,
   createCafe,
@@ -26,15 +27,16 @@ export default function AdminCafesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyCafe);
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const fetchCafes = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getCafes();
       setCafes(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل تحميل المقاهي");
+      alert(err?.message || "فشل تحميل المقاهي");
     } finally {
       setLoading(false);
     }
@@ -84,11 +86,12 @@ export default function AdminCafesPage() {
       } else {
         await createCafe(form);
       }
+      router.refresh();
       await fetchCafes();
       closeForm();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حفظ المقهى");
+      alert(err?.message || err?.digest || "فشل حفظ المقهى");
     } finally {
       setSubmitting(false);
     }
@@ -99,9 +102,9 @@ export default function AdminCafesPage() {
     try {
       await deleteCafe(id);
       await fetchCafes();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حذف المقهى");
+      alert(err?.message || "فشل حذف المقهى");
     }
   };
 

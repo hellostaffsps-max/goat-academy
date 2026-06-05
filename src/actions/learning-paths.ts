@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
 
 export interface LearningPathInput {
   slug: string;
@@ -37,32 +36,44 @@ export async function getLearningPathBySlug(slug: string) {
   return data;
 }
 
+function sanitizeSlug(title: string, existingSlug?: string): string {
+  if (existingSlug) return existingSlug;
+  let slug = title.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^\u0600-\u06FFa-z0-9\-]/gi, "");
+  if (!slug) slug = `path-${Date.now()}`;
+  return slug;
+}
+
 export async function createLearningPath(path: LearningPathInput) {
   const supabase = await createClient();
+  const payload = { ...path, slug: sanitizeSlug(path.title, path.slug) };
   const { data, error } = await supabase
     .from("learning_paths")
-    .insert(path)
+    .insert(payload)
     .select()
     .single();
 
-  if (error) throw error;
-  revalidatePath("/paths");
-  revalidatePath("/admin/paths");
+  if (error) {
+    console.error("[createLearningPath] error:", error);
+    throw new Error(error.message || "فشل إنشاء المسار");
+  }
   return data;
 }
 
 export async function updateLearningPath(id: string, path: Partial<LearningPathInput>) {
   const supabase = await createClient();
+  const payload: any = { ...path };
+  if (path.slug !== undefined) payload.slug = sanitizeSlug(path.title || "", path.slug);
   const { data, error } = await supabase
     .from("learning_paths")
-    .update({ ...path, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq("id", id)
     .select()
     .single();
 
-  if (error) throw error;
-  revalidatePath("/paths");
-  revalidatePath("/admin/paths");
+  if (error) {
+    console.error("[updateLearningPath] error:", error);
+    throw new Error(error.message || "فشل تحديث المسار");
+  }
   return data;
 }
 
@@ -71,6 +82,4 @@ export async function deleteLearningPath(id: string) {
   const { error } = await supabase.from("learning_paths").delete().eq("id", id);
 
   if (error) throw error;
-  revalidatePath("/paths");
-  revalidatePath("/admin/paths");
 }

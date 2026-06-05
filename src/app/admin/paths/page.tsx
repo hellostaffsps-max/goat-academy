@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getLearningPaths,
   createLearningPath,
@@ -43,6 +44,7 @@ export default function AdminPathsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [lessonSearch, setLessonSearch] = useState("");
   const [showLessonPicker, setShowLessonPicker] = useState(false);
+  const router = useRouter();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -53,9 +55,9 @@ export default function AdminPathsPage() {
       ]);
       setPaths(pathsData);
       setLessons(lessonsData);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل تحميل البيانات");
+      alert(err?.message || "فشل تحميل البيانات");
     } finally {
       setLoading(false);
     }
@@ -128,14 +130,14 @@ export default function AdminPathsPage() {
       if (editingId) {
         await updateLearningPath(editingId, form);
       } else {
-        if (!form.slug) form.slug = form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
         await createLearningPath(form);
       }
+      router.refresh();
       await fetchData();
       closeForm();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حفظ المسار");
+      alert(err?.message || err?.digest || "فشل حفظ المسار");
     } finally {
       setSubmitting(false);
     }
@@ -146,9 +148,9 @@ export default function AdminPathsPage() {
     try {
       await deleteLearningPath(id);
       await fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حذف المسار");
+      alert(err?.message || "فشل حذف المسار");
     }
   };
 

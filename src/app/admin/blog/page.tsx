@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getArticles,
   createArticle,
@@ -42,15 +43,16 @@ export default function AdminBlogPage() {
   const [form, setForm] = useState(emptyArticle);
   const [tagInput, setTagInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getArticles();
       setArticles(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل تحميل المقالات");
+      alert(err?.message || "فشل تحميل المقالات");
     } finally {
       setLoading(false);
     }
@@ -129,9 +131,9 @@ export default function AdminBlogPage() {
     try {
       await deleteArticle(id);
       await fetchArticles();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حذف المقال");
+      alert(err?.message || "فشل حذف المقال");
     }
   };
 
