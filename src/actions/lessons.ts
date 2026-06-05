@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
 
 export interface LessonInput {
   slug: string;
@@ -20,13 +19,11 @@ export interface LessonInput {
 
 function sanitizeSlug(title: string, existingSlug?: string): string {
   if (existingSlug) return existingSlug;
-  // Keep Arabic, English, numbers, and spaces
   let slug = title
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^\u0600-\u06FFa-z0-9\-]/gi, "");
-  // If Arabic title results in empty slug, use timestamp fallback
   if (!slug) {
     slug = `lesson-${Date.now()}`;
   }
@@ -59,7 +56,6 @@ export async function getLessonBySlug(slug: string) {
 export async function getLessonByIdOrSlug(idOrSlug: string) {
   const supabase = await createClient();
 
-  // Try by id first (UUID)
   const { data: byId } = await supabase
     .from("lessons")
     .select("*")
@@ -68,7 +64,6 @@ export async function getLessonByIdOrSlug(idOrSlug: string) {
 
   if (byId) return byId;
 
-  // Try by slug
   const { data: bySlug } = await supabase
     .from("lessons")
     .select("*")
@@ -77,7 +72,6 @@ export async function getLessonByIdOrSlug(idOrSlug: string) {
 
   if (bySlug) return bySlug;
 
-  // Try ilike for slug
   const { data: bySlugLike } = await supabase
     .from("lessons")
     .select("*")
@@ -94,9 +88,11 @@ export async function createLesson(lesson: LessonInput) {
     ...lesson,
     slug: sanitizeSlug(lesson.title, lesson.slug),
     subcategory: lesson.subcategory || "عام",
-    tags: lesson.tags?.length ? lesson.tags : null,
+    tags: lesson.tags?.length ? lesson.tags : [],
     path: lesson.path || null,
   };
+
+  console.log("[createLesson] payload:", JSON.stringify(payload, null, 2));
 
   const { data, error } = await supabase
     .from("lessons")
@@ -105,28 +101,27 @@ export async function createLesson(lesson: LessonInput) {
     .single();
 
   if (error) {
-    console.error("createLesson error:", error);
+    console.error("[createLesson] Supabase error:", error);
     throw new Error(error.message || "فشل إنشاء الدرس");
   }
-  revalidatePath("/");
-  revalidatePath("/explore");
-  revalidatePath("/admin/lessons");
   return data;
 }
 
 export async function updateLesson(id: string, lesson: Partial<LessonInput>) {
   const supabase = await createClient();
 
-  const payload: any = { ...lesson, updated_at: new Date().toISOString() };
+  const payload: any = { ...lesson };
   if (lesson.slug !== undefined) {
     payload.slug = sanitizeSlug(lesson.title || "", lesson.slug);
   }
   if (lesson.tags !== undefined) {
-    payload.tags = lesson.tags?.length ? lesson.tags : null;
+    payload.tags = lesson.tags?.length ? lesson.tags : [];
   }
   if (lesson.path !== undefined) {
     payload.path = lesson.path || null;
   }
+
+  console.log("[updateLesson] payload:", JSON.stringify(payload, null, 2));
 
   const { data, error } = await supabase
     .from("lessons")
@@ -136,12 +131,9 @@ export async function updateLesson(id: string, lesson: Partial<LessonInput>) {
     .single();
 
   if (error) {
-    console.error("updateLesson error:", error);
+    console.error("[updateLesson] Supabase error:", error);
     throw new Error(error.message || "فشل تحديث الدرس");
   }
-  revalidatePath("/");
-  revalidatePath("/explore");
-  revalidatePath("/admin/lessons");
   return data;
 }
 
@@ -150,7 +142,4 @@ export async function deleteLesson(id: string) {
   const { error } = await supabase.from("lessons").delete().eq("id", id);
 
   if (error) throw error;
-  revalidatePath("/");
-  revalidatePath("/explore");
-  revalidatePath("/admin/lessons");
 }

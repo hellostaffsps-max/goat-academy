@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getLessons,
   createLesson,
@@ -47,6 +48,7 @@ export default function AdminLessonsPage() {
   const [form, setForm] = useState(emptyLesson);
   const [tagInput, setTagInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const fetchLessons = useCallback(async () => {
     setLoading(true);
@@ -120,11 +122,12 @@ export default function AdminLessonsPage() {
       } else {
         await createLesson(data);
       }
+      router.refresh();
       await fetchLessons();
       closeForm();
     } catch (err: any) {
-      console.error(err);
-      alert(err.message || "فشل حفظ الدرس");
+      console.error("Submit error:", err);
+      alert(err?.message || err?.digest || "فشل حفظ الدرس");
     } finally {
       setSubmitting(false);
     }
