@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getSuccessStories,
   createSuccessStory,
@@ -29,15 +30,16 @@ export default function AdminSuccessStoriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyStory);
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const fetchStories = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getSuccessStories();
       setStories(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل تحميل قصص النجاح");
+      alert(err?.message || "فشل تحميل قصص النجاح");
     } finally {
       setLoading(false);
     }
@@ -87,14 +89,14 @@ export default function AdminSuccessStoriesPage() {
       if (editingId) {
         await updateSuccessStory(editingId, form);
       } else {
-        if (!form.slug) form.slug = form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
         await createSuccessStory(form);
       }
+      router.refresh();
       await fetchStories();
       closeForm();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حفظ القصة");
+      alert(err?.message || err?.digest || "فشل حفظ القصة");
     } finally {
       setSubmitting(false);
     }

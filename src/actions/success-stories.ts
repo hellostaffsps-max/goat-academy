@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
 
 export interface SuccessStoryInput {
   slug: string;
@@ -11,6 +10,19 @@ export interface SuccessStoryInput {
   location: string;
   image?: string | null;
   featured?: boolean;
+}
+
+function sanitizeSlug(title: string, existingSlug?: string): string {
+  if (existingSlug) return existingSlug;
+  let slug = title
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\u0600-\u06FFa-z0-9\-]/gi, "");
+  if (!slug) {
+    slug = `story-${Date.now()}`;
+  }
+  return slug;
 }
 
 export async function getSuccessStories() {
@@ -38,30 +50,45 @@ export async function getFeaturedStories() {
 
 export async function createSuccessStory(story: SuccessStoryInput) {
   const supabase = await createClient();
+
+  const payload = {
+    ...story,
+    slug: sanitizeSlug(story.title, story.slug),
+    location: story.location || "",
+  };
+
   const { data, error } = await supabase
     .from("success_stories")
-    .insert(story)
+    .insert(payload)
     .select()
     .single();
 
-  if (error) throw error;
-  revalidatePath("/success-stories");
-  revalidatePath("/admin/success-stories");
+  if (error) {
+    console.error("[createSuccessStory] error:", error);
+    throw new Error(error.message || "فشل إنشاء القصة");
+  }
   return data;
 }
 
 export async function updateSuccessStory(id: string, story: Partial<SuccessStoryInput>) {
   const supabase = await createClient();
+
+  const payload: any = { ...story };
+  if (story.slug !== undefined) {
+    payload.slug = sanitizeSlug(story.title || "", story.slug);
+  }
+
   const { data, error } = await supabase
     .from("success_stories")
-    .update({ ...story, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq("id", id)
     .select()
     .single();
 
-  if (error) throw error;
-  revalidatePath("/success-stories");
-  revalidatePath("/admin/success-stories");
+  if (error) {
+    console.error("[updateSuccessStory] error:", error);
+    throw new Error(error.message || "فشل تحديث القصة");
+  }
   return data;
 }
 
@@ -70,6 +97,4 @@ export async function deleteSuccessStory(id: string) {
   const { error } = await supabase.from("success_stories").delete().eq("id", id);
 
   if (error) throw error;
-  revalidatePath("/success-stories");
-  revalidatePath("/admin/success-stories");
 }
