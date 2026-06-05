@@ -7,6 +7,11 @@ const nextConfig = {
   turbopack: {
     root: ".",
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
   async redirects() {
     return [
       {

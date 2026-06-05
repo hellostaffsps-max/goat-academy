@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Loader2, ImageIcon } from "lucide-react";
+import { Upload, X, Loader2, ImageIcon, AlertCircle } from "lucide-react";
 import { uploadImage, deleteImage } from "@/actions/upload";
 
 interface ImageUploadProps {
@@ -11,20 +11,41 @@ interface ImageUploadProps {
   label?: string;
 }
 
+const MAX_SIZE_MB = 5;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 export function ImageUpload({ value, onChange, folder = "general", label = "صورة" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const validateFile = (file: File): string | null => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return "نوع الملف غير مدعوم. يُسمح فقط بـ JPEG, PNG, WebP, GIF.";
+    }
+    if (file.size > MAX_SIZE_BYTES) {
+      return `حجم الملف كبير جداً. الحد الأقصى ${MAX_SIZE_MB} ميجابايت.`;
+    }
+    return null;
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
 
     setUploading(true);
     setError(null);
 
     try {
-      // Delete old image if exists
+      // Delete old image if exists (non-blocking)
       if (value) {
         try {
           await deleteImage(value);
@@ -40,7 +61,8 @@ export function ImageUpload({ value, onChange, folder = "general", label = "صو
       const url = await uploadImage(formData);
       onChange(url);
     } catch (err: any) {
-      setError(err.message || "فشل رفع الصورة");
+      console.error("ImageUpload error:", err);
+      setError(err.message || "فشل رفع الصورة. حاول مرة أخرى.");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -56,6 +78,7 @@ export function ImageUpload({ value, onChange, folder = "general", label = "صو
       }
     }
     onChange(null);
+    setError(null);
   };
 
   return (
@@ -68,6 +91,9 @@ export function ImageUpload({ value, onChange, folder = "general", label = "صو
             src={value}
             alt="Preview"
             className="w-full h-40 object-cover rounded-lg border border-border"
+            onError={() => {
+              setError("تعذر تحميل معاينة الصورة");
+            }}
           />
           <button
             type="button"
@@ -104,7 +130,12 @@ export function ImageUpload({ value, onChange, folder = "general", label = "صو
         className="hidden"
       />
 
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && (
+        <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/5 px-3 py-2 rounded-lg">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   );
 }
