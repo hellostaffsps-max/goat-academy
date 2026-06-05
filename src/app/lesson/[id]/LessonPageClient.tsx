@@ -24,6 +24,7 @@ import { BrewTimer } from "@/components/coffee/BrewTimer";
 import { SocialShare } from "@/components/SocialShare";
 import { cn } from "@/lib/utils";
 import { getCategoryMeta } from "@/lib/categoryMeta";
+import { getHeroImageUrl, getHeroSrcSet } from "@/lib/images";
 
 interface LessonPageClientProps {
   lessonId: string;
@@ -77,7 +78,9 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
           {(lesson as any).image ? (
             <>
               <img
-                src={(lesson as any).image}
+                src={getHeroImageUrl((lesson as any).image)}
+                srcSet={getHeroSrcSet((lesson as any).image)}
+                sizes="100vw"
                 alt={lesson.title}
                 className="w-full h-full object-cover"
               />

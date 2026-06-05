@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Loader2, ImageIcon, AlertCircle } from "lucide-react";
+import { Upload, X, Loader2, ImageIcon, AlertCircle, Info } from "lucide-react";
 import { uploadImage, deleteImage } from "@/actions/upload";
 
 interface ImageUploadProps {
@@ -129,6 +129,16 @@ export function ImageUpload({ value, onChange, folder = "general", label = "صو
         onChange={handleFileChange}
         className="hidden"
       />
+
+      <div className="flex items-start gap-1.5 text-[10px] text-muted-foreground bg-secondary/30 px-3 py-2 rounded-lg">
+        <Info className="w-3 h-3 shrink-0 mt-0.5" />
+        <div className="leading-relaxed">
+          <span className="font-medium">نصائح للصورة:</span> أي أبعاد تعمل — يتم تحجيمها تلقائياً.
+          الأبعاد المثالية: <span dir="ltr" className="font-mono text-[9px]">640×400</span> للبطاقات،
+          <span dir="ltr" className="font-mono text-[9px]"> 1200×450</span> لصفحة الدرس.
+          الصيغة المفضلة: <strong>WebP</strong>.
+        </div>
+      </div>
 
       {error && (
         <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/5 px-3 py-2 rounded-lg">

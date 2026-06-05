@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, Users, BookOpen, ArrowLeft } from "lucide-react";
+import { Clock, Users, ArrowLeft } from "lucide-react";
 import { getCategoryMeta } from "@/lib/categoryMeta";
 import { levelLabels, levelColors, getLevelForLesson } from "@/lib/trackMapping";
+import { getCardImageUrl, getCardSrcSet } from "@/lib/images";
 
 interface LessonCardProps {
   id: string;
@@ -51,7 +52,9 @@ export function LessonCard({
         {image ? (
           <div className="w-full h-full rounded-xl overflow-hidden relative">
             <img
-              src={image}
+              src={getCardImageUrl(image)}
+              srcSet={getCardSrcSet(image)}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt={title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
