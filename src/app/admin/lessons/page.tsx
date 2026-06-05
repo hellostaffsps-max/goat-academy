@@ -118,14 +118,13 @@ export default function AdminLessonsPage() {
       if (editingId) {
         await updateLesson(editingId, data);
       } else {
-        if (!data.slug) data.slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
         await createLesson(data);
       }
       await fetchLessons();
       closeForm();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("فشل حفظ الدرس");
+      alert(err.message || "فشل حفظ الدرس");
     } finally {
       setSubmitting(false);
     }
