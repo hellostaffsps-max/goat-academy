@@ -14,6 +14,7 @@ interface LessonCardProps {
   readTime?: string;
   read_time?: string;
   difficulty?: string;
+  image?: string | null;
   index?: number;
   lessonIndex?: number;
   totalLessons?: number;
@@ -28,6 +29,7 @@ export function LessonCard({
   readTime,
   read_time,
   difficulty,
+  image,
   index = 0,
   lessonIndex,
   totalLessons,
@@ -46,9 +48,21 @@ export function LessonCard({
     >
       {/* Image area */}
       <div className="card-image aspect-[16/10] mx-4 mt-4 mb-3">
-        <div className={`w-full h-full rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center`}>
-          <LevelIcon className="w-10 h-10 text-accent/50 group-hover:text-accent/70 transition-colors duration-500" />
-        </div>
+        {image ? (
+          <div className="w-full h-full rounded-xl overflow-hidden relative">
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          </div>
+        ) : (
+          <div className={`w-full h-full rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center`}>
+            <LevelIcon className="w-10 h-10 text-accent/50 group-hover:text-accent/70 transition-colors duration-500" />
+          </div>
+        )}
       </div>
 
       {/* Content */}

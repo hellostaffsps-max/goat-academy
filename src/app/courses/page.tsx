@@ -139,6 +139,7 @@ function CoursesPageContent() {
                     description={lesson.description}
                     readTime={lesson.read_time}
                     difficulty={lesson.difficulty}
+                    image={(lesson as any).image || undefined}
                     index={i}
                     lessonIndex={nav.lessonIndex || undefined}
                     totalLessons={nav.totalLessons || undefined}
@@ -302,6 +303,7 @@ function CoursesPageContent() {
                     description={lesson.description}
                     readTime={lesson.read_time}
                     difficulty={lesson.difficulty}
+                    image={(lesson as any).image || undefined}
                     index={i}
                     lessonIndex={nav.lessonIndex || undefined}
                     totalLessons={nav.totalLessons || undefined}

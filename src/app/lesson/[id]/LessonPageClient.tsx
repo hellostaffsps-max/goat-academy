@@ -73,13 +73,25 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
     <div className="animate-fade-in -mx-4 -mt-4">
       {/* Hero */}
       <div className="relative">
-        <div className="aspect-[21/9] sm:aspect-[16/6] bg-gradient-to-br from-secondary via-background to-secondary/50 relative overflow-hidden border-b border-border/50 rounded-b-2xl">
-          {/* Brand-inspired layout background */}
-          <div className="absolute inset-0 opacity-40 pointer-events-none">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-border" />
-            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full border border-border/50" />
-            <div className="absolute top-1/4 left-12 w-36 h-36 rounded-full bg-accent/5 blur-xl" />
-          </div>
+        <div className="aspect-[21/9] sm:aspect-[16/6] relative overflow-hidden border-b border-border/50 rounded-b-2xl">
+          {(lesson as any).image ? (
+            <>
+              <img
+                src={(lesson as any).image}
+                alt={lesson.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+            </>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-secondary via-background to-secondary/50 relative">
+              <div className="absolute inset-0 opacity-40 pointer-events-none">
+                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-border" />
+                <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full border border-border/50" />
+                <div className="absolute top-1/4 left-12 w-36 h-36 rounded-full bg-accent/5 blur-xl" />
+              </div>
+            </div>
+          )}
 
           <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
             <div

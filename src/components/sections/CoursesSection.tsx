@@ -34,6 +34,7 @@ export function CoursesSection() {
               description={lesson.description}
               readTime={lesson.read_time}
               difficulty={lesson.difficulty}
+              image={(lesson as any).image || undefined}
               index={i}
             />
           ))}
