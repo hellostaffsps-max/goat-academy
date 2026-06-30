@@ -34,7 +34,6 @@ export function ResourcesSection() {
     e.preventDefault();
     if (email) {
       setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
     }
   };
 
@@ -49,7 +48,7 @@ export function ResourcesSection() {
             </div>
             <h2 className="heading-lg mb-3">{content.heading}</h2>
             <p className="body-base text-muted-foreground mb-6">{content.description}</p>
-
+ 
             <div className="space-y-3">
               {resources.map((resource, i) => (
                 <ResourceCard
@@ -63,47 +62,89 @@ export function ResourcesSection() {
               ))}
             </div>
           </div>
-
+ 
           <div className="bg-card border border-border/60 rounded-3xl p-6 sm:p-8 shadow-lg">
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-7 h-7 text-accent" />
+            {submitted ? (
+              <div className="text-center space-y-4 animate-fade-in py-4">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+                <h3 className="text-lg font-bold text-foreground">شكرًا لاهتمامك!</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  تم توفير روابط الوصول الفوري للمصادر المجانية أدناه. اضغط على أي مصدر لفتحه وحفظه كـ PDF:
+                </p>
+                <div className="space-y-2 mt-4 text-right">
+                  <a
+                    href="/downloads/cafe-launch-guide?print=true"
+                    target="_blank"
+                    className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
+                  >
+                    <span className="text-xs font-semibold text-foreground">دليل فتح مقهى ناجح في فلسطين</span>
+                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل PDF</span>
+                  </a>
+                  <a
+                    href="/downloads/equipment-price-list?print=true"
+                    target="_blank"
+                    className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
+                  >
+                    <span className="text-xs font-semibold text-foreground">قائمة أسعار المعدات (بالشيكل ₪)</span>
+                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل PDF</span>
+                  </a>
+                  <a
+                    href="/downloads/cafe-business-plan?print=true"
+                    target="_blank"
+                    className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
+                  >
+                    <span className="text-xs font-semibold text-foreground">نموذج خطة عمل المقهى وهندسة التكاليف</span>
+                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل PDF</span>
+                  </a>
+                  <a
+                    href="/downloads/home-roasting-guide?print=true"
+                    target="_blank"
+                    className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
+                  >
+                    <span className="text-xs font-semibold text-foreground">دليل التحميص المنزلي للمبتدئين</span>
+                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل PDF</span>
+                  </a>
+                </div>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="text-[10px] text-muted-foreground hover:underline mt-4 block mx-auto"
+                >
+                  استخدام بريد إلكتروني آخر
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2">{content.formTitle}</h3>
-              <p className="text-sm text-muted-foreground">{content.formDescription}</p>
-            </div>
+            ) : (
+              <>
+                <div className="text-center mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-7 h-7 text-accent" />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">{content.formTitle}</h3>
+                  <p className="text-sm text-muted-foreground">{content.formDescription}</p>
+                </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div>
-                <input
-                  type="email"
-                  placeholder="بريدك الإلكتروني"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/40 transition-all text-right"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full btn-premium justify-center"
-                disabled={submitted}
-              >
-                {submitted ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    {content.successText}
-                  </>
-                ) : (
-                  <>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div>
+                    <input
+                      type="email"
+                      placeholder="بريدك الإلكتروني"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/40 transition-all text-right"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full btn-premium justify-center font-semibold"
+                  >
                     <Sparkles className="w-4 h-4" />
                     {content.submitText}
-                  </>
-                )}
-              </button>
-            </form>
+                  </button>
+                </form>
 
-            <p className="text-[10px] text-muted-foreground text-center mt-4">{content.privacyText}</p>
+                <p className="text-[10px] text-muted-foreground text-center mt-4">{content.privacyText}</p>
+              </>
+            )}
           </div>
         </div>
       </div>
