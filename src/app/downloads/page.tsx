@@ -42,7 +42,6 @@ export default function DownloadsPage() {
     e.preventDefault();
     if (email) {
       setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
     }
   };
 
@@ -106,7 +105,7 @@ export default function DownloadsPage() {
                 </p>
                 <div className="space-y-2 mt-4 text-right">
                   <a
-                    href="/downloads/cafe-launch-guide"
+                    href="/downloads/cafe-launch-guide?print=true"
                     target="_blank"
                     className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
                   >
@@ -114,7 +113,7 @@ export default function DownloadsPage() {
                     <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل A4 PDF</span>
                   </a>
                   <a
-                    href="/downloads/equipment-price-list"
+                    href="/downloads/equipment-price-list?print=true"
                     target="_blank"
                     className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
                   >
@@ -122,7 +121,7 @@ export default function DownloadsPage() {
                     <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل A4 PDF</span>
                   </a>
                   <a
-                    href="/downloads/cafe-business-plan"
+                    href="/downloads/cafe-business-plan?print=true"
                     target="_blank"
                     className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
                   >
@@ -130,7 +129,7 @@ export default function DownloadsPage() {
                     <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded font-bold">تحميل A4 PDF</span>
                   </a>
                   <a
-                    href="/downloads/home-roasting-guide"
+                    href="/downloads/home-roasting-guide?print=true"
                     target="_blank"
                     className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary border border-border transition-all hover:scale-[1.01] duration-200"
                   >

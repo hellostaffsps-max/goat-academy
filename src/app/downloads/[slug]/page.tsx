@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import { downloadResources } from "@/data/downloadResources";
 import { notFound, useRouter } from "next/navigation";
 import { Printer, ArrowRight, BookOpen } from "lucide-react";
@@ -13,6 +13,15 @@ export default function ResourceDetailPage({
   const router = useRouter();
   const { slug } = use(params);
   const resource = downloadResources[slug];
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("print=true")) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   if (!resource) {
     notFound();
