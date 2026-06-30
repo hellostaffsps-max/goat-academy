@@ -26,17 +26,25 @@ export function getImageUrl(
   const isSupabaseStorage = url.includes("/storage/v1/object/public/");
   if (!isSupabaseStorage) return url;
 
-  const { width, height, resize = "cover", quality, format = "auto" } = options;
+  // NOTE: Supabase Image Transformations must be enabled in Dashboard
+  // Storage → Settings → Image Transformations
+  // Until enabled, we return the original URL to avoid 404 errors.
+  // To enable transformations, uncomment the code below:
 
-  const params = new URLSearchParams();
-  if (width) params.set("width", String(width));
-  if (height) params.set("height", String(height));
-  if (resize) params.set("resize", resize);
-  if (quality) params.set("quality", String(quality));
-  if (format) params.set("format", format);
+  // const { width, height, resize = "cover", quality, format = "auto" } = options;
+  // const params = new URLSearchParams();
+  // if (width) params.set("width", String(width));
+  // if (height) params.set("height", String(height));
+  // if (resize) params.set("resize", resize);
+  // if (quality) params.set("quality", String(quality));
+  // if (format) params.set("format", format);
+  // const query = params.toString();
+  // if (query) {
+  //   const separator = url.includes("?") ? "&" : "?";
+  //   return `${url}${separator}${query}`;
+  // }
 
-  const query = params.toString();
-  return query ? `${url}?${query}` : url;
+  return url;
 }
 
 /**

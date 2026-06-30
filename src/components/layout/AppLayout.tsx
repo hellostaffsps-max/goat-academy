@@ -14,6 +14,7 @@ import { SkipToContent } from "@/components/SkipToContent";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { SearchBar } from "@/components/SearchBar";
 import BrandLogo from "@/components/BrandLogo";
+import { logVisit } from "@/actions/analytics";
 
 const navItems = [
   { id: "/", label: "الرئيسية", icon: Home },
@@ -30,6 +31,13 @@ const navItems = [
 // in a component that doesn't call any stateful hooks.
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname) {
+      // Log visit asynchronously
+      logVisit(pathname).catch(console.error);
+    }
+  }, [pathname]);
 
   // No hooks are called before this return
   if (pathname?.startsWith("/admin") || pathname?.startsWith("/auth")) {

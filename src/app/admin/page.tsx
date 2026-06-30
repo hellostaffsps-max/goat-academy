@@ -6,6 +6,7 @@ import { getCafes } from "@/actions/cafes";
 import { getArticles } from "@/actions/articles";
 import { getSuccessStories } from "@/actions/success-stories";
 import { getLearningPaths } from "@/actions/learning-paths";
+import { getVisitsSummary } from "@/actions/analytics";
 import { useStore } from "@/store/useStore";
 import { categories } from "@/data/coffeeData";
 import {
@@ -18,6 +19,7 @@ import {
   Newspaper,
   Trophy,
   Route,
+  BarChart3,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -26,24 +28,27 @@ export default function AdminDashboardPage() {
   const [articles, setArticles] = useState<any[]>([]);
   const [stories, setStories] = useState<any[]>([]);
   const [paths, setPaths] = useState<any[]>([]);
+  const [visitsData, setVisitsData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { favorites, completedLessons } = useStore();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [lessonsData, cafesData, articlesData, storiesData, pathsData] = await Promise.all([
+      const [lessonsData, cafesData, articlesData, storiesData, pathsData, visitsResponse] = await Promise.all([
         getLessons(),
         getCafes(),
         getArticles(),
         getSuccessStories(),
         getLearningPaths(),
+        getVisitsSummary(),
       ]);
       setLessons(lessonsData);
       setCafes(cafesData);
       setArticles(articlesData);
       setStories(storiesData);
       setPaths(pathsData);
+      setVisitsData(visitsResponse);
     } catch (err) {
       console.error(err);
     } finally {
@@ -112,6 +117,13 @@ export default function AdminDashboardPage() {
       color: "text-emerald-600",
       bg: "bg-emerald-500/10",
     },
+    {
+      label: "زيارات آخر 7 أيام",
+      value: visitsData?.total || 0,
+      icon: BarChart3,
+      color: "text-blue-600",
+      bg: "bg-blue-500/10",
+    },
   ];
 
   return (
@@ -139,6 +151,48 @@ export default function AdminDashboardPage() {
           );
         })}
       </div>
+
+      {visitsData && visitsData.total > 0 && (
+        <div className="bg-card border border-border rounded-xl overflow-hidden mb-6 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-5 h-5 text-accent" />
+            <h2 className="text-base font-bold text-foreground">إحصائيات الزيارات (آخر 7 أيام)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">الزيارات اليومية</h3>
+              <div className="space-y-3">
+                {visitsData.summary.map((day: any) => {
+                  const maxCount = Math.max(...visitsData.summary.map((d: any) => d.count), 1);
+                  const percentage = (day.count / maxCount) * 100;
+                  return (
+                    <div key={day.date} className="flex items-center gap-3 text-sm">
+                      <div className="w-20 text-muted-foreground">{day.date}</div>
+                      <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                        <div className="h-full bg-accent rounded-full" style={{ width: `${percentage}%` }}></div>
+                      </div>
+                      <div className="w-8 text-left font-medium text-foreground">{day.count}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">الصفحات الأكثر زيارة</h3>
+              <div className="space-y-2">
+                {visitsData.topPaths.map((item: any) => (
+                  <div key={item.path} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
+                    <div className="text-sm font-medium font-mono text-foreground">{item.path}</div>
+                    <div className="text-xs bg-accent/20 text-accent font-bold px-2 py-1 rounded-md">{item.count} زيارة</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent lessons */}
