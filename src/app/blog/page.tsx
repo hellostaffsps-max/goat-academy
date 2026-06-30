@@ -88,7 +88,7 @@ export default function BlogPage() {
             {filteredArticles.map((article, i) => (
               <ArticleCard
                 key={article.id}
-                id={article.id}
+                id={article.slug || article.id}
                 title={article.title}
                 category={article.category}
                 categoryLabel={article.category_label}

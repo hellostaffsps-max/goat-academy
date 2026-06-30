@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { ArrowLeft, Tag } from "lucide-react";
-import { useSupabaseLessons } from "@/hooks/useSupabaseData";
+import { useSupabaseArticles } from "@/hooks/useSupabaseData";
 import { ArticleCard } from "@/components/cards/ArticleCard";
 
 export function BlogSection() {
-  const { lessons } = useSupabaseLessons();
-  const articles = lessons.slice(3, 6);
+  const { articles } = useSupabaseArticles();
+  const displayArticles = articles.slice(0, 3);
 
   return (
     <section id="blog" className="section-padding gradient-card">
@@ -24,13 +24,13 @@ export function BlogSection() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-          {articles.map((article, i) => (
+          {displayArticles.map((article, i) => (
             <ArticleCard
               key={article.id}
-              id={article.id}
+              id={article.slug || article.id}
               title={article.title}
               category={article.category}
-              subcategory={article.subcategory}
+              subcategory={article.category_label}
               description={article.description}
               readTime={article.read_time}
               index={i}
