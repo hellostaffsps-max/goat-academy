@@ -28,7 +28,7 @@ BEGIN
   EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (((select auth.jwt())->%L->>%L) = %L) WITH CHECK (((select auth.jwt())->%L->>%L) = %L)', 'Admin manage ' || t, t, 'app_metadata', 'role', 'admin', 'app_metadata', 'role', 'admin');
   IF t = 'admin_settings' THEN
    EXECUTE $policy$CREATE POLICY "Public page copy" ON public.admin_settings FOR SELECT TO anon, authenticated USING (key IN ('hero_section','founder_section','paths_section','success_stories','tools_section','resources_section'))$policy$;
-   DELETE FROM public.admin_settings WHERE key = 'admin_password';
+   -- Legacy password row stays protected by RLS; no stored data is deleted.
   ELSE
    EXECUTE format('CREATE POLICY %I ON public.%I FOR SELECT TO anon, authenticated USING (true)', 'Public read ' || t, t);
   END IF;

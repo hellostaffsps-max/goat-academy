@@ -70,10 +70,12 @@ export default function AuthLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
+              <label htmlFor="admin-email" className="block text-sm font-medium text-foreground mb-1.5">
                 البريد الإلكتروني
               </label>
               <input
+                id="admin-email"
+                autoComplete="username"
                 type="email"
                 required
                 value={email}
@@ -85,11 +87,13 @@ export default function AuthLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
+              <label htmlFor="admin-password" className="block text-sm font-medium text-foreground mb-1.5">
                 كلمة المرور
               </label>
               <div className="relative">
                 <input
+                  id="admin-password"
+                  autoComplete="current-password"
                   type={showPassword ? "text" : "password"}
                   required
                   minLength={6}
@@ -100,6 +104,7 @@ export default function AuthLoginPage() {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >

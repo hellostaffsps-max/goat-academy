@@ -24,6 +24,7 @@ const resourceLinks = [
   { href: "/downloads", label: "تحميلات مجانية" },
   { href: "/success-stories", label: "قصص النجاح" },
   { href: "/about", label: "عن الأكاديمية" },
+  { href: "/auth/login", label: "دخول الإدارة" },
 ];
 
 const socialLinks = [
