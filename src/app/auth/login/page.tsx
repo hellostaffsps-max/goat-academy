@@ -14,7 +14,6 @@ export default function AuthLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,21 +21,33 @@ export default function AuthLoginPage() {
     setLoading(true);
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user?.app_metadata?.role !== "admin") {
+        await supabase.auth.signOut();
+        throw new Error("هذا الحساب لا يملك صلاحية الإدارة");
+      }
       router.replace("/admin");
-    } catch (err: any) {
-      setError(err.message || "حدث خطأ");
+      router.refresh();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "تعذر تسجيل الدخول");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir="rtl">
+    <div
+      className="min-h-screen bg-background flex items-center justify-center p-4"
+      dir="rtl"
+    >
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <div className="w-[200px] h-[80px]">
@@ -68,7 +79,7 @@ export default function AuthLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                placeholder="admin@goatjourney.com"
+                placeholder="البريد الإلكتروني لحسابك"
                 autoFocus
               />
             </div>
@@ -92,7 +103,11 @@ export default function AuthLoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -111,10 +126,6 @@ export default function AuthLoginPage() {
               {loading ? "جاري التحميل..." : "دخول"}
             </button>
           </form>
-
-          <p className="text-[10px] text-muted-foreground text-center mt-4">
-            بيانات الأدمن: admin@goatjourney.com / admin123
-          </p>
         </div>
       </div>
     </div>

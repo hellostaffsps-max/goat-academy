@@ -1,121 +1,56 @@
-"use client";
-
-import { useParams, useRouter } from "next/navigation";
-import { articles } from "@/data/blogData";
-import { LessonContent } from "@/components/lesson/LessonContent";
-import { ArrowRight, Calendar, Clock, User, Tag, ArrowLeft } from "lucide-react";
-import { SocialShare } from "@/components/SocialShare";
-
-export default function ArticlePage() {
-  const params = useParams();
-  const router = useRouter();
-  const id = params.id as string;
-
-  const article = articles.find((a) => a.id === id);
-
-  if (!article) {
-    return (
-      <div className="text-center py-20 animate-fade-in">
-        <p className="text-sm text-muted-foreground">المقال غير موجود</p>
-        <button
-          onClick={() => router.push("/blog")}
-          className="mt-4 text-xs text-primary hover:underline"
-        >
-          العودة للمدونة
-        </button>
-      </div>
-    );
-  }
-
+import { notFound, permanentRedirect } from "next/navigation";
+import { getPublicArticle, getPublicArticles } from "@/lib/public-content";
+import { pageMetadata } from "@/lib/seo";
+import { absoluteUrl, organizationId, personId, site } from "@/lib/site";
+import { JsonLd, BreadcrumbSchema } from "@/components/StructuredData";
+import ArticleClient from "./ArticleClient";
+type Props = { params: Promise<{ id: string }> };
+export const revalidate = 300;
+export async function generateStaticParams() {
+  return (await getPublicArticles()).map((a) => ({ id: a.slug }));
+}
+export async function generateMetadata({ params }: Props) {
+  const a = await getPublicArticle((await params).id);
+  if (!a) notFound();
+  return pageMetadata(a.title, a.description, `/blog/${a.slug}`, "article");
+}
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  const a = await getPublicArticle(id);
+  if (!a) notFound();
+  if (id !== a.slug) permanentRedirect(`/blog/${a.slug}`);
+  const author =
+    a.author === site.person || a.author === site.personEn
+      ? { "@id": personId }
+      : a.author === "فريق GoatJourney"
+        ? { "@id": organizationId }
+        : { "@type": "Person", name: a.author };
   return (
-    <div className="animate-fade-in -mx-4 -mt-4">
-      {/* Hero */}
-      <div className="relative">
-        <div className="aspect-[21/9] sm:aspect-[16/6] bg-gradient-to-br from-secondary via-background to-secondary/50 relative overflow-hidden border-b border-border/50 rounded-b-2xl">
-          <div className="absolute inset-0 opacity-40 pointer-events-none">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-border" />
-            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full border border-border/50" />
-            <div className="absolute top-1/4 left-12 w-36 h-36 rounded-full bg-accent/5 blur-xl" />
-          </div>
-
-          <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
-            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              {article.category_label}
-            </span>
-          </div>
-
-          {/* Back button */}
-          <button
-            onClick={() => router.push("/blog")}
-            className="absolute top-4 left-4 w-8 h-8 rounded-full bg-background/80 backdrop-blur-md border border-border flex items-center justify-center hover:bg-background transition-all shadow-xs"
-          >
-            <ArrowRight className="w-4 h-4 text-foreground" />
-          </button>
-        </div>
-
-        {/* Title Card */}
-        <div className="mx-4 -mt-6 relative z-10 bg-card border border-border rounded-xl p-5 text-right shadow-sm">
-          <div className="flex items-center gap-2 mb-2 flex-wrap justify-end">
-            {article.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[9px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full border border-border/10 flex items-center gap-1"
-              >
-                <Tag className="w-2.5 h-2.5" />
-                {tag}
-              </span>
-            ))}
-            <span className="text-[9px] text-accent-foreground bg-accent/10 px-2 py-0.5 rounded-full font-medium">
-              {article.category_label}
-            </span>
-          </div>
-          <h1 className="text-base font-bold text-foreground mb-1 leading-tight">
-            {article.title}
-          </h1>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {article.description}
-          </p>
-          <div className="flex items-center gap-4 mt-3 justify-end border-t border-border/50 pt-3">
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Calendar className="w-3 h-3" />
-              {new Date(article.date).toLocaleDateString("ar-EG")}
-            </span>
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <User className="w-3 h-3" />
-              {article.author}
-            </span>
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              {article.read_time}
-            </span>
-            <SocialShare title={article.title} />
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="px-4 mt-4 space-y-4">
-        {article.content ? (
-          <div className="bg-card border border-border rounded-xl p-5 text-right">
-            <LessonContent content={article.content} />
-          </div>
-        ) : (
-          <div className="bg-card border border-border rounded-xl p-8 text-center">
-            <p className="text-sm text-muted-foreground">المحتوى التفصيلي قريباً</p>
-          </div>
-        )}
-
-        {/* Back to Blog */}
-        <button
-          onClick={() => router.push("/blog")}
-          className="w-full py-3.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 border bg-card text-foreground hover:bg-accent/5 hover:border-accent/30"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          العودة للمدونة
-        </button>
-      </div>
-
-      <div className="h-8" />
-    </div>
+    <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: a.title,
+          description: a.description,
+          url: absoluteUrl(`/blog/${a.slug}`),
+          mainEntityOfPage: absoluteUrl(`/blog/${a.slug}`),
+          datePublished: a.date || a.created_at,
+          dateModified: a.updated_at || a.date,
+          inLanguage: "ar",
+          author,
+          publisher: { "@id": organizationId },
+          image: absoluteUrl("/og/default.png"),
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "الرئيسية", item: "/" },
+          { name: "المدونة", item: "/blog" },
+          { name: a.title },
+        ]}
+      />
+      <ArticleClient article={a} />
+    </>
   );
 }

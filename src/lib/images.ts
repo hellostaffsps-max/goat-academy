@@ -19,8 +19,9 @@ export interface ImageTransformOptions {
  */
 export function getImageUrl(
   url: string | null | undefined,
-  options: ImageTransformOptions = {}
+  options: ImageTransformOptions = {},
 ): string {
+  void options;
   if (!url) return "";
 
   const isSupabaseStorage = url.includes("/storage/v1/object/public/");
@@ -54,38 +55,57 @@ export function getImageUrl(
 export function getSrcSet(
   url: string | null | undefined,
   sizes: Array<{ width: number; height?: number }>,
-  baseOptions: Omit<ImageTransformOptions, "width" | "height"> = {}
-): string {
-  if (!url) return "";
+  baseOptions: Omit<ImageTransformOptions, "width" | "height"> = {},
+): string | undefined {
+  void sizes;
+  void baseOptions;
+  if (!url) return undefined;
 
-  return sizes
-    .map(({ width, height }) => {
-      const imageUrl = getImageUrl(url, { ...baseOptions, width, height });
-      return `${imageUrl} ${width}w`;
-    })
-    .join(", ");
+  // The original URL has a single intrinsic resolution. Return no misleading width descriptors.
+  return undefined;
 }
 
 /* ── Presets for common use-cases ── */
 
 /** Card thumbnail: 16:10 aspect ratio */
 export function getCardImageUrl(url: string | null | undefined): string {
-  return getImageUrl(url, { width: 640, height: 400, resize: "cover", format: "auto" });
-}
-
-export function getCardSrcSet(url: string | null | undefined): string {
-  return getSrcSet(url, [{ width: 320, height: 200 }, { width: 640, height: 400 }], {
+  return getImageUrl(url, {
+    width: 640,
+    height: 400,
     resize: "cover",
     format: "auto",
   });
 }
 
-/** Lesson hero: wide banner */
-export function getHeroImageUrl(url: string | null | undefined): string {
-  return getImageUrl(url, { width: 1200, height: 450, resize: "cover", format: "auto" });
+export function getCardSrcSet(
+  url: string | null | undefined,
+): string | undefined {
+  return getSrcSet(
+    url,
+    [
+      { width: 320, height: 200 },
+      { width: 640, height: 400 },
+    ],
+    {
+      resize: "cover",
+      format: "auto",
+    },
+  );
 }
 
-export function getHeroSrcSet(url: string | null | undefined): string {
+/** Lesson hero: wide banner */
+export function getHeroImageUrl(url: string | null | undefined): string {
+  return getImageUrl(url, {
+    width: 1200,
+    height: 450,
+    resize: "cover",
+    format: "auto",
+  });
+}
+
+export function getHeroSrcSet(
+  url: string | null | undefined,
+): string | undefined {
   return getSrcSet(
     url,
     [
@@ -94,21 +114,36 @@ export function getHeroSrcSet(url: string | null | undefined): string {
       { width: 1200, height: 450 },
       { width: 1920, height: 720 },
     ],
-    { resize: "cover", format: "auto" }
+    { resize: "cover", format: "auto" },
   );
 }
 
 /** Admin table thumbnail: small square-ish */
 export function getThumbImageUrl(url: string | null | undefined): string {
-  return getImageUrl(url, { width: 120, height: 120, resize: "cover", format: "auto" });
+  return getImageUrl(url, {
+    width: 120,
+    height: 120,
+    resize: "cover",
+    format: "auto",
+  });
 }
 
 /** Full-width article/blog image */
 export function getArticleImageUrl(url: string | null | undefined): string {
-  return getImageUrl(url, { width: 800, height: 420, resize: "cover", format: "auto" });
+  return getImageUrl(url, {
+    width: 800,
+    height: 420,
+    resize: "cover",
+    format: "auto",
+  });
 }
 
 /** Avatar / small profile image */
 export function getAvatarImageUrl(url: string | null | undefined): string {
-  return getImageUrl(url, { width: 96, height: 96, resize: "cover", format: "auto" });
+  return getImageUrl(url, {
+    width: 96,
+    height: 96,
+    resize: "cover",
+    format: "auto",
+  });
 }

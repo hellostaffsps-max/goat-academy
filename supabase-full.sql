@@ -40,10 +40,7 @@ CREATE TABLE IF NOT EXISTS admin_settings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert default admin password
-INSERT INTO admin_settings (key, value)
-VALUES ('admin_password', 'admin123')
-ON CONFLICT (key) DO NOTHING;
+-- Authentication uses Supabase Auth; never store passwords in public tables.
 
 -- Insert default categories data into lessons (for reference)
 -- Categories remain as app constants, not DB table
@@ -60,25 +57,15 @@ CREATE POLICY "Allow public read lessons" ON lessons
 CREATE POLICY "Allow public read cafes" ON cafes
   FOR SELECT USING (true);
 
--- Create policies for admin write access (using a simple check function)
-CREATE OR REPLACE FUNCTION is_admin_request()
-RETURNS BOOLEAN AS $$
-BEGIN
-  -- In production, you should use proper auth. 
-  -- For now, we rely on API key validation in server actions.
-  RETURN true;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- For now, allow all operations (we'll secure via server actions)
+-- Admin writes require a role assigned through the trusted Auth Admin API.
 CREATE POLICY "Allow all lessons" ON lessons
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 CREATE POLICY "Allow all cafes" ON cafes
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 CREATE POLICY "Allow all admin_settings" ON admin_settings
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_lessons_category ON lessons(category);
@@ -179,3 +166,5 @@ INSERT INTO lessons (slug, title, category, subcategory, description, rating, ta
   ('rent-risk', 'الإيجار قد يكسر المشروع', 'costing', 'دراسة التكاليف', 'الإيجار ليس رقمًا شهريًا فقط؛ هو ضغط ثابت قبل أن تبيع أول كوب. إذا كان أعلى من قدرة المبيعات المتوقعة، سيضغط المشروع من أول شهر.', 4.5, ARRAY["إيجار"], '—', 'إيجار', '## الخطر\nمصروف ثابت عالي\n\n## الخطأ\nاختيار موقع قبل حساب المبيعات\n\n## الحل\nاختبار نقطة التعادل'),
   ('equipment-budget', 'ميزانية المعدات', 'costing', 'دراسة التكاليف', 'شراء أغلى معدات لا يعني نجاح المقهى، وشراء الأرخص قد يكلفك أعطالًا وهدرًا. القرار الصحيح يوازن بين الطلب والجودة والصيانة.', 4.5, ARRAY["معدات"], '—', 'معدات', '## الأغلى\nليس دائمًا الأفضل\n\n## الأرخص\nقد يرفع الأعطال\n\n## الأصح\nيناسب حجم التشغيل'),
   ('request-cost-study', 'اطلب دراسة تكاليف خاصة', 'costing', 'دراسة التكاليف', 'إذا كنت جادًا بفتح مقهى في فلسطين، لا تبدأ برقم من منشور عام. أرسل تفاصيل مشروعك لنحضّر لك دراسة تكاليف تناسب مدينتك، المساحة، نوع التشغيل، مستوى التجهيز، وطموح العلامة.', 4.5, ARRAY["مراسلة"], '—', 'مراسلة', '## المطلوب\nتفاصيل مشروعك\n\n## النتيجة\nدراسة مخصصة\n\n## الزر\nينقلك لخدمة دراسة التكاليف');
+
+CREATE POLICY "Public page copy" ON admin_settings FOR SELECT TO anon, authenticated USING (key IN ('hero_section', 'founder_section', 'paths_section', 'success_stories', 'tools_section', 'resources_section'));

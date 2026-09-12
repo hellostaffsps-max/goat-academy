@@ -27,14 +27,14 @@ export function CoursesSection() {
           {featured.map((lesson, i) => (
             <LessonCard
               key={lesson.id}
-              id={lesson.id}
+              id={lesson.slug}
               title={lesson.title}
               category={lesson.category}
               subcategory={lesson.subcategory}
               description={lesson.description}
               readTime={lesson.read_time}
               difficulty={lesson.difficulty}
-              image={(lesson as any).image || undefined}
+              image={lesson.image || undefined}
               index={i}
             />
           ))}

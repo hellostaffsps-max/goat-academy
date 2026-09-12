@@ -8,7 +8,7 @@ import { getSuccessStories } from "@/actions/success-stories";
 import { getLearningPaths } from "@/actions/learning-paths";
 import { getVisitsSummary } from "@/actions/analytics";
 import { useStore } from "@/store/useStore";
-import { categories } from "@/data/coffeeData";
+import { categories } from "@/data/lessonCatalog";
 import {
   BookOpen,
   Store,
@@ -35,7 +35,14 @@ export default function AdminDashboardPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [lessonsData, cafesData, articlesData, storiesData, pathsData, visitsResponse] = await Promise.all([
+      const [
+        lessonsData,
+        cafesData,
+        articlesData,
+        storiesData,
+        pathsData,
+        visitsResponse,
+      ] = await Promise.all([
         getLessons(),
         getCafes(),
         getArticles(),
@@ -129,7 +136,9 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {loading && (
-        <div className="text-center py-4 text-muted-foreground text-sm">جاري تحميل البيانات...</div>
+        <div className="text-center py-4 text-muted-foreground text-sm">
+          جاري تحميل البيانات...
+        </div>
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -140,12 +149,18 @@ export default function AdminDashboardPage() {
               key={stat.label}
               className="bg-card border border-border rounded-xl p-4 flex items-start gap-3"
             >
-              <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center flex-shrink-0`}>
+              <div
+                className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center flex-shrink-0`}
+              >
                 <Icon className={`w-5 h-5 ${stat.color}`} />
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                <div className="text-xs text-muted-foreground">{stat.label}</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             </div>
           );
@@ -156,23 +171,40 @@ export default function AdminDashboardPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden mb-6 p-5">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-5 h-5 text-accent" />
-            <h2 className="text-base font-bold text-foreground">إحصائيات الزيارات (آخر 7 أيام)</h2>
+            <h2 className="text-base font-bold text-foreground">
+              إحصائيات الزيارات (آخر 7 أيام)
+            </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">الزيارات اليومية</h3>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                الزيارات اليومية
+              </h3>
               <div className="space-y-3">
                 {visitsData.summary.map((day: any) => {
-                  const maxCount = Math.max(...visitsData.summary.map((d: any) => d.count), 1);
+                  const maxCount = Math.max(
+                    ...visitsData.summary.map((d: any) => d.count),
+                    1,
+                  );
                   const percentage = (day.count / maxCount) * 100;
                   return (
-                    <div key={day.date} className="flex items-center gap-3 text-sm">
-                      <div className="w-20 text-muted-foreground">{day.date}</div>
-                      <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-accent rounded-full" style={{ width: `${percentage}%` }}></div>
+                    <div
+                      key={day.date}
+                      className="flex items-center gap-3 text-sm"
+                    >
+                      <div className="w-20 text-muted-foreground">
+                        {day.date}
                       </div>
-                      <div className="w-8 text-left font-medium text-foreground">{day.count}</div>
+                      <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-accent rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="w-8 text-left font-medium text-foreground">
+                        {day.count}
+                      </div>
                     </div>
                   );
                 })}
@@ -180,12 +212,21 @@ export default function AdminDashboardPage() {
             </div>
 
             <div>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">الصفحات الأكثر زيارة</h3>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                الصفحات الأكثر زيارة
+              </h3>
               <div className="space-y-2">
                 {visitsData.topPaths.map((item: any) => (
-                  <div key={item.path} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
-                    <div className="text-sm font-medium font-mono text-foreground">{item.path}</div>
-                    <div className="text-xs bg-accent/20 text-accent font-bold px-2 py-1 rounded-md">{item.count} زيارة</div>
+                  <div
+                    key={item.path}
+                    className="flex items-center justify-between p-2 rounded-lg bg-secondary/30"
+                  >
+                    <div className="text-sm font-medium font-mono text-foreground">
+                      {item.path}
+                    </div>
+                    <div className="text-xs bg-accent/20 text-accent font-bold px-2 py-1 rounded-md">
+                      {item.count} زيارة
+                    </div>
                   </div>
                 ))}
               </div>
@@ -202,16 +243,29 @@ export default function AdminDashboardPage() {
           </div>
           <div className="divide-y divide-border">
             {lessons.slice(0, 6).map((lesson: any) => (
-              <div key={lesson.id} className="p-4 flex items-center justify-between">
+              <div
+                key={lesson.id}
+                className="p-4 flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   {lesson.image ? (
-                    <img src={lesson.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    <img
+                      src={lesson.image}
+                      alt=""
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">لا توجد</div>
+                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">
+                      لا توجد
+                    </div>
                   )}
                   <div>
-                    <div className="text-sm font-medium text-foreground">{lesson.title}</div>
-                    <div className="text-xs text-muted-foreground">{lesson.subcategory}</div>
+                    <div className="text-sm font-medium text-foreground">
+                      {lesson.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {lesson.subcategory}
+                    </div>
                   </div>
                 </div>
                 <div className="text-xs px-2 py-1 rounded-md bg-secondary/50 text-muted-foreground">
@@ -220,7 +274,9 @@ export default function AdminDashboardPage() {
               </div>
             ))}
             {lessons.length === 0 && !loading && (
-              <div className="p-8 text-center text-sm text-muted-foreground">لا توجد دروس</div>
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                لا توجد دروس
+              </div>
             )}
           </div>
         </div>
@@ -232,16 +288,29 @@ export default function AdminDashboardPage() {
           </div>
           <div className="divide-y divide-border">
             {articles.slice(0, 6).map((article: any) => (
-              <div key={article.id} className="p-4 flex items-center justify-between">
+              <div
+                key={article.id}
+                className="p-4 flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   {article.image ? (
-                    <img src={article.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    <img
+                      src={article.image}
+                      alt=""
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">لا توجد</div>
+                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-xs text-muted-foreground">
+                      لا توجد
+                    </div>
                   )}
                   <div>
-                    <div className="text-sm font-medium text-foreground">{article.title}</div>
-                    <div className="text-xs text-muted-foreground">{article.category_label}</div>
+                    <div className="text-sm font-medium text-foreground">
+                      {article.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {article.category_label}
+                    </div>
                   </div>
                 </div>
                 <div className="text-xs px-2 py-1 rounded-md bg-secondary/50 text-muted-foreground">
@@ -250,7 +319,9 @@ export default function AdminDashboardPage() {
               </div>
             ))}
             {articles.length === 0 && !loading && (
-              <div className="p-8 text-center text-sm text-muted-foreground">لا توجد مقالات</div>
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                لا توجد مقالات
+              </div>
             )}
           </div>
         </div>

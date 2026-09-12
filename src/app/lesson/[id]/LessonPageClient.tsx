@@ -2,15 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
-import { getLessonById } from "@/data/coffeeData";
-import { useSupabaseLessons } from "@/hooks/useSupabaseData";
+import type { PublicLesson } from "@/lib/public-types";
+import type { LessonNavigation } from "@/lib/lessonNavigation";
 import { LessonContent } from "@/components/lesson/LessonContent";
 import {
   LessonProgressBar,
   LessonPrevNext,
   BackToPath,
 } from "@/components/lesson/LessonNavigation";
-import { getLessonNavigation } from "@/lib/lessonNavigation";
 import {
   Heart,
   Clock,
@@ -24,48 +23,24 @@ import { BrewTimer } from "@/components/coffee/BrewTimer";
 import { SocialShare } from "@/components/SocialShare";
 import { cn } from "@/lib/utils";
 import { getCategoryMeta } from "@/lib/categoryMeta";
-import { getHeroImageUrl, getHeroSrcSet } from "@/lib/images";
+import { ContentImage } from "@/components/ContentImage";
 
 interface LessonPageClientProps {
-  lessonId: string;
+  lesson: PublicLesson;
+  relatedLessons: PublicLesson[];
+  nav: LessonNavigation;
 }
-
-export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
+export default function LessonPageClient({
+  lesson,
+  relatedLessons,
+  nav,
+}: LessonPageClientProps) {
   const router = useRouter();
-  const { lessons, loading } = useSupabaseLessons();
+  const { toggleFavorite, isFavorite, toggleCompleted, isCompleted } =
+    useStore();
 
-  const {
-    toggleFavorite,
-    isFavorite,
-    toggleCompleted,
-    isCompleted,
-  } = useStore();
-
-  const lesson = lessons.find((l) => l.id === lessonId || l.slug === lessonId) || getLessonById(lessonId);
-
-  const nav = lesson ? getLessonNavigation((lesson as any).slug || lesson.id) : null;
-
-  if (!lesson) {
-    return (
-      <div className="text-center py-20 animate-fade-in">
-        <p className="text-sm text-muted-foreground">الدرس غير موجود</p>
-        <button
-          onClick={() => router.push("/explore")}
-          className="mt-4 text-xs text-primary hover:underline"
-        >
-          العودة للاستكشاف
-        </button>
-      </div>
-    );
-  }
-
-  const completed = isCompleted((lesson as any).slug || lesson.id);
-  const fav = isFavorite((lesson as any).slug || lesson.id);
-
-  // Get related lessons from same category
-  const relatedLessons = lessons
-    .filter((l) => l.category === lesson?.category && l.id !== lesson?.id)
-    .slice(0, 4);
+  const completed = isCompleted(lesson.slug || lesson.id);
+  const fav = isFavorite(lesson.slug || lesson.id);
 
   const currentMeta = getCategoryMeta(lesson.category);
   const CurrentIcon = currentMeta.icon;
@@ -75,11 +50,11 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
       {/* Hero */}
       <div className="relative">
         <div className="aspect-[21/9] sm:aspect-[16/6] relative overflow-hidden border-b border-border/50 rounded-b-2xl">
-          {(lesson as any).image ? (
+          {lesson.image ? (
             <>
-              <img
-                src={getHeroImageUrl((lesson as any).image)}
-                srcSet={getHeroSrcSet((lesson as any).image)}
+              <ContentImage
+                src={lesson.image}
+                priority
                 sizes="100vw"
                 alt={lesson.title}
                 className="w-full h-full object-cover"
@@ -100,10 +75,13 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
             <div
               className={cn(
                 "w-12 h-12 rounded-xl flex items-center justify-center mb-1 bg-gradient-to-br",
-                currentMeta.gradient
+                currentMeta.gradient,
               )}
             >
-              <CurrentIcon className="w-5 h-5 text-foreground/75" strokeWidth={1.5} />
+              <CurrentIcon
+                className="w-5 h-5 text-foreground/75"
+                strokeWidth={1.5}
+              />
             </div>
             <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
               {lesson.subcategory}
@@ -120,14 +98,14 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
           </button>
           {/* Favorite */}
           <button
-            onClick={() => toggleFavorite((lesson as any).slug || lesson.id)}
+            onClick={() => toggleFavorite(lesson.slug || lesson.id)}
             aria-label={fav ? "إزالة من المفضلة" : "إضافة للمفضلة"}
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-background/80 backdrop-blur-md border border-border flex items-center justify-center hover:bg-background transition-all shadow-xs"
           >
             <Heart
               className={cn(
                 "w-4 h-4 transition-colors",
-                fav ? "text-destructive fill-destructive" : "text-foreground"
+                fav ? "text-destructive fill-destructive" : "text-foreground",
               )}
             />
           </button>
@@ -160,10 +138,10 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
             {lesson.description}
           </p>
           <div className="flex items-center gap-4 mt-3 justify-end border-t border-border/50 pt-3">
-            {((lesson as any).read_time || (lesson as any).readTime) && (
+            {lesson.read_time && (
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <Clock className="w-3 h-3" />
-                {(lesson as any).read_time || (lesson as any).readTime}
+                {lesson.read_time}
               </span>
             )}
             <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
@@ -192,7 +170,9 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
           </div>
         ) : (
           <div className="bg-card border border-border rounded-xl p-8 text-center">
-            <p className="text-sm text-muted-foreground">المحتوى التفصيلي قريباً</p>
+            <p className="text-sm text-muted-foreground">
+              المحتوى التفصيلي قريباً
+            </p>
           </div>
         )}
 
@@ -208,7 +188,7 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
             "w-full py-3.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 border",
             completed
               ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700"
-              : "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent",
           )}
         >
           {completed ? (
@@ -261,10 +241,13 @@ export default function LessonPageClient({ lessonId }: LessonPageClientProps) {
                     <div
                       className={cn(
                         "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br transition-transform duration-300 group-hover:scale-105",
-                        rlMeta.gradient
+                        rlMeta.gradient,
                       )}
                     >
-                      <RlIcon className="w-4 h-4 text-foreground/70" strokeWidth={1.5} />
+                      <RlIcon
+                        className="w-4 h-4 text-foreground/70"
+                        strokeWidth={1.5}
+                      />
                     </div>
                   </button>
                 );

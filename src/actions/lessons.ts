@@ -1,6 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/lib/admin-auth";
+import { revalidateTag } from "next/cache";
 
 export interface LessonInput {
   slug: string;
@@ -23,7 +24,7 @@ function sanitizeSlug(title: string, existingSlug?: string): string {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-")
-    .replace(/[^\u0600-\u06FFa-z0-9\-]/gi, "");
+    .replace(/[^\u0600-\u06FFa-z0-9-]/gi, "");
   if (!slug) {
     slug = `lesson-${Date.now()}`;
   }
@@ -31,7 +32,7 @@ function sanitizeSlug(title: string, existingSlug?: string): string {
 }
 
 export async function getLessons() {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("lessons")
     .select("*")
@@ -42,7 +43,7 @@ export async function getLessons() {
 }
 
 export async function getLessonBySlug(slug: string) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("lessons")
     .select("*")
@@ -54,7 +55,7 @@ export async function getLessonBySlug(slug: string) {
 }
 
 export async function getLessonByIdOrSlug(idOrSlug: string) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   const { data: byId } = await supabase
     .from("lessons")
@@ -82,7 +83,7 @@ export async function getLessonByIdOrSlug(idOrSlug: string) {
 }
 
 export async function createLesson(lesson: LessonInput) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   const payload = {
     ...lesson,
@@ -91,8 +92,6 @@ export async function createLesson(lesson: LessonInput) {
     tags: lesson.tags?.length ? lesson.tags : [],
     path: lesson.path || null,
   };
-
-  console.log("[createLesson] payload:", JSON.stringify(payload, null, 2));
 
   const { data, error } = await supabase
     .from("lessons")
@@ -104,13 +103,14 @@ export async function createLesson(lesson: LessonInput) {
     console.error("[createLesson] Supabase error:", error);
     throw new Error(error.message || "فشل إنشاء الدرس");
   }
+  revalidateTag("public-content", { expire: 0 });
   return data;
 }
 
 export async function updateLesson(id: string, lesson: Partial<LessonInput>) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
-  const payload: any = { ...lesson };
+  const payload: Partial<LessonInput> = { ...lesson };
   if (lesson.slug !== undefined) {
     payload.slug = sanitizeSlug(lesson.title || "", lesson.slug);
   }
@@ -120,8 +120,6 @@ export async function updateLesson(id: string, lesson: Partial<LessonInput>) {
   if (lesson.path !== undefined) {
     payload.path = lesson.path || null;
   }
-
-  console.log("[updateLesson] payload:", JSON.stringify(payload, null, 2));
 
   const { data, error } = await supabase
     .from("lessons")
@@ -134,12 +132,14 @@ export async function updateLesson(id: string, lesson: Partial<LessonInput>) {
     console.error("[updateLesson] Supabase error:", error);
     throw new Error(error.message || "فشل تحديث الدرس");
   }
+  revalidateTag("public-content", { expire: 0 });
   return data;
 }
 
 export async function deleteLesson(id: string) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { error } = await supabase.from("lessons").delete().eq("id", id);
 
   if (error) throw error;
+  revalidateTag("public-content", { expire: 0 });
 }

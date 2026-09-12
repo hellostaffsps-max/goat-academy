@@ -2,32 +2,44 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
+    remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? [
+          {
+            protocol: "https",
+            hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ]
+      : [],
   },
   turbopack: {
-    root: ".",
+    root: import.meta.dirname,
   },
   experimental: {
     serverActions: {
       bodySizeLimit: "5mb",
     },
   },
-  async redirects() {
-    return [
-      {
-        source: "/services",
-        destination: "/consultant",
-        permanent: true,
-      },
-      {
-        source: "/services/:path*",
-        destination: "/consultant",
-        permanent: true,
-      },
-    ];
-  },
   async headers() {
     return [
+      ...["/admin/:path*", "/auth/:path*", "/settings", "/favorites"].map(
+        (source) => ({
+          source,
+          headers: [
+            { key: "X-Robots-Tag", value: "noindex, nofollow" },
+            { key: "Cache-Control", value: "private, no-store" },
+          ],
+        }),
+      ),
+      {
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [
@@ -49,7 +61,8 @@ const nextConfig = {
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+            value:
+              "camera=(), microphone=(), geolocation=(), interest-cohort=()",
           },
         ],
       },

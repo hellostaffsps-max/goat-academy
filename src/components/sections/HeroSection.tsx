@@ -1,74 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Play, MessageSquare, Coffee, Award, Clock, BookOpen, Wrench, TrendingUp, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Play,
+  MessageSquare,
+  Coffee,
+  Award,
+  Clock,
+  BookOpen,
+  Wrench,
+} from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
-import { useEffect, useRef, useState } from "react";
 
 const defaultFeatures = [
-  { icon: "Award", title: "SCA Certified", description: "وائل أرزيقات حاصل على شهادة SCA و Espresso Academy Florence المعتمدة عالمياً" },
-  { icon: "Clock", title: "+9 سنوات خبرة", description: "خبرة عملية في القهوة المختصة والضيافة منذ عام 2015" },
-  { icon: "BookOpen", title: "محتوى عربي متخصص", description: "أول منصة عربية تجمع التعليم العملي والاستشارات في مكان واحد" },
-  { icon: "Wrench", title: "تعليم عملي", description: "محتوى مبني على تجربة حقيقية في تدريب الباريستا وتأسيس المقاهي" },
+  {
+    icon: "Award",
+    title: "تدريب عملي",
+    description: "مهارات التحضير وضبط الجودة وتنظيم البار",
+  },
+  {
+    icon: "Clock",
+    title: "خطة تناسب احتياجك",
+    description: "تحديد النطاق والمواعيد قبل البدء",
+  },
+  {
+    icon: "BookOpen",
+    title: "محتوى عربي",
+    description: "دروس ومراجع للقهوة وتشغيل المقاهي",
+  },
+  {
+    icon: "Wrench",
+    title: "استشارات المقاهي",
+    description: "من قرارات التجهيز إلى المنيو وتدريب الفريق",
+  },
 ];
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Award, Clock, BookOpen, Wrench, Coffee,
+  Award,
+  Clock,
+  BookOpen,
+  Wrench,
+  Coffee,
 };
 
 const defaultContent = {
-  badge: "أكاديمية القهوة المختصة الأولى بالعربية",
+  badge: "تدريب واستشارات قهوة في فلسطين",
   heading: "من شغف القهوة",
   headingAccent: "إلى الاحتراف",
-  description: "مع وائل أرزيقات — SCA Certified Coffee Professional ومؤسس Goat Journey Academy. تعلم القهوة المختصة، تطوير المقاهي، وتدريب الباريستا بمعايير عالمية.",
+  description:
+    "مع وائل أرزيقات — Wael Irzeqat، مؤسس Goat Journey. تعلم القهوة المختصة، وطوّر مهارات الباريستا وطريقة عمل مقهاك.",
   ctaPrimary: { text: "ابدأ التعلم", href: "/explore" },
   ctaSecondary: { text: "احجز استشارة", href: "/consultant" },
   ctaTertiary: { text: "تصفح الدورات", href: "/courses" },
   features: defaultFeatures,
 };
-
-// Live stats data
-const liveStats = [
-  { icon: BookOpen, value: 80, suffix: "+", label: "درس تعليمي" },
-  { icon: TrendingUp, value: 3, suffix: "", label: "مسار تعليمي" },
-  { icon: Wrench, value: 7, suffix: "", label: "أداة تفاعلية" },
-  { icon: Users, value: 150, suffix: "+", label: "متعلم نشط" },
-];
-
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const start = performance.now();
-          const duration = 2000;
-          const animate = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(eased * target));
-            if (progress < 1) requestAnimationFrame(animate);
-          };
-          requestAnimationFrame(animate);
-        }
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [target]);
-
-  return (
-    <span ref={ref}>
-      {count}
-      {suffix}
-    </span>
-  );
-}
 
 export function HeroSection() {
   const { content } = useSiteContent("hero_section", defaultContent);
@@ -88,7 +74,9 @@ export function HeroSection() {
 
           <h1 className="heading-xl text-foreground mb-6 animate-slide-up stagger-1">
             {content.heading}
-            <span className="block text-accent mt-1">{content.headingAccent}</span>
+            <span className="block text-accent mt-1">
+              {content.headingAccent}
+            </span>
           </h1>
 
           <p className="body-lg mb-8 max-w-2xl mx-auto animate-slide-up stagger-2">
@@ -96,38 +84,27 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 animate-slide-up stagger-3">
-            <Link href={content.ctaPrimary?.href || "/explore"} className="btn-premium w-full sm:w-auto">
+            <Link
+              href={content.ctaPrimary?.href || "/explore"}
+              className="btn-premium w-full sm:w-auto"
+            >
               {content.ctaPrimary?.text || "ابدأ التعلم"}
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <Link href={content.ctaSecondary?.href || "/consultant"} className="btn-accent w-full sm:w-auto">
+            <Link
+              href={content.ctaSecondary?.href || "/consultant"}
+              className="btn-accent w-full sm:w-auto"
+            >
               <MessageSquare className="w-4 h-4" />
               {content.ctaSecondary?.text || "احجز استشارة"}
             </Link>
-            <Link href={content.ctaTertiary?.href || "/courses"} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:border-accent/40 hover:bg-accent/5 transition-all duration-300 w-full sm:w-auto">
+            <Link
+              href={content.ctaTertiary?.href || "/courses"}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:border-accent/40 hover:bg-accent/5 transition-all duration-300 w-full sm:w-auto"
+            >
               <Play className="w-4 h-4" />
               {content.ctaTertiary?.text || "تصفح الدورات"}
             </Link>
-          </div>
-
-          {/* Live Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8 animate-slide-up stagger-4">
-            {liveStats.map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={stat.label}
-                  className="bg-card/80 backdrop-blur-sm border border-border/60 rounded-2xl p-4 text-center hover:border-accent/30 transition-colors"
-                  style={{ animationDelay: `${0.4 + i * 0.05}s` }}
-                >
-                  <Icon className="w-5 h-5 text-accent mx-auto mb-2" />
-                  <div className="text-xl font-bold text-foreground">
-                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</div>
-                </div>
-              );
-            })}
           </div>
 
           {/* Feature Cards */}
@@ -141,8 +118,12 @@ export function HeroSection() {
                   style={{ animationDelay: `${0.6 + i * 0.05}s` }}
                 >
                   <Icon className="w-5 h-5 text-accent mx-auto mb-2" />
-                  <div className="text-sm font-bold text-foreground">{feature.title}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{feature.description}</div>
+                  <div className="text-sm font-bold text-foreground">
+                    {feature.title}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">
+                    {feature.description}
+                  </div>
                 </div>
               );
             })}

@@ -1,22 +1,9 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "خدماتنا | تدريب الباريستا وتطوير المقاهي",
-  description:
-    "خدمات احترافية في صناعة القهوة — تدريب الباريستا، تطوير المقاهي، استشارات تشغيلية، وتدريب الشركات.",
-  keywords: ["خدمات قهوة", "تدريب باريستا فلسطين", "تطوير مقاهي"],
-  alternates: {
-    canonical: "/services",
-  },
-  openGraph: {
-    title: "خدماتنا | تدريب الباريستا وتطوير المقاهي",
-    description:
-      "خدمات احترافية في صناعة القهوة — تدريب الباريستا، تطوير المقاهي، استشارات تشغيلية، وتدريب الشركات.",
-    url: "https://www.goatjourney.online/services",
-    type: "website",
-  },
-};
-
-export default function ServicesLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+import { pageMetadata } from "@/lib/seo";
+export const metadata = pageMetadata(
+  "خدمات تدريب الباريستا واستشارات القهوة في فلسطين",
+  "خدمات Goat Journey مع وائل أرزيقات: تدريب الباريستا، استشارات المقاهي، تدريب طاقم العمل وتطوير منيو القهوة في فلسطين.",
+  "/services",
+);
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }

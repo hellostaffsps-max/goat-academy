@@ -15,21 +15,27 @@ import {
 import BrandLogo from "@/components/BrandLogo";
 import { createClient } from "@/utils/supabase/client";
 
+const subscribe = () => () => {};
 export default function SettingsPage() {
-  const { favorites, completedLessons, settings, updateSettings, clearData } = useStore();
+  const { favorites, completedLessons, settings, updateSettings, clearData } =
+    useStore();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const supabase = createClient();
+  const mounted = React.useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
   const handleReset = async () => {
-    if (typeof window !== "undefined" && confirm("هل أنت متأكد من حذف جميع البيانات؟")) {
+    if (
+      typeof window !== "undefined" &&
+      confirm("هل أنت متأكد من حذف جميع البيانات؟")
+    ) {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("user_favorites").delete().eq("user_id", user.id);
           await supabase.from("user_progress").delete().eq("user_id", user.id);
@@ -46,7 +52,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-right">
-        <h2 className="text-xl font-bold text-foreground">الإعدادات</h2>
+        <h1 className="text-xl font-bold text-foreground">الإعدادات</h1>
         <p className="text-xs text-muted-foreground mt-1">
           تخصيص تجربتك في الأكاديمية
         </p>
@@ -138,9 +144,7 @@ export default function SettingsPage() {
       <section className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="p-4 border-b border-border flex items-center gap-2">
           <Type className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-bold text-foreground">
-            إمكانية الوصول
-          </h3>
+          <h3 className="text-sm font-bold text-foreground">إمكانية الوصول</h3>
         </div>
         <div className="p-4 flex items-center justify-between">
           <label className="relative inline-flex items-center cursor-pointer">
@@ -186,9 +190,7 @@ export default function SettingsPage() {
       <section className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="p-4 border-b border-border flex items-center gap-2">
           <Info className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-bold text-foreground">
-            عن الأكاديمية
-          </h3>
+          <h3 className="text-sm font-bold text-foreground">عن الأكاديمية</h3>
         </div>
         <div className="p-4 text-right">
           <div className="flex items-center gap-3 mb-4">
@@ -197,10 +199,9 @@ export default function SettingsPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-            أكاديمية تفاعلية متكاملة لعشاق القهوة والباريستا وأصحاب المقاهي.
-            تضم أكثر من 90 درساً تعليمياً covering مشروبات القهوة، طرق
-            التحضير، المعدات، البن والتحميص، المصطلحات، إنشاء المقاهي، ودراسة
-            التكاليف.
+            أكاديمية تفاعلية متكاملة لعشاق القهوة والباريستا وأصحاب المقاهي. تضم
+            أكثر من 90 درساً تعليمياً covering مشروبات القهوة، طرق التحضير،
+            المعدات، البن والتحميص، المصطلحات، إنشاء المقاهي، ودراسة التكاليف.
           </p>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
             <span>الإصدار 1.0</span>

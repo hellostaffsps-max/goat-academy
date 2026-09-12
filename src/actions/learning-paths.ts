@@ -1,6 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/lib/admin-auth";
+import { revalidateTag } from "next/cache";
 
 export interface LearningPathInput {
   slug: string;
@@ -14,7 +15,7 @@ export interface LearningPathInput {
 }
 
 export async function getLearningPaths() {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("learning_paths")
     .select("*")
@@ -25,7 +26,7 @@ export async function getLearningPaths() {
 }
 
 export async function getLearningPathBySlug(slug: string) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("learning_paths")
     .select("*")
@@ -38,13 +39,17 @@ export async function getLearningPathBySlug(slug: string) {
 
 function sanitizeSlug(title: string, existingSlug?: string): string {
   if (existingSlug) return existingSlug;
-  let slug = title.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^\u0600-\u06FFa-z0-9\-]/gi, "");
+  let slug = title
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\u0600-\u06FFa-z0-9-]/gi, "");
   if (!slug) slug = `path-${Date.now()}`;
   return slug;
 }
 
 export async function createLearningPath(path: LearningPathInput) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const payload = { ...path, slug: sanitizeSlug(path.title, path.slug) };
   const { data, error } = await supabase
     .from("learning_paths")
@@ -56,13 +61,18 @@ export async function createLearningPath(path: LearningPathInput) {
     console.error("[createLearningPath] error:", error);
     throw new Error(error.message || "فشل إنشاء المسار");
   }
+  revalidateTag("public-content", { expire: 0 });
   return data;
 }
 
-export async function updateLearningPath(id: string, path: Partial<LearningPathInput>) {
-  const supabase = await createClient();
-  const payload: any = { ...path };
-  if (path.slug !== undefined) payload.slug = sanitizeSlug(path.title || "", path.slug);
+export async function updateLearningPath(
+  id: string,
+  path: Partial<LearningPathInput>,
+) {
+  const { supabase } = await requireAdmin();
+  const payload: Partial<LearningPathInput> = { ...path };
+  if (path.slug !== undefined)
+    payload.slug = sanitizeSlug(path.title || "", path.slug);
   const { data, error } = await supabase
     .from("learning_paths")
     .update(payload)
@@ -74,12 +84,14 @@ export async function updateLearningPath(id: string, path: Partial<LearningPathI
     console.error("[updateLearningPath] error:", error);
     throw new Error(error.message || "فشل تحديث المسار");
   }
+  revalidateTag("public-content", { expire: 0 });
   return data;
 }
 
 export async function deleteLearningPath(id: string) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { error } = await supabase.from("learning_paths").delete().eq("id", id);
 
   if (error) throw error;
+  revalidateTag("public-content", { expire: 0 });
 }

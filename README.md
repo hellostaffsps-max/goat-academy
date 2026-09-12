@@ -24,13 +24,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ## Local Development
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ## Deployment
+
+Read [SEO-DEPLOYMENT.md](SEO-DEPLOYMENT.md) for the required database and verification steps.
 
 ### 1. GitHub
 Push this repo to your GitHub account.
@@ -49,19 +51,20 @@ Push this repo to your GitHub account.
 
 - **URL:** `/admin`
 - **Login:** `/auth/login`
-- **Default Admin:** `admin@goatjourney.com` / `admin123`
+- **Authorization:** an existing Supabase Auth account with `app_metadata.role = "admin"`, assigned through the trusted Auth Admin API. No default account or password is shipped.
 
-## Supabase Setup
+## Supabase and SEO release setup
 
-1. Create a Supabase project
-2. Run the SQL schemas:
-   - `supabase-schema.sql` — core tables (lessons, cafes, admin_settings)
-   - `supabase-auth-schema.sql` — auth & user isolation (profiles, user_favorites, user_progress, user_settings)
-   - `supabase-full.sql` — seed data (90 lessons)
-3. Fix the `profiles` RLS policy if needed using `fix-profiles-rls.sql`
-4. Configure Auth settings:
-   - Disable signups (`disable_signup: true`)
-   - Enable email auto-confirm (`mailer_autoconfirm: true`)
+Follow [SEO-DEPLOYMENT.md](SEO-DEPLOYMENT.md) before deploying this release. It covers the verified project, role provisioning, RLS repair, tests and search ownership settings. Do not run bootstrap/seed SQL against an existing production database.
+
+Public local preview works without Supabase credentials using repository content. With credentials configured, the server uses RLS-visible Supabase content; database failures are not silently replaced with local seed data.
+
+```bash
+npm run build
+npm run start
+# In a second terminal:
+npm run verify:seo -- http://localhost:3000
+```
 
 ## License
 

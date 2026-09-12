@@ -1,105 +1,65 @@
-import type { Metadata } from "next";
-import { getLessonByIdOrSlug } from "@/actions/lessons";
-import { getLessonById } from "@/data/coffeeData";
+import { notFound, permanentRedirect } from "next/navigation";
+import {
+  getPublicLesson,
+  getPublicLessons,
+  getPublicPaths,
+} from "@/lib/public-content";
+import { pageMetadata } from "@/lib/seo";
+import { absoluteUrl, organizationId } from "@/lib/site";
+import { JsonLd, BreadcrumbSchema } from "@/components/StructuredData";
+import { getLessonNavigation } from "@/lib/lessonNavigation";
 import LessonPageClient from "./LessonPageClient";
-
-export function generateStaticParams() {
-  const { lessons } = require("@/data/coffeeData");
-  return lessons.map((lesson: any) => ({
-    id: lesson.id,
-  }));
+type Props = { params: Promise<{ id: string }> };
+export const revalidate = 300;
+export async function generateStaticParams() {
+  return (await getPublicLessons()).map((l) => ({ id: l.slug }));
 }
-
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
-
-  // Try Supabase first
-  let lesson = null;
-  try {
-    lesson = await getLessonByIdOrSlug(id);
-  } catch {
-    // fallback handled below
-  }
-
-  // Fallback to local data
-  if (!lesson) {
-    try {
-      lesson = getLessonById(id);
-    } catch {
-      // ignore
-    }
-  }
-
-  if (!lesson) {
-    return {
-      title: "الدرس غير موجود | GoatJourney Academy",
-    };
-  }
-
-  const ogImage = `https://www.goatjourney.online/og-${lesson.category || "default"}.jpg`;
-
-  return {
-    title: `${lesson.title} | GoatJourney Academy`,
-    description: lesson.description,
-    alternates: {
-      canonical: `/lesson/${id}`,
-    },
-    openGraph: {
-      title: lesson.title,
-      description: lesson.description,
-      type: "article",
-      url: `https://www.goatjourney.online/lesson/${id}`,
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: lesson.title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: lesson.title,
-      description: lesson.description,
-      images: [ogImage],
-    },
-  };
+export async function generateMetadata({ params }: Props) {
+  const l = await getPublicLesson((await params).id);
+  if (!l) notFound();
+  return pageMetadata(l.title, l.description, `/lesson/${l.slug}`, "article");
 }
-
-export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({ params }: Props) {
   const { id } = await params;
-
-  // Try to get lesson from Supabase first
-  let lesson = null;
-  try {
-    lesson = await getLessonByIdOrSlug(id);
-  } catch {
-    // fallback
-  }
-
-  const jsonLd = lesson
-    ? {
-        "@context": "https://schema.org",
-        "@type": "LearningResource",
-        name: lesson.title,
-        description: lesson.description,
-        inLanguage: "ar",
-        educationalLevel: lesson.difficulty || "مبتدئ",
-        learningResourceType: "Lesson",
-        url: `https://www.goatjourney.online/lesson/${id}`,
-      }
-    : null;
-
+  const lesson = await getPublicLesson(id);
+  if (!lesson) notFound();
+  if (id !== lesson.slug) permanentRedirect(`/lesson/${lesson.slug}`);
+  const [lessons, paths] = await Promise.all([
+    getPublicLessons(),
+    getPublicPaths(),
+  ]);
+  const relatedLessons = lessons
+    .filter((l) => l.category === lesson.category && l.id !== lesson.id)
+    .slice(0, 4)
+    .map((l) => ({ ...l, content: "" }));
+  const nav = getLessonNavigation(lesson.slug, lessons, paths);
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
-      <LessonPageClient lessonId={id} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "LearningResource",
+          name: lesson.title,
+          description: lesson.description,
+          inLanguage: "ar",
+          learningResourceType: "Lesson",
+          educationalLevel: lesson.difficulty,
+          url: absoluteUrl(`/lesson/${lesson.slug}`),
+          provider: { "@id": organizationId },
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "الرئيسية", item: "/" },
+          { name: "الدروس", item: "/courses" },
+          { name: lesson.title },
+        ]}
+      />
+      <LessonPageClient
+        lesson={lesson}
+        relatedLessons={relatedLessons}
+        nav={nav}
+      />
     </>
   );
 }

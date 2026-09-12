@@ -2,7 +2,9 @@
 
 import { MessageSquare } from "lucide-react";
 
-const WHATSAPP_NUMBER = "+970594136723";
+import { site } from "@/lib/site";
+import { trackContact } from "@/lib/analytics";
+const WHATSAPP_NUMBER = site.whatsapp;
 const WHATSAPP_MESSAGE = "مرحباً، أود الاستفسار عن خدمات Goat Journey Academy";
 
 export function WhatsAppButton() {
@@ -11,6 +13,7 @@ export function WhatsAppButton() {
   return (
     <a
       href={href}
+      onClick={() => trackContact("whatsapp")}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-20 sm:bottom-6 left-4 sm:left-6 z-50 w-12 h-12 rounded-full bg-[#25D366] text-white shadow-lg hover:scale-110 hover:shadow-xl transition-all duration-300 flex items-center justify-center"

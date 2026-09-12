@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/admin-auth";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export type ContentSection =
   | "hero_section"
@@ -11,8 +11,10 @@ export type ContentSection =
   | "tools_section"
   | "resources_section";
 
-export async function getSiteContent(section: ContentSection): Promise<Record<string, unknown> | null> {
-  const supabase = await createClient();
+export async function getSiteContent(
+  section: ContentSection,
+): Promise<Record<string, unknown> | null> {
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("admin_settings")
     .select("value")
@@ -29,27 +31,28 @@ export async function getSiteContent(section: ContentSection): Promise<Record<st
 
 export async function updateSiteContent(
   section: ContentSection,
-  content: Record<string, unknown>
+  content: Record<string, unknown>,
 ): Promise<boolean> {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("admin_settings")
-    .upsert(
-      {
-        key: section,
-        value: JSON.stringify(content),
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "key" }
-    );
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from("admin_settings").upsert(
+    {
+      key: section,
+      value: JSON.stringify(content),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" },
+  );
 
   if (error) throw error;
+  revalidateTag("public-content", { expire: 0 });
   revalidatePath("/");
   revalidatePath("/admin/site-content");
   return true;
 }
 
-export async function getAllSiteContent(): Promise<Record<ContentSection, Record<string, unknown> | null>> {
+export async function getAllSiteContent(): Promise<
+  Record<ContentSection, Record<string, unknown> | null>
+> {
   const sections: ContentSection[] = [
     "hero_section",
     "founder_section",

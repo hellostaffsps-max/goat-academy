@@ -5,7 +5,11 @@ import "./globals.css";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ThemeProvider } from "@/components/theme-provider";
 import { StructuredData } from "@/components/StructuredData";
-import { ReCaptchaProvider } from "@/components/ReCaptchaProvider";
+import { Analytics } from "@/components/Analytics";
+import { pageMetadata } from "@/lib/seo";
+import { site } from "@/lib/site";
+import { getPublicSiteContent } from "@/lib/public-content";
+import { PublicContentProvider } from "@/components/PublicContentProvider";
 
 const rubik = Rubik({
   subsets: ["arabic", "latin"],
@@ -15,63 +19,34 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
+  ...pageMetadata(
+    "Wael Irzeqat | وائل أرزيقات — تدريب الباريستا واستشارات القهوة في فلسطين",
+    site.description,
+    "/",
+  ),
+  metadataBase: new URL(site.url),
   title: {
-    default: "GoatJourney Academy | أكاديمية القهوة المختصة الأولى بالعربية",
-    template: "%s | GoatJourney Academy",
+    default: "Wael Irzeqat | وائل أرزيقات — Goat Journey",
+    template: "%s | Goat Journey",
   },
-  description:
-    "أول أكاديمية تفاعلية لتعلم القهوة المختصة وتأسيس المقاهي بالعربية — دورات الباريستا، استشارات تشغيلية، وأدوات تفاعلية مجانية.",
-  keywords: [
-    "أكاديمية قهوة",
-    "تعلم القهوة المختصة",
-    "دورات باريستا",
-    "تأسيس مقهى",
-    "استشارات مقاهي",
-    "GoatJourney",
-  ],
-  metadataBase: new URL("https://www.goatjourney.online"),
   manifest: "/manifest.json",
-  icons: {
-    icon: "/brand-logo.png",
-    apple: "/brand-logo.png",
-  },
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    type: "website",
-    locale: "ar_PS",
-    url: "https://www.goatjourney.online",
-    siteName: "GoatJourney Academy",
-    title: "GoatJourney Academy | أكاديمية القهوة المختصة الأولى بالعربية",
-    description:
-      "أول أكاديمية تفاعلية لتعلم القهوة المختصة وتأسيس المقاهي بالعربية — دورات الباريستا، استشارات تشغيلية، وأدوات تفاعلية مجانية.",
-    images: [
-      {
-        url: "https://www.goatjourney.online/brand-logo.png",
-        width: 1200,
-        height: 630,
-        alt: "GoatJourney Academy — أكاديمية القهوة المختصة الأولى بالعربية",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "GoatJourney Academy | أكاديمية القهوة المختصة الأولى بالعربية",
-    description:
-      "أول أكاديمية تفاعلية لتعلم القهوة المختصة وتأسيس المقاهي بالعربية.",
-    images: ["https://www.goatjourney.online/brand-logo.png"],
-  },
+  icons: { icon: "/brand-logo.png", apple: "/brand-logo.png" },
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
   },
 };
 
@@ -80,12 +55,23 @@ export const viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const siteContent = await getPublicSiteContent();
   return (
-    <html lang="ar" dir="rtl" className={rubik.variable} suppressHydrationWarning>
+    <html
+      lang="ar"
+      dir="rtl"
+      className={rubik.variable}
+      suppressHydrationWarning
+    >
       <body className={rubik.className}>
         <StructuredData />
-        <ReCaptchaProvider>
+        <Analytics />
+        <PublicContentProvider data={{ siteContent }}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -94,7 +80,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           >
             <AppLayout>{children}</AppLayout>
           </ThemeProvider>
-        </ReCaptchaProvider>
+        </PublicContentProvider>
       </body>
     </html>
   );

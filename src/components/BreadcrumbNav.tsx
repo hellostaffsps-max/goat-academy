@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, Home } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { services } from "@/data/services";
 
 const breadcrumbMap: Record<string, string> = {
   courses: "الدورات التدريبية",
@@ -26,16 +26,29 @@ export function BreadcrumbNav() {
   const pathname = usePathname();
 
   // Hide on home, admin, and auth pages
-  if (!pathname || pathname === "/" || pathname.startsWith("/admin") || pathname.startsWith("/auth")) {
+  if (
+    !pathname ||
+    pathname === "/" ||
+    pathname === "/services" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/auth") ||
+    pathname.split("/").filter(Boolean).length > 1
+  ) {
     return null;
   }
 
   const segments = pathname.split("/").filter(Boolean);
 
   const items = segments.map((segment, index) => {
-    const href = "/" + segments.slice(0, index + 1).join("/");
+    const href =
+      segment === "lesson"
+        ? "/courses"
+        : "/" + segments.slice(0, index + 1).join("/");
     const isLast = index === segments.length - 1;
-    const label = breadcrumbMap[segment] || segment;
+    const label =
+      breadcrumbMap[segment] ||
+      services.find((s) => s.slug === segment)?.name ||
+      (isLast ? "التفاصيل" : segment);
     return { href, label, isLast };
   });
 
@@ -58,10 +71,7 @@ export function BreadcrumbNav() {
           <li key={item.href} className="flex items-center gap-1.5">
             <ChevronLeft className="w-3 h-3 text-border" />
             {item.isLast ? (
-              <span
-                className="text-foreground font-medium"
-                aria-current="page"
-              >
+              <span className="text-foreground font-medium" aria-current="page">
                 {item.label}
               </span>
             ) : (

@@ -15,11 +15,11 @@ CREATE TABLE IF NOT EXISTS success_stories (
 ALTER TABLE success_stories ENABLE ROW LEVEL SECURITY;
 
 -- Policies
-CREATE POLICY IF NOT EXISTS "Allow all success_stories"
-  ON success_stories FOR ALL
-  USING (true)
-  WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow all success_stories" ON success_stories;
+CREATE POLICY "Allow all success_stories" ON success_stories FOR ALL TO authenticated
+  USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin')
+  WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
-CREATE POLICY IF NOT EXISTS "Allow public read success_stories"
-  ON success_stories FOR SELECT
+DROP POLICY IF EXISTS "Allow public read success_stories" ON success_stories;
+CREATE POLICY "Allow public read success_stories" ON success_stories FOR SELECT
   USING (true);

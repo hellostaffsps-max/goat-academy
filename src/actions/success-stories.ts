@@ -1,6 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/lib/admin-auth";
+import { revalidateTag } from "next/cache";
 
 export interface SuccessStoryInput {
   slug: string;
@@ -18,7 +19,7 @@ function sanitizeSlug(title: string, existingSlug?: string): string {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-")
-    .replace(/[^\u0600-\u06FFa-z0-9\-]/gi, "");
+    .replace(/[^\u0600-\u06FFa-z0-9-]/gi, "");
   if (!slug) {
     slug = `story-${Date.now()}`;
   }
@@ -26,7 +27,7 @@ function sanitizeSlug(title: string, existingSlug?: string): string {
 }
 
 export async function getSuccessStories() {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("success_stories")
     .select("*")
@@ -37,7 +38,7 @@ export async function getSuccessStories() {
 }
 
 export async function getFeaturedStories() {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("success_stories")
     .select("*")
@@ -49,7 +50,7 @@ export async function getFeaturedStories() {
 }
 
 export async function createSuccessStory(story: SuccessStoryInput) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   const payload = {
     ...story,
@@ -67,13 +68,17 @@ export async function createSuccessStory(story: SuccessStoryInput) {
     console.error("[createSuccessStory] error:", error);
     throw new Error(error.message || "فشل إنشاء القصة");
   }
+  revalidateTag("public-content", { expire: 0 });
   return data;
 }
 
-export async function updateSuccessStory(id: string, story: Partial<SuccessStoryInput>) {
-  const supabase = await createClient();
+export async function updateSuccessStory(
+  id: string,
+  story: Partial<SuccessStoryInput>,
+) {
+  const { supabase } = await requireAdmin();
 
-  const payload: any = { ...story };
+  const payload: Partial<SuccessStoryInput> = { ...story };
   if (story.slug !== undefined) {
     payload.slug = sanitizeSlug(story.title || "", story.slug);
   }
@@ -89,12 +94,17 @@ export async function updateSuccessStory(id: string, story: Partial<SuccessStory
     console.error("[updateSuccessStory] error:", error);
     throw new Error(error.message || "فشل تحديث القصة");
   }
+  revalidateTag("public-content", { expire: 0 });
   return data;
 }
 
 export async function deleteSuccessStory(id: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("success_stories").delete().eq("id", id);
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase
+    .from("success_stories")
+    .delete()
+    .eq("id", id);
 
   if (error) throw error;
+  revalidateTag("public-content", { expire: 0 });
 }

@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function uploadImage(formData: FormData): Promise<string> {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   const file = formData.get("file") as File;
   const folder = (formData.get("folder") as string) || "general";
@@ -51,14 +51,17 @@ export async function uploadImage(formData: FormData): Promise<string> {
     }
 
     return publicUrlData.publicUrl;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Upload action error:", err);
-    throw new Error(err.message || "حدث خطأ غير متوقع أثناء رفع الصورة");
+    throw new Error(
+      (err instanceof Error ? err.message : "") ||
+        "حدث خطأ غير متوقع أثناء رفع الصورة",
+    );
   }
 }
 
 export async function deleteImage(url: string): Promise<void> {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
 
   try {
     // Extract path from URL
@@ -80,13 +83,13 @@ export async function deleteImage(url: string): Promise<void> {
 
     const path = url.substring(pathIndex + bucketUrl.length);
 
-    const { error } = await supabase.storage
-      .from("images")
-      .remove([path]);
+    const { error } = await supabase.storage.from("images").remove([path]);
 
     if (error) throw error;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Delete image error:", err);
-    throw new Error(err.message || "فشل حذف الصورة");
+    throw new Error(
+      (err instanceof Error ? err.message : "") || "فشل حذف الصورة",
+    );
   }
 }

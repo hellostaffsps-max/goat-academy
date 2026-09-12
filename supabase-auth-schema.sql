@@ -53,7 +53,7 @@ CREATE POLICY "Users can update own profile" ON profiles
 
 CREATE POLICY "Admins can view all profiles" ON profiles
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    ((select auth.jwt())->'app_metadata'->>'role') = 'admin'
   );
 
 -- User favorites policies (isolated)
@@ -97,14 +97,14 @@ BEGIN
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE((NEW.raw_user_meta_data->>'role'), 'user'),
+    'user',
     COALESCE(NEW.raw_user_meta_data->>'full_name', '')
   );
   INSERT INTO public.user_settings (user_id)
   VALUES (NEW.id);
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Trigger to auto-create profile
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
@@ -120,4 +120,4 @@ CREATE INDEX IF NOT EXISTS idx_user_progress_lesson ON user_progress(lesson_slug
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 
 -- Set admin role for existing admin user
-UPDATE profiles SET role = 'admin' WHERE email = 'admin@goatjourney.com';
+-- Admin authorization uses app_metadata.role set by a trusted account administrator.

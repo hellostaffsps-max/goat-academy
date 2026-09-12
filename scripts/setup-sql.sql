@@ -21,7 +21,7 @@ END $$;
 DO $$ BEGIN
   CREATE POLICY "Allow authenticated uploads to images"
     ON storage.objects FOR INSERT
-    WITH CHECK (bucket_id = 'images');
+    WITH CHECK (bucket_id = 'images' AND (((select auth.jwt())->'app_metadata'->>'role') = 'admin'));
 EXCEPTION WHEN duplicate_object THEN
   RAISE NOTICE 'Insert policy already exists';
 END $$;
@@ -29,7 +29,7 @@ END $$;
 DO $$ BEGIN
   CREATE POLICY "Allow authenticated delete from images"
     ON storage.objects FOR DELETE
-    USING (bucket_id = 'images');
+    USING (bucket_id = 'images' AND (((select auth.jwt())->'app_metadata'->>'role') = 'admin'));
 EXCEPTION WHEN duplicate_object THEN
   RAISE NOTICE 'Delete policy already exists';
 END $$;

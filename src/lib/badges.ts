@@ -1,4 +1,4 @@
-import { learningPaths } from "@/data/coffeeData";
+import { learningPaths, lessons } from "@/data/lessonCatalog";
 
 export interface Badge {
   id: string;
@@ -6,7 +6,13 @@ export interface Badge {
   description: string;
   icon: string; // emoji or lucide name
   color: string;
-  condition: "first-step" | "path-progress" | "category-complete" | "quiz" | "tool-usage" | "streak";
+  condition:
+    | "first-step"
+    | "path-progress"
+    | "category-complete"
+    | "quiz"
+    | "tool-usage"
+    | "streak";
   threshold?: number;
   pathId?: string;
   category?: string;
@@ -150,12 +156,14 @@ export function checkBadges(input: BadgeCheckInput): string[] {
           const path = learningPaths.find((p) => p.id === badge.pathId);
           if (path) {
             const completedInPath = path.lessons.filter((lid) =>
-              input.completedLessons.includes(lid)
+              input.completedLessons.includes(lid),
             ).length;
             if (badge.threshold) {
               isEarned = completedInPath >= badge.threshold;
             } else {
-              isEarned = completedInPath === path.lessons.length && path.lessons.length > 0;
+              isEarned =
+                completedInPath === path.lessons.length &&
+                path.lessons.length > 0;
             }
           }
         }
@@ -163,12 +171,11 @@ export function checkBadges(input: BadgeCheckInput): string[] {
       }
       case "category-complete": {
         if (badge.category) {
-          const { lessons } = require("@/data/coffeeData");
           const categoryLessons = lessons.filter(
-            (l: any) => l.category === badge.category
+            (l) => l.category === badge.category,
           );
-          const completedInCategory = categoryLessons.filter((l: any) =>
-            input.completedLessons.includes(l.id)
+          const completedInCategory = categoryLessons.filter((l) =>
+            input.completedLessons.includes(l.id),
           ).length;
           isEarned =
             categoryLessons.length > 0 &&

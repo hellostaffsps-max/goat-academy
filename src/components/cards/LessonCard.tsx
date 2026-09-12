@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { Clock, Users, ArrowLeft } from "lucide-react";
 import { getCategoryMeta } from "@/lib/categoryMeta";
-import { levelLabels, levelColors, getLevelForLesson } from "@/lib/trackMapping";
-import { getCardImageUrl, getCardSrcSet } from "@/lib/images";
+import {
+  levelLabels,
+  levelColors,
+  getLevelForLesson,
+} from "@/lib/trackMapping";
+import { ContentImage } from "@/components/ContentImage";
 
 interface LessonCardProps {
   id: string;
@@ -51,18 +55,18 @@ export function LessonCard({
       <div className="card-image aspect-[16/10] mx-4 mt-4 mb-3">
         {image ? (
           <div className="w-full h-full rounded-xl overflow-hidden relative">
-            <img
-              src={getCardImageUrl(image)}
-              srcSet={getCardSrcSet(image)}
+            <ContentImage
+              src={image}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt={title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           </div>
         ) : (
-          <div className={`w-full h-full rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center`}>
+          <div
+            className={`w-full h-full rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center`}
+          >
             <LevelIcon className="w-10 h-10 text-accent/50 group-hover:text-accent/70 transition-colors duration-500" />
           </div>
         )}
@@ -74,11 +78,12 @@ export function LessonCard({
         <div className="flex items-center gap-2 mb-2.5 flex-wrap">
           <span className="tag tag-accent">{displayCategory}</span>
           <span className={`tag ${levelClass}`}>{levelLabels[level]}</span>
-          {typeof lessonIndex === "number" && typeof totalLessons === "number" && (
-            <span className="tag bg-slate-50 text-slate-600 border-slate-200">
-              درس {lessonIndex} من {totalLessons}
-            </span>
-          )}
+          {typeof lessonIndex === "number" &&
+            typeof totalLessons === "number" && (
+              <span className="tag bg-slate-50 text-slate-600 border-slate-200">
+                درس {lessonIndex} من {totalLessons}
+              </span>
+            )}
         </div>
 
         {/* Title */}

@@ -16,7 +16,7 @@ const companyLinks = [
   { href: "/blog", label: "المدونة" },
   { href: "/tools", label: "أدوات القهوة" },
   { href: "/consultant", label: "الاستشارة" },
-  { href: "/favorites", label: "المفضلة" },
+  { href: "/services", label: "خدمات التدريب والاستشارات" },
 ];
 
 const resourceLinks = [
@@ -27,8 +27,16 @@ const resourceLinks = [
 ];
 
 const socialLinks = [
-  { href: "https://instagram.com/goatjourney.ps", label: "انستاغرام", icon: Camera },
-  { href: "https://linkedin.com/company/goatjourney", label: "لينكدإن", icon: ExternalLink },
+  {
+    href: "https://instagram.com/goatjourney.ps",
+    label: "انستاغرام",
+    icon: Camera,
+  },
+  {
+    href: "https://linkedin.com/company/goatjourney",
+    label: "لينكدإن",
+    icon: ExternalLink,
+  },
 ];
 
 export function Footer() {
@@ -42,12 +50,17 @@ export function Footer() {
                 <Compass className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">GoatJourney Academy</p>
-                <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">أكاديمية القهوة في فلسطين</p>
+                <p className="text-sm font-semibold text-foreground">
+                  GoatJourney Academy
+                </p>
+                <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
+                  أكاديمية القهوة في فلسطين
+                </p>
               </div>
             </div>
             <p className="text-sm leading-7 text-muted-foreground">
-              نقدم محتوى تعليمي متكامل لتطوير مهارات إعداد المشروبات وتشغيل المقاهي بإسلوب عملي وسهل الاستيعاب.
+              نقدم محتوى تعليمي متكامل لتطوير مهارات إعداد المشروبات وتشغيل
+              المقاهي بإسلوب عملي وسهل الاستيعاب.
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Link
@@ -66,7 +79,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">روابط سريعة</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              روابط سريعة
+            </p>
             <div className="space-y-2 text-sm">
               {companyLinks.map((item) => (
                 <Link
@@ -81,7 +96,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">الموارد</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              الموارد
+            </p>
             <div className="space-y-2 text-sm">
               {resourceLinks.map((item) => (
                 <Link
@@ -96,15 +113,27 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">تواصل معنا</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              تواصل معنا
+            </p>
             <div className="space-y-3 text-sm text-foreground/90">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-accent" />
-                <a href="mailto:gaotjourney.ps@gmail.com" className="transition hover:text-accent">gaotjourney.ps@gmail.com</a>
+                <a
+                  href="mailto:gaotjourney.ps@gmail.com"
+                  className="transition hover:text-accent"
+                >
+                  gaotjourney.ps@gmail.com
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-accent" />
-                <a href="https://wa.me/970594136723" target="_blank" rel="noreferrer" className="transition hover:text-accent">
+                <a
+                  href="https://wa.me/970594136723"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition hover:text-accent"
+                >
                   دعم واتساب
                 </a>
               </div>

@@ -1,22 +1,9 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "استشارات تأسيس المقاهي | احجز استشارتك المجانية",
-  description:
-    "احصل على استشارة مجانية لتأسيس مقهاك في فلسطين — دراسة جدوى، اختيار المعدات، وتدريب الباريستا مع خبراء متخصصين.",
-  keywords: ["استشارة مقهى", "تأسيس مقهى فلسطين", "دراسة جدوى مقهى"],
-  alternates: {
-    canonical: "/consultant",
-  },
-  openGraph: {
-    title: "استشارات تأسيس المقاهي | احجز استشارتك المجانية",
-    description:
-      "احصل على استشارة مجانية لتأسيس مقهاك في فلسطين — دراسة جدوى، اختيار المعدات، وتدريب الباريستا.",
-    url: "https://www.goatjourney.online/consultant",
-    type: "website",
-  },
-};
-
-export default function ConsultantLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+import { pageMetadata } from "@/lib/seo";
+export const metadata = pageMetadata(
+  "استشارة قهوة وتطوير مقهى في فلسطين",
+  "تواصل مع وائل أرزيقات في Goat Journey لمناقشة تأسيس المقهى وتطوير المنيو وتدريب فريق الباريستا في فلسطين.",
+  "/consultant",
+);
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }

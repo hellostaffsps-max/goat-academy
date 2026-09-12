@@ -40,10 +40,7 @@ CREATE TABLE IF NOT EXISTS admin_settings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert default admin password
-INSERT INTO admin_settings (key, value)
-VALUES ('admin_password', 'admin123')
-ON CONFLICT (key) DO NOTHING;
+-- Authentication uses Supabase Auth; never store passwords in public tables.
 
 -- Insert default categories data into lessons (for reference)
 -- Categories remain as app constants, not DB table
@@ -60,27 +57,19 @@ CREATE POLICY "Allow public read lessons" ON lessons
 CREATE POLICY "Allow public read cafes" ON cafes
   FOR SELECT USING (true);
 
--- Create policies for admin write access (using a simple check function)
-CREATE OR REPLACE FUNCTION is_admin_request()
-RETURNS BOOLEAN AS $$
-BEGIN
-  -- In production, you should use proper auth. 
-  -- For now, we rely on API key validation in server actions.
-  RETURN true;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- For now, allow all operations (we'll secure via server actions)
+-- Admin writes require a role assigned through the trusted Auth Admin API.
 CREATE POLICY "Allow all lessons" ON lessons
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 CREATE POLICY "Allow all cafes" ON cafes
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 CREATE POLICY "Allow all admin_settings" ON admin_settings
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_lessons_category ON lessons(category);
 CREATE INDEX IF NOT EXISTS idx_lessons_slug ON lessons(slug);
 CREATE INDEX IF NOT EXISTS idx_cafes_city ON cafes(city);
+
+CREATE POLICY "Public page copy" ON admin_settings FOR SELECT TO anon, authenticated USING (key IN ('hero_section', 'founder_section', 'paths_section', 'success_stories', 'tools_section', 'resources_section'));

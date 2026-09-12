@@ -1,5 +1,4 @@
-import { lessons, learningPaths } from "@/data/coffeeData";
-
+import type { PublicLesson, PublicPath } from "./public-types";
 export interface LessonNavigation {
   prev: { id: string; title: string } | null;
   next: { id: string; title: string } | null;
@@ -8,72 +7,27 @@ export interface LessonNavigation {
   totalLessons: number;
   pathId: string | null;
 }
-
-export function getLessonNavigation(lessonSlug: string): LessonNavigation {
-  // Find which path contains this lesson
-  for (const path of learningPaths) {
-    const idx = path.lessons.indexOf(lessonSlug);
-    if (idx !== -1) {
-      const prev =
-        idx > 0
-          ? {
-              id: path.lessons[idx - 1],
-              title:
-                lessons.find((l) => l.id === path.lessons[idx - 1])?.title ||
-                "الدرس السابق",
-            }
-          : null;
-      const next =
-        idx < path.lessons.length - 1
-          ? {
-              id: path.lessons[idx + 1],
-              title:
-                lessons.find((l) => l.id === path.lessons[idx + 1])?.title ||
-                "الدرس التالي",
-            }
-          : null;
-      return {
-        prev,
-        next,
-        pathName: path.title,
-        lessonIndex: idx + 1,
-        totalLessons: path.lessons.length,
-        pathId: path.id,
-      };
-    }
-  }
-
-  // If not in any path, try to find by category order
-  const lesson = lessons.find((l) => l.id === lessonSlug || (l as any).slug === lessonSlug);
-  if (lesson) {
-    const categoryLessons = lessons.filter(
-      (l) => l.category === lesson.category
-    );
-    const idx = categoryLessons.findIndex((l) => l.id === lessonSlug || (l as any).slug === lessonSlug);
-    const prev =
-      idx > 0
-        ? { id: categoryLessons[idx - 1].id, title: categoryLessons[idx - 1].title }
-        : null;
-    const next =
-      idx < categoryLessons.length - 1
-        ? { id: categoryLessons[idx + 1].id, title: categoryLessons[idx + 1].title }
-        : null;
-    return {
-      prev,
-      next,
-      pathName: lesson.subcategory,
-      lessonIndex: idx + 1,
-      totalLessons: categoryLessons.length,
-      pathId: null,
-    };
-  }
-
+export function getLessonNavigation(
+  slug: string,
+  lessons: PublicLesson[],
+  paths: PublicPath[],
+): LessonNavigation {
+  const lesson = lessons.find((l) => l.slug === slug);
+  const path = paths.find((p) => p.lessons.includes(slug));
+  const sequence = path
+    ? path.lessons
+        .map((s) => lessons.find((l) => l.slug === s || l.id === s))
+        .filter((l): l is PublicLesson => !!l)
+    : lessons.filter((l) => l.category === lesson?.category);
+  const index = sequence.findIndex((l) => l.slug === slug);
+  const item = (i: number) =>
+    sequence[i] ? { id: sequence[i].slug, title: sequence[i].title } : null;
   return {
-    prev: null,
-    next: null,
-    pathName: null,
-    lessonIndex: 0,
-    totalLessons: 0,
-    pathId: null,
+    prev: index > 0 ? item(index - 1) : null,
+    next: index >= 0 ? item(index + 1) : null,
+    pathName: path?.title || lesson?.subcategory || null,
+    lessonIndex: index + 1,
+    totalLessons: sequence.length,
+    pathId: path?.slug || null,
   };
 }

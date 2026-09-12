@@ -37,7 +37,7 @@ DROP POLICY IF EXISTS "Allow all" ON articles;
 
 -- Create policy for full access
 CREATE POLICY "Allow all" ON articles
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 -- ============================================================
 -- 3. CREATE success_stories TABLE
@@ -63,7 +63,7 @@ DROP POLICY IF EXISTS "Allow all" ON success_stories;
 
 -- Create policy for full access
 CREATE POLICY "Allow all" ON success_stories
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 -- ============================================================
 -- 4. CREATE learning_paths TABLE
@@ -90,7 +90,7 @@ DROP POLICY IF EXISTS "Allow all" ON learning_paths;
 
 -- Create policy for full access
 CREATE POLICY "Allow all" ON learning_paths
-  FOR ALL USING (true) WITH CHECK (true);
+  FOR ALL TO authenticated USING (((select auth.jwt())->'app_metadata'->>'role') = 'admin') WITH CHECK (((select auth.jwt())->'app_metadata'->>'role') = 'admin');
 
 -- ============================================================
 -- 5. CREATE STORAGE BUCKET "images"
@@ -113,11 +113,11 @@ CREATE POLICY "Allow public read images"
 
 CREATE POLICY "Allow authenticated upload images"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'images');
+  WITH CHECK (bucket_id = 'images' AND (((select auth.jwt())->'app_metadata'->>'role') = 'admin'));
 
 CREATE POLICY "Allow authenticated delete images"
   ON storage.objects FOR DELETE
-  USING (bucket_id = 'images');
+  USING (bucket_id = 'images' AND (((select auth.jwt())->'app_metadata'->>'role') = 'admin'));
 
 -- ============================================================
 -- 6. SEED DATA - Articles (Blog Posts)
@@ -411,3 +411,9 @@ CREATE TRIGGER update_learning_paths_updated_at
 -- ============================================================
 -- DONE!
 -- ============================================================
+
+CREATE POLICY "Public read articles" ON articles FOR SELECT TO anon, authenticated USING (true);
+
+CREATE POLICY "Public read success_stories" ON success_stories FOR SELECT TO anon, authenticated USING (true);
+
+CREATE POLICY "Public read learning_paths" ON learning_paths FOR SELECT TO anon, authenticated USING (true);

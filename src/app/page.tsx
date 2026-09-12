@@ -1,4 +1,6 @@
-"use client";
+import { getPublicLessons, getPublicArticles } from "@/lib/public-content";
+import { PublicContentProvider } from "@/components/PublicContentProvider";
+import { ServicesSection } from "@/components/sections/ServicesSection";
 
 import { HeroSection } from "@/components/sections/HeroSection";
 import { FounderSection } from "@/components/sections/FounderSection";
@@ -9,17 +11,29 @@ import { SuccessStoriesSection } from "@/components/sections/SuccessStoriesSecti
 import { ResourcesSection } from "@/components/sections/ResourcesSection";
 import { ToolsPreviewSection } from "@/components/sections/ToolsPreviewSection";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [lessons, articles] = await Promise.all([
+    getPublicLessons(),
+    getPublicArticles(),
+  ]);
   return (
-    <div className="animate-fade-in">
-      <HeroSection />
-      <FounderSection />
-      <PathsSection />
-      <CoursesSection />
-      <BlogSection />
-      <SuccessStoriesSection />
-      <ToolsPreviewSection />
-      <ResourcesSection />
-    </div>
+    <PublicContentProvider
+      data={{
+        lessons: lessons.slice(0, 3).map((l) => ({ ...l, content: "" })),
+        articles: articles.slice(0, 3).map((a) => ({ ...a, content: "" })),
+      }}
+    >
+      <div className="animate-fade-in">
+        <HeroSection />
+        <FounderSection />
+        <ServicesSection />
+        <PathsSection />
+        <CoursesSection />
+        <BlogSection />
+        <SuccessStoriesSection />
+        <ToolsPreviewSection />
+        <ResourcesSection />
+      </div>
+    </PublicContentProvider>
   );
 }
