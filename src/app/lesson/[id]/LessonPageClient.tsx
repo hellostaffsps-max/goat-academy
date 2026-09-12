@@ -1,4 +1,5 @@
 "use client";
+import practices from "@/lib/academy-practices.json";
 
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
@@ -42,6 +43,7 @@ export default function LessonPageClient({
   const completed = isCompleted(lesson.slug || lesson.id);
   const fav = isFavorite(lesson.slug || lesson.id);
 
+  const practice = practices.find((p) => p.slug === lesson.slug);
   const currentMeta = getCategoryMeta(lesson.category);
   const CurrentIcon = currentMeta.icon;
 
@@ -167,6 +169,13 @@ export default function LessonPageClient({
         {lesson.content ? (
           <div className="bg-card border border-border rounded-xl p-5 text-right">
             <LessonContent content={lesson.content} />
+            {practice && <section className="my-8 rounded-xl border border-border bg-secondary/40 p-6" aria-label="التطبيق العملي في المختبر">
+              <p className="text-sm font-semibold">تعلّم في الأكاديمية · طبّق في المختبر</p>
+              <h2 className="mt-2 text-xl font-bold">جرّب {practice.title} بنفسك</h2>
+              <p className="my-3 leading-relaxed">{practice.task}</p>
+              <a className="inline-flex rounded-lg bg-primary px-5 py-3 text-primary-foreground font-semibold" href={`https://staffps.online/lab/practice?lesson=${practice.slug}`}>طبّق الدرس في مختبر المشروبات ←</a>
+              <p className="mt-3 text-sm text-muted-foreground">تفتح مسودة قابلة للتعديل داخل حساب المختبر؛ تُحفظ فقط بعد مراجعتك.</p>
+            </section>}
           </div>
         ) : (
           <div className="bg-card border border-border rounded-xl p-8 text-center">

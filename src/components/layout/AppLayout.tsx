@@ -10,6 +10,7 @@ import {
   Calculator,
   GraduationCap,
   Info,
+  FlaskConical,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ import BrandLogo from "@/components/BrandLogo";
 import { logVisit } from "@/actions/analytics";
 
 const navItems = [
+  { id: "https://staffps.online/lab/practice", label: "مختبر المشروبات", icon: FlaskConical },
   { id: "/", label: "الرئيسية", icon: Home },
   { id: "/courses", label: "الدورات", icon: GraduationCap },
   { id: "/blog", label: "المدونة", icon: Newspaper },
