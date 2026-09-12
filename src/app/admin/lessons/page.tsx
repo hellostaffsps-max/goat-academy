@@ -177,6 +177,7 @@ export default function AdminLessonsPage() {
             className="w-full pr-9 pl-4 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
+        <a href="/admin/curriculum" className="text-sm underline">مراجعة المنهج والمراجع</a>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"

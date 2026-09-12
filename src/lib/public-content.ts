@@ -68,7 +68,7 @@ export const getPublicLessons = cache(
           read_time: l.readTime || "",
           difficulty: l.difficulty || "",
           path: null,
-          image: null,
+          image: l.image || null,
         }))
       );
     },
