@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION,
+    google: process.env.GOOGLE_SITE_VERIFICATION || "u97VcP99mGZIfrU6Iq_qNQgWI1YNGR8ir4IUnHl2tJg",
     other: process.env.BING_SITE_VERIFICATION
       ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
       : undefined,
