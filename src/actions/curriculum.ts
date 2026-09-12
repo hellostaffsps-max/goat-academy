@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/admin-auth";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import curriculum from "@/data/reviewedCurriculum.json";
 import baseline from "@/data/curriculumBaseline.json";
 
@@ -42,5 +42,6 @@ export async function publishReviewedCurriculum() {
     }
   }
   revalidateTag("public-content", { expire: 0 });
+  revalidatePath("/sitemap.xml");
   return { ok: true, updated, unchanged, message: "نُشرت مراجعة 112 درسًا والمسارات الخمسة بنجاح." };
 }

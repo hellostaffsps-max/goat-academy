@@ -46,12 +46,13 @@ export default function LessonPageClient({
   const practice = practices.find((p) => p.slug === lesson.slug);
   const currentMeta = getCategoryMeta(lesson.category);
   const CurrentIcon = currentMeta.icon;
+  const isDiagram = lesson.image?.startsWith("/images/lessons/") ?? false;
 
   return (
     <div className="animate-fade-in -mx-4 -mt-4">
       {/* Hero */}
       <div className="relative">
-        <div className="aspect-[21/9] sm:aspect-[16/6] relative overflow-hidden border-b border-border/50 rounded-b-2xl">
+        <div className={cn(isDiagram ? "aspect-[1200/630]" : "aspect-[21/9] sm:aspect-[16/6]", "relative overflow-hidden border-b border-border/50 rounded-b-2xl")}>
           {lesson.image ? (
             <>
               <ContentImage
@@ -59,9 +60,9 @@ export default function LessonPageClient({
                 priority
                 sizes="100vw"
                 alt={lesson.title}
-                className="w-full h-full object-cover"
+                className={cn("w-full h-full", isDiagram ? "object-contain" : "object-cover")}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+              {!isDiagram && <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />}
             </>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-secondary via-background to-secondary/50 relative">
@@ -73,7 +74,7 @@ export default function LessonPageClient({
             </div>
           )}
 
-          <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+          {!isDiagram && <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
             <div
               className={cn(
                 "w-12 h-12 rounded-xl flex items-center justify-center mb-1 bg-gradient-to-br",
@@ -90,6 +91,7 @@ export default function LessonPageClient({
             </span>
           </div>
 
+          }
           {/* Back button */}
           <button
             onClick={() => router.push("/explore")}
@@ -147,8 +149,8 @@ export default function LessonPageClient({
               </span>
             )}
             <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
-              <Star className="w-3 h-3 text-accent" fill="currentColor" />
-              {lesson.rating}
+              {lesson.rating > 0 && <Star className="w-3 h-3 text-accent" fill="currentColor" />}
+              {lesson.rating > 0 ? lesson.rating : "درس جديد"}
             </span>
             <SocialShare title={lesson.title} />
           </div>
