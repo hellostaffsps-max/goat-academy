@@ -15,6 +15,7 @@ const companyLinks = [
   { href: "/courses", label: "الدورات التدريبية" },
   { href: "/blog", label: "المدونة" },
   { href: "/tools", label: "أدوات القهوة" },
+  { href: "https://staffps.online/lab", label: "Goat Journey Lab — مختبر المشروبات" },
   { href: "/consultant", label: "الاستشارة" },
   { href: "/services", label: "خدمات التدريب والاستشارات" },
 ];
