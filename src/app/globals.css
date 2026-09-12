@@ -5,47 +5,47 @@
 @layer base {
   :root {
     /* Goat Journey — Premium Coffee Academy */
-    /* WCAG AA Compliant Colors — minimum 4.5:1 contrast ratio */
-    --background: 30 25% 97%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 0% 10%;
-    --primary-foreground: 30 25% 97%;
-    --secondary: 30 15% 94%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 30 15% 94%;
-    --muted-foreground: 25 10% 35%; /* Darkened from 40% for 7:1 contrast */
-    --accent: 36 35% 55%; /* Darkened from 63% for better contrast */
-    --accent-foreground: 0 0% 10%;
+    /* Goat.pdf pp.38–39: coffee, skin, warm gray and beige. */
+    --background: 30.00 20.00% 96.08%;
+    --foreground: 15.00 12.00% 19.61%;
+    --card: 0.00 0.00% 100.00%;
+    --card-foreground: 15.00 12.00% 19.61%;
+    --popover: 0.00 0.00% 100.00%;
+    --popover-foreground: 15.00 12.00% 19.61%;
+    --primary: 15.00 12.00% 19.61%;
+    --primary-foreground: 0.00 0.00% 100.00%;
+    --secondary: 30.00 13.04% 81.96%;
+    --secondary-foreground: 15.00 12.00% 19.61%;
+    --muted: 30.00 15.00% 92.16%;
+    --muted-foreground: 23.33 9.68% 36.47%; /* Darkened from 40% for 7:1 contrast */
+    --accent: 43.93 45.90% 76.08%; /* Darkened from 63% for better contrast */
+    --accent-foreground: 15.00 12.00% 19.61%;
     --destructive: 0 62.8% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 12% 85%;
-    --input: 30 12% 85%;
-    --ring: 36 35% 55%;
+    --border: 30.00 13.04% 81.96%;
+    --input: 30.00 16.90% 72.16%;
+    --ring: 15.00 12.00% 19.61%;
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 0 0% 8%;
+    --background: 15 12% 12%;
     --foreground: 30 10% 96%;
-    --card: 0 0% 11%;
+    --card: 15 12% 16%;
     --card-foreground: 30 10% 96%;
-    --popover: 0 0% 11%;
+    --popover: 15 12% 16%;
     --popover-foreground: 30 10% 96%;
-    --primary: 36 35% 55%;
-    --primary-foreground: 0 0% 8%;
+    --primary: 43.93 45.16% 76.08%;
+    --primary-foreground: 15 12% 12%;
     --secondary: 0 0% 15%;
     --secondary-foreground: 30 10% 96%;
     --muted: 0 0% 15%;
     --muted-foreground: 30 15% 65%; /* Lightened from 55% for better contrast on dark */
-    --accent: 36 35% 55%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 43.93 45.16% 76.08%;
+    --accent-foreground: 15 12% 12%;
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 36 35% 55%;
+    --ring: 43.93 45.16% 76.08%;
   }
 
   * {
@@ -65,7 +65,7 @@
 
   /* Focus visible styles for keyboard navigation */
   :focus-visible {
-    outline: 2px solid hsl(var(--accent));
+    outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -340,7 +340,9 @@ html.reduce-motion .group-hover\:scale-105 {
   filter: none;
 }
 .dark .brand-logo {
-  filter: invert(1) brightness(1.05) contrast(1.05);
+  filter: none;
+  background: #ffffff;
+  border-radius: 0.5rem;
 }
 
 /* Glass effect */
@@ -374,3 +376,7 @@ html.reduce-motion .group-hover\:scale-105 {
     animation: none;
   }
 }
+
+/* Beige is a surface/accent color; use coffee for readable accent text. */
+.text-accent { color: #665b54; }
+.dark .text-accent { color: #decfa6; }
