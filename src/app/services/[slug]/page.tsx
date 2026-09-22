@@ -1,3 +1,4 @@
+import { ProjectPortfolio } from "@/components/ProjectPortfolio";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { services, getService } from "@/data/services";
@@ -123,6 +124,7 @@ export default async function ServicePage({ params }: Props) {
           </li>
         </ul>
       </section>
+      <ProjectPortfolio service={s.slug} />
       <section className="card-premium p-8 space-y-4">
         <h2 className="heading-lg">لنحدد الخطوة المناسبة لك</h2>
         <p>

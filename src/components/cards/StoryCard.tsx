@@ -1,6 +1,6 @@
 "use client";
 
-import { Star, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 interface StoryCardProps {
   name: string;
@@ -18,14 +18,8 @@ export function StoryCard({ name, location, quote, metric, index = 0 }: StoryCar
     >
       <MessageSquare className="w-8 h-8 text-accent/15 absolute top-5 right-5" />
 
-      <div className="flex items-center gap-1.5 mb-4">
-        {[...Array(5)].map((_, i) => (
-          <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
-        ))}
-      </div>
-
       <p className="text-sm text-muted-foreground leading-relaxed mb-5 flex-1">
-        &ldquo;{quote}&rdquo;
+        {quote}
       </p>
 
       <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">

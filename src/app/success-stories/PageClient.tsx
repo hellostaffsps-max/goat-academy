@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { ProjectPortfolio } from "@/components/ProjectPortfolio";
+import { confirmedProject } from "@/data/projects";
 import {
   ArrowLeft,
-  Star,
-  Quote,
   TrendingUp,
   MapPin,
   Coffee,
@@ -25,9 +25,11 @@ export default function SuccessStoriesPage() {
         </div>
         <h1 className="heading-xl mb-3">مشاريع ناجحة بنيناها معاً</h1>
         <p className="body-base text-muted-foreground max-w-xl mx-auto">
-          قصص حقيقية من أصحاب مقاهٍ ومشاريع استفادوا من خبرتنا في صناعة القهوة.
+          أوصاف لأعمال Goat Journey في المقاهي وتطوير المشروبات والتدريب.
         </p>
       </section>
+
+      <ProjectPortfolio />
 
       {/* Loading */}
       {loading && dbStories.length === 0 && (
@@ -46,9 +48,9 @@ export default function SuccessStoriesPage() {
               className="card-premium p-6 relative"
               style={{ animationDelay: `${i * 0.05}s` }}
             >
-              <Quote className="w-8 h-8 text-accent/20 absolute top-4 right-4" />
 
-              {/* Avatar + Stars */}
+
+              {/* Project image */}
               <div className="flex items-center gap-3 mb-4">
                 {story.image ? (
                   <img
@@ -61,15 +63,10 @@ export default function SuccessStoriesPage() {
                     {story.title.charAt(0)}
                   </div>
                 )}
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 fill-accent text-accent" />
-                  ))}
-                </div>
               </div>
 
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                &ldquo;{story.description}&rdquo;
+                {confirmedProject(story.title)?.summary || story.description}
               </p>
 
               <div className="flex items-center justify-between pt-4 border-t border-border/40">

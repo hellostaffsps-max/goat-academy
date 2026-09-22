@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { confirmedProject } from "@/data/projects";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { StoryCard } from "@/components/cards/StoryCard";
@@ -45,8 +46,8 @@ export function SuccessStoriesSection() {
               key={story.name}
               name={story.name}
               location={story.location}
-              quote={story.quote}
-              metric={story.metric}
+              quote={confirmedProject(story.name)?.summary || story.quote}
+              metric={confirmedProject(story.name) ? "نطاق العمل" : story.metric}
               index={i}
             />
           ))}

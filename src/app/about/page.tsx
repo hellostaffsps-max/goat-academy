@@ -1,3 +1,4 @@
+import { ProjectPortfolio } from "@/components/ProjectPortfolio";
 import Image from "next/image";
 import Link from "next/link";
 import { JsonLd, BreadcrumbSchema } from "@/components/StructuredData";
@@ -81,6 +82,7 @@ export default function About() {
           اطلع على المشاريع والتجارب المنشورة
         </Link>
       </section>
+      <ProjectPortfolio />
       <section className="card-premium p-8 space-y-4">
         <h2 className="heading-lg">لنتحدث عن مشروعك</h2>
         <p>اذكر مدينتك ومرحلة مشروعك أو المهارة التي تريد تطويرها.</p>

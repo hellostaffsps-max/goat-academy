@@ -1,3 +1,4 @@
+import { projects } from "@/data/projects";
 import type { MetadataRoute } from "next";
 import { getPublicLessons, getPublicArticles } from "@/lib/public-content";
 import { downloadResources } from "@/data/downloadResources";
@@ -26,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/tools",
     "/downloads",
     "/success-stories",
+    ...projects.map((p) => `/projects/${p.slug}`),
     ...services.map((s) => `/services/${s.slug}`),
     ...Object.keys(downloadResources).map((s) => `/downloads/${s}`),
   ];
