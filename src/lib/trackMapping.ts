@@ -50,18 +50,32 @@ export const levelLabels: Record<DifficultyLevel, string> = {
 
 export const levelColors: Record<DifficultyLevel, string> = {
   all: "bg-gray-100 text-gray-700 border-gray-200",
-  beginner: "bg-green-50 text-green-700 border-green-200",
-  intermediate: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  advanced: "bg-red-50 text-red-700 border-red-200",
+  beginner: "bg-accent/20 text-foreground border-accent/40",
+  intermediate: "bg-secondary/60 text-foreground border-border",
+  advanced: "bg-primary text-primary-foreground border-primary",
 };
 
 export function getLevelForLesson(difficulty?: string): DifficultyLevel {
   if (!difficulty) return "beginner";
-  const d = difficulty.trim();
+  const d = difficulty.trim().toLowerCase();
+  if (d === "beginner" || d === "intermediate" || d === "advanced") return d;
   if (d === "أساسي" || d === "سهل" || d === "مبتدئ") return "beginner";
   if (d === "متوسط") return "intermediate";
   if (d === "متقدم") return "advanced";
   // fallback based on common tags
-  if (["مهم", "تشغيل", "نموذج", "منيو", "موقع", "موردين", "هوية", "تجربة", "فريق"].includes(d)) return "intermediate";
+  if (
+    [
+      "مهم",
+      "تشغيل",
+      "نموذج",
+      "منيو",
+      "موقع",
+      "موردين",
+      "هوية",
+      "تجربة",
+      "فريق",
+    ].includes(d)
+  )
+    return "intermediate";
   return "beginner";
 }

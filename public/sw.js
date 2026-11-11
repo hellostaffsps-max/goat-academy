@@ -1,4 +1,4 @@
-const CACHE_NAME = "goatjourney-assets-v2";
+const CACHE_NAME = "goatjourney-assets-2026-11-ux-1";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
   event.waitUntil(

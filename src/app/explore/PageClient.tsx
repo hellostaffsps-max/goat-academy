@@ -1,18 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
+import { useMemo, useRef } from "react";
 import Link from "next/link";
-
+import { useSearchParams } from "next/navigation";
+import { Search, X, ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import { categories } from "@/data/lessonCatalog";
 import { useSupabaseLessons } from "@/hooks/useSupabaseData";
-import { Search, Clock, Star } from "lucide-react";
+import { LessonCard } from "@/components/cards/LessonCard";
 import { cn } from "@/lib/utils";
-import { getCategoryMeta } from "@/lib/categoryMeta";
+
+const PAGE_SIZE = 12;
+const normalizeSearch = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .trim();
 
 export default function ExploreContent({
-  query = "",
-  category = null,
   extraResults = [],
 }: {
   query?: string;
@@ -24,222 +30,247 @@ export default function ExploreContent({
     type: string;
   }[];
 }) {
-  const [searchQuery, setSearchQuery] = useState(query);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    category,
-  );
-  const { lessons } = useSupabaseLessons();
+  const params = useSearchParams();
+  const searchQuery = params.get("q") ?? "";
+  const categoryParam = params.get("category");
+  const selectedCategory = categories.some((item) => item.id === categoryParam)
+    ? categoryParam
+    : null;
+  const { lessons, loading } = useSupabaseLessons();
+  const resultsRef = useRef<HTMLHeadingElement>(null);
+
+  const updateFilters = (
+    next: { q?: string; category?: string | null; page?: number },
+    replace = false,
+  ) => {
+    const values = new URLSearchParams(params.toString());
+    if (next.q !== undefined) {
+      if (next.q) values.set("q", next.q);
+      else values.delete("q");
+    }
+    if (next.category !== undefined) {
+      if (next.category) values.set("category", next.category);
+      else values.delete("category");
+    }
+    if (next.page && next.page > 1) values.set("page", String(next.page));
+    else values.delete("page");
+    const url = `/explore${values.size ? `?${values.toString()}` : ""}`;
+    if (replace) window.history.replaceState(null, "", url);
+    else window.history.pushState(null, "", url);
+  };
 
   const filteredLessons = useMemo(() => {
-    let result = lessons;
-    if (selectedCategory) {
-      result = result.filter((l) => l.category === selectedCategory);
-    }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (l) =>
-          l.title.toLowerCase().includes(q) ||
-          l.description.toLowerCase().includes(q) ||
-          l.tags.some((t) => t.toLowerCase().includes(q)),
-      );
-    }
-    return result;
+    const term = normalizeSearch(searchQuery);
+    return lessons.filter(
+      (lesson) =>
+        (!selectedCategory || lesson.category === selectedCategory) &&
+        (!term ||
+          normalizeSearch(
+            `${lesson.title} ${lesson.description} ${lesson.tags.join(" ")}`,
+          ).includes(term)),
+    );
   }, [lessons, searchQuery, selectedCategory]);
-
   const otherResults =
     selectedCategory || !searchQuery.trim()
       ? []
-      : extraResults.filter((r) =>
-          `${r.title} ${r.description}`
-            .toLowerCase()
-            .includes(searchQuery.trim().toLowerCase()),
+      : extraResults.filter((result) =>
+          normalizeSearch(`${result.title} ${result.description}`).includes(
+            normalizeSearch(searchQuery),
+          ),
         );
-
-  const handleCategoryClick = (catId: string | null) => {
-    setSelectedCategory(catId);
-    if (catId) {
-      window.history.replaceState(
-        null,
-        "",
-        `/explore?category=${encodeURIComponent(catId)}&q=${encodeURIComponent(searchQuery)}`,
-      );
-    } else {
-      window.history.replaceState(
-        null,
-        "",
-        `/explore?q=${encodeURIComponent(searchQuery)}`,
-      );
-    }
+  const pageCount = Math.max(1, Math.ceil(filteredLessons.length / PAGE_SIZE));
+  const pageNumber = Number(params.get("page"));
+  const page =
+    Number.isInteger(pageNumber) && pageNumber > 0
+      ? Math.min(pageNumber, pageCount)
+      : 1;
+  const visibleLessons = filteredLessons.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
+  const changePage = (nextPage: number) => {
+    updateFilters({ page: nextPage });
+    resultsRef.current?.focus({ preventScroll: true });
+    resultsRef.current?.scrollIntoView({ block: "start" });
   };
 
   return (
-    <>
-      {/* Header */}
-      <div className="text-right">
-        <h1 className="text-xl font-bold text-foreground">استكشف</h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          تصفح كل محتوى الأكاديمية
+    <div className="space-y-8">
+      <div className="max-w-2xl space-y-3">
+        <p className="text-sm font-semibold text-muted-foreground">
+          مكتبة الأكاديمية
+        </p>
+        <h1 className="heading-xl">اعثر على ما تريد تعلّمه</h1>
+        <p className="text-base leading-8 text-muted-foreground">
+          ابحث في الدروس والمقالات والأدلة، أو اختر موضوعاً تبدأ منه.
         </p>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <input
-          aria-label="البحث في محتوى الأكاديمية"
-          type="search"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="ابحث عن درس، مشروب، مصطلح..."
-          className="w-full bg-card border border-border rounded-xl py-3 pr-10 pl-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all text-right"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          >
-            <span className="text-xs">مسح</span>
-          </button>
-        )}
-      </div>
-
-      {/* Category Filters */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-        <button
-          onClick={() => handleCategoryClick(null)}
-          className={cn(
-            "flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
-            !selectedCategory
-              ? "bg-primary text-primary-foreground border-primary"
-              : "bg-secondary text-secondary-foreground border-border hover:border-primary/20",
+      <section
+        className="rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-5"
+        aria-label="البحث والتصفية"
+      >
+        <div className="relative">
+          <label htmlFor="explore-search" className="sr-only">
+            البحث في محتوى الأكاديمية
+          </label>
+          <Search
+            aria-hidden="true"
+            className="absolute right-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground"
+          />
+          <input
+            id="explore-search"
+            type="search"
+            value={searchQuery}
+            onChange={(event) => updateFilters({ q: event.target.value }, true)}
+            placeholder="جرّب: إسبريسو، تكلفة الكوب، تبخير الحليب"
+            className="w-full min-h-14 rounded-xl border border-border bg-background pr-12 pl-14 text-base text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => updateFilters({ q: "" }, true)}
+              aria-label="مسح البحث"
+              className="absolute left-1 top-1/2 -translate-y-1/2 min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg hover:bg-secondary"
+            >
+              <X aria-hidden="true" className="size-4" />
+            </button>
           )}
-        >
-          الكل
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() =>
-              handleCategoryClick(selectedCategory === cat.id ? null : cat.id)
-            }
-            className={cn(
-              "flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
-              selectedCategory === cat.id
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary text-secondary-foreground border-border hover:border-primary/20",
-            )}
-          >
-            {cat.title}
-          </button>
-        ))}
-      </div>
-
-      {/* Results Count */}
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] text-muted-foreground">
-          {filteredLessons.length} درس
-        </span>
-        <span className="text-[10px] text-muted-foreground font-medium">
-          {selectedCategory
-            ? categories.find((c) => c.id === selectedCategory)?.title
-            : "جميع الأقسام"}
-        </span>
-      </div>
+        </div>
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold mb-3">موضوع الدرس</legend>
+          <div className="flex flex-wrap gap-2">
+            {[{ id: "", title: "كل المواضيع" }, ...categories].map((item) => {
+              const active = (selectedCategory || "") === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => updateFilters({ category: item.id || null })}
+                  className={cn(
+                    "min-h-11 rounded-xl border px-4 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-foreground hover:bg-secondary",
+                  )}
+                >
+                  {item.title}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      </section>
 
       {otherResults.length > 0 && (
-        <section
-          className="space-y-3"
-          aria-label="نتائج المقالات والخدمات والأدلة"
-        >
-          {otherResults.map((r) => (
-            <Link
-              key={r.href}
-              href={r.href}
-              className="block bg-card border border-border rounded-xl p-4"
-            >
-              <span className="text-xs text-accent">{r.type}</span>
-              <h2 className="font-bold mt-1">{r.title}</h2>
-              <p className="text-sm text-muted-foreground">{r.description}</p>
-            </Link>
-          ))}
+        <section className="space-y-4" aria-labelledby="other-results-heading">
+          <h2 id="other-results-heading" className="text-lg font-bold">
+            مقالات وخدمات وأدلة ذات صلة
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {otherResults.map((result) => (
+              <Link
+                key={result.href}
+                href={result.href}
+                className="rounded-2xl border border-border bg-card p-5 transition hover:border-foreground/40"
+              >
+                <span className="text-sm font-medium text-muted-foreground">
+                  {result.type}
+                </span>
+                <h3 className="mt-2 text-base font-bold">{result.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground line-clamp-3">
+                  {result.description}
+                </p>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
-      {/* Lessons List */}
-      <div className="space-y-3">
-        {filteredLessons.map((lesson, i) => {
-          const meta = getCategoryMeta(lesson.category);
-          const Icon = meta.icon;
 
-          return (
-            <Link
+      <section
+        className="space-y-5"
+        aria-labelledby="lesson-results-heading"
+        aria-busy={loading}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2
+            ref={resultsRef}
+            tabIndex={-1}
+            id="lesson-results-heading"
+            className="text-xl font-bold scroll-mt-44"
+          >
+            الدروس
+          </h2>
+          <p className="text-sm text-muted-foreground" role="status">
+            {loading
+              ? "جارٍ تحميل الدروس…"
+              : `${filteredLessons.length} درس${filteredLessons.length ? ` · عرض ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, filteredLessons.length)}` : ""}`}
+          </p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {visibleLessons.map((lesson) => (
+            <LessonCard
               key={lesson.id}
-              href={`/lesson/${lesson.slug}`}
-              className={cn(
-                "block w-full bg-card border border-border rounded-xl p-4 text-right flex items-center gap-4 animate-slide-up hover:border-primary/30 transition-all card-premium group",
-                `stagger-${(i % 8) + 1}`,
-              )}
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap justify-end">
-                  {lesson.tags.slice(0, 2).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-[9px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full border border-border/10"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  <span className="text-[9px] text-accent-foreground bg-accent/10 px-1.5 py-0.5 rounded font-medium">
-                    {lesson.subcategory}
-                  </span>
-                </div>
-                <h4 className="text-sm font-semibold text-foreground mb-0.5">
-                  {lesson.title}
-                </h4>
-                <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                  {lesson.description}
-                </p>
-                <div className="flex items-center gap-3 mt-2 justify-end">
-                  {lesson.read_time && (
-                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {lesson.read_time}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground font-medium">
-                    <Star className="w-3 h-3 text-accent" fill="currentColor" />
-                    {lesson.rating}
-                  </span>
-                </div>
-              </div>
-              <div
-                className={cn(
-                  "w-14 h-14 rounded-lg flex-shrink-0 flex items-center justify-center bg-gradient-to-br transition-transform duration-300 group-hover:scale-110",
-                  meta.gradient,
-                )}
-              >
-                <Icon
-                  className="w-5 h-5 text-foreground/70"
-                  strokeWidth={1.5}
-                />
-              </div>
-            </Link>
-          );
-        })}
-
-        {filteredLessons.length === 0 && otherResults.length === 0 && (
-          <div className="text-center py-12">
-            <Search className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm text-foreground">لا توجد نتائج</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              جرب بحثاً مختلفاً
+              id={lesson.slug}
+              title={lesson.title}
+              category={lesson.category}
+              subcategory={lesson.subcategory}
+              description={lesson.description}
+              readTime={lesson.read_time}
+              difficulty={lesson.difficulty}
+              image={lesson.image}
+            />
+          ))}
+        </div>
+        {!loading && !filteredLessons.length && (
+          <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center space-y-4">
+            <BookOpen
+              aria-hidden="true"
+              className="size-9 mx-auto text-muted-foreground"
+            />
+            <h3 className="text-lg font-bold">لم نجد دروساً تطابق بحثك</h3>
+            <p className="text-base text-muted-foreground">
+              جرّب كلمة أقصر أو ابحث ضمن كل المواضيع.
             </p>
+            <button
+              type="button"
+              onClick={() => updateFilters({ q: "", category: null })}
+              className="min-h-11 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              عرض كل الدروس
+            </button>
           </div>
         )}
-      </div>
-
-      <div className="h-4" />
-    </>
+        {pageCount > 1 && (
+          <nav
+            aria-label="صفحات نتائج الدروس"
+            className="flex items-center justify-between gap-3 border-t border-border pt-5"
+          >
+            <button
+              type="button"
+              onClick={() => changePage(page - 1)}
+              disabled={page === 1}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ArrowRight aria-hidden="true" className="size-4" />
+              السابق
+            </button>
+            <span className="text-sm text-muted-foreground">
+              {page} / {pageCount}
+            </span>
+            <button
+              type="button"
+              onClick={() => changePage(page + 1)}
+              disabled={page === pageCount}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              التالي
+              <ArrowLeft aria-hidden="true" className="size-4" />
+            </button>
+          </nav>
+        )}
+      </section>
+    </div>
   );
 }

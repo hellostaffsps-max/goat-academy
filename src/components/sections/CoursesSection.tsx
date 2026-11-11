@@ -11,11 +11,11 @@ export function CoursesSection() {
 
   return (
     <section id="courses" className="section-padding">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-right max-w-3xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium mb-4 border border-accent/20">
             <GraduationCap className="w-3.5 h-3.5" />
-            الدورات التدريبية
+            مكتبة الدروس
           </div>
           <h2 className="heading-lg mb-3">ابدأ بتعلم جديد</h2>
           <p className="body-base text-muted-foreground">
@@ -42,7 +42,7 @@ export function CoursesSection() {
 
         <div className="text-center">
           <Link href="/courses" className="btn-premium inline-flex">
-            تصفح جميع الدورات
+            تصفح جميع الدروس
             <ArrowLeft className="w-4 h-4" />
           </Link>
         </div>

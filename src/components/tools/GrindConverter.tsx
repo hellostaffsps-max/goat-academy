@@ -66,7 +66,7 @@ const GRIND_DATA = [
     name: "كولد برو",
     level: 90,
     label: "خشن جداً",
-    description: "أخشن ما يمكن لمنع العكارة",
+    description: "طحن خشن كنقطة بداية، ويُعدّل حسب طريقة الترشيح",
     feel: "خشن جداً وحبيبات كبيرة",
   },
 ];
@@ -75,29 +75,34 @@ export default function GrindConverter() {
   const [selected, setSelected] = useState(GRIND_DATA[4]); // V60 default
 
   return (
-    <div className="card-premium p-6">
+    <div className="card-premium p-5 sm:p-7">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
           <SlidersHorizontal className="w-4 h-4 text-accent" />
-          محول درجات الطحن
-        </h3>
+          دليل درجات الطحن
+        </h2>
       </div>
 
+      <p className="mb-5 text-sm leading-7 text-muted-foreground">
+        وصف تقريبي للمقارنة، وليس تحويلًا بين أرقام المطاحن. ابدأ هنا ثم اضبط
+        الطحنة حسب الوصفة والطعم.
+      </p>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="text-xs text-muted-foreground block mb-3 text-right">
+          <p className="text-sm text-muted-foreground block mb-3 text-right">
             اختر طريقة التحضير
-          </label>
+          </p>
           <div className="grid grid-cols-2 gap-2">
             {GRIND_DATA.map((method) => (
               <button
                 key={method.id}
                 onClick={() => setSelected(method)}
+                aria-pressed={selected.id === method.id}
                 className={cn(
-                  "text-[10px] sm:text-xs py-2 px-2 rounded-lg border transition-all text-right",
+                  "text-sm min-h-11 py-2 px-3 rounded-lg border transition-all text-right",
                   selected.id === method.id
-                    ? "bg-accent text-primary-foreground border-accent font-bold"
-                    : "bg-secondary text-muted-foreground border-border hover:border-accent/30"
+                    ? "bg-accent text-accent-foreground border-accent font-bold"
+                    : "bg-secondary text-muted-foreground border-border hover:border-accent/30",
                 )}
               >
                 {method.name}
@@ -108,34 +113,43 @@ export default function GrindConverter() {
 
         <div className="flex flex-col justify-center">
           {/* Visual Slider */}
-          <div className="relative h-4 bg-secondary rounded-full mb-6 overflow-hidden">
+          <div className="relative h-3 bg-secondary rounded-full mb-2 overflow-hidden">
             <div
-              className="absolute top-0 h-full bg-accent rounded-full transition-all duration-500"
+              className="absolute left-0 top-0 h-full bg-accent rounded-full transition-all duration-500"
               style={{ width: `${selected.level}%` }}
             />
-            <div className="absolute inset-0 flex items-center justify-between px-3">
-              <span className="text-[8px] text-muted-foreground">خشن جداً</span>
-              <span className="text-[8px] text-muted-foreground">ناعم جداً</span>
-            </div>
+          </div>
+          <div
+            dir="ltr"
+            className="flex items-center justify-between mb-5 text-sm text-muted-foreground"
+          >
+            <span className="text-sm text-muted-foreground">ناعم جداً</span>
+            <span className="text-sm text-muted-foreground">خشن جداً</span>
           </div>
 
           {/* Result Card */}
           <div className="p-5 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 text-right">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] bg-accent/20 text-accent-foreground border border-accent/10 px-2 py-0.5 rounded-full font-semibold">
+              <span className="text-sm bg-accent/20 text-foreground border border-accent/10 px-2 py-0.5 rounded-full font-semibold">
                 {selected.label}
               </span>
-              <h4 className="text-sm font-bold text-foreground">{selected.name}</h4>
+              <h4 className="text-sm font-bold text-foreground">
+                {selected.name}
+              </h4>
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between text-xs">
+              <div className="flex flex-wrap justify-between gap-2 text-sm">
                 <span className="text-muted-foreground">الشكل:</span>
-                <span className="font-semibold text-foreground">{selected.description}</span>
+                <span className="font-semibold text-foreground">
+                  {selected.description}
+                </span>
               </div>
-              <div className="flex justify-between text-xs">
+              <div className="flex flex-wrap justify-between gap-2 text-sm">
                 <span className="text-muted-foreground">الملمس:</span>
-                <span className="font-semibold text-foreground">{selected.feel}</span>
+                <span className="font-semibold text-foreground">
+                  {selected.feel}
+                </span>
               </div>
             </div>
           </div>

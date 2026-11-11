@@ -10,17 +10,17 @@ export function GET() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#142820",
-          color: "#f7f3e8",
+          background: "#2F2F2F",
+          color: "#F5F2E9",
           padding: "72px",
-          borderBottom: "16px solid #d5b46b",
+          borderBottom: "16px solid #F5DB30",
         }}
       >
         <div
           style={{
             display: "flex",
             fontSize: 28,
-            color: "#d5b46b",
+            color: "#F5DB30",
             letterSpacing: 5,
           }}
         >

@@ -6,14 +6,18 @@ export interface LessonNavigation {
   lessonIndex: number;
   totalLessons: number;
   pathId: string | null;
+  lessonSlugs: string[];
 }
 export function getLessonNavigation(
   slug: string,
   lessons: PublicLesson[],
   paths: PublicPath[],
+  preferredPath?: string | null,
 ): LessonNavigation {
   const lesson = lessons.find((l) => l.slug === slug);
-  const path = paths.find((p) => p.lessons.includes(slug));
+  const matchingPaths = paths.filter((p) => p.lessons.includes(slug));
+  const path =
+    matchingPaths.find((p) => p.slug === preferredPath) || matchingPaths[0];
   const sequence = path
     ? path.lessons
         .map((s) => lessons.find((l) => l.slug === s || l.id === s))
@@ -29,5 +33,6 @@ export function getLessonNavigation(
     lessonIndex: index + 1,
     totalLessons: sequence.length,
     pathId: path?.slug || null,
+    lessonSlugs: sequence.map((item) => item.slug),
   };
 }

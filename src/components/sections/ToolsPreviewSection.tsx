@@ -6,10 +6,30 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { ToolCard } from "@/components/cards/ToolCard";
 
 const defaultTools = [
-  { icon: "Calculator", title: "حاسبة تكلفة المقهى", description: "احسب تكلفة تأسيس مقهاك بدقة.", href: "/tools" },
-  { icon: "Coffee", title: "حاسبة نسبة الاستخلاص", description: "احسب نسبة الاستخلاص المثالية للقهوة.", href: "/tools" },
-  { icon: "Coffee", title: "اختبار شخصية القهوة", description: "اكتشف أي نوع قهوة يناسبك.", href: "/tools" },
-  { icon: "TrendingUp", title: "حاسبة تسعير المشروبات", description: "حدد أسعار مشروباتك بربحية مثالية.", href: "/tools" },
+  {
+    icon: "Calculator",
+    title: "حاسبة تكلفة المقهى",
+    description: "اجمع ميزانية التأسيس حسب بنود مشروعك.",
+    href: "/tools#cafe-cost",
+  },
+  {
+    icon: "Coffee",
+    title: "حاسبة نسبة الاستخلاص",
+    description: "احسب الاستخلاص باستخدام قراءة TDS.",
+    href: "/tools#extraction",
+  },
+  {
+    icon: "Coffee",
+    title: "اكتشف ذوقك في القهوة",
+    description: "اكتشف أي نوع قهوة يناسبك.",
+    href: "/tools#personality-quiz",
+  },
+  {
+    icon: "TrendingUp",
+    title: "حاسبة تسعير المشروبات",
+    description: "جرّب سعر البيع حسب التكلفة والهامش.",
+    href: "/tools#drink-pricing",
+  },
 ];
 
 const defaultContent = {
@@ -22,18 +42,30 @@ const defaultContent = {
 
 export function ToolsPreviewSection() {
   const { content } = useSiteContent("tools_section", defaultContent);
-  const tools = content.tools || defaultTools;
+  const tools = (content.tools || defaultTools).map((tool) => {
+    const fallback = defaultTools.find(
+      (entry) =>
+        entry.title === tool.title ||
+        (tool.title === "اختبار شخصية القهوة" &&
+          entry.href === "/tools#personality-quiz"),
+    );
+    return tool.href === "/tools" && fallback
+      ? { ...tool, href: fallback.href }
+      : tool;
+  });
 
   return (
     <section id="tools" className="section-padding">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-right max-w-3xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium mb-4 border border-accent/20">
             <Calculator className="w-3.5 h-3.5" />
             {content.badge}
           </div>
           <h2 className="heading-lg mb-3">{content.heading}</h2>
-          <p className="body-base text-muted-foreground">{content.description}</p>
+          <p className="body-base text-muted-foreground">
+            {content.description}
+          </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
@@ -50,7 +82,10 @@ export function ToolsPreviewSection() {
         </div>
 
         <div className="text-center">
-          <Link href={content.cta?.href || "/tools"} className="btn-premium inline-flex">
+          <Link
+            href={content.cta?.href || "/tools"}
+            className="btn-premium inline-flex"
+          >
             {content.cta?.text || "جرب جميع الأدوات"}
             <ArrowLeft className="w-4 h-4" />
           </Link>

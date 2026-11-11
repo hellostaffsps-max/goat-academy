@@ -13,12 +13,22 @@ import {
   Info,
 } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
-import { createClient } from "@/utils/supabase/client";
+import { lessons } from "@/data/lessonCatalog";
+import { resetUserLearningData } from "@/actions/user-data";
 
 const subscribe = () => () => {};
 export default function SettingsPage() {
-  const { favorites, completedLessons, settings, updateSettings, clearData } =
-    useStore();
+  const {
+    favorites,
+    completedLessons,
+    settings,
+    updateSettings,
+    clearData,
+    saveError,
+    accountId,
+    pendingLessons,
+    pendingFavorites,
+  } = useStore();
   const { theme, setTheme } = useTheme();
   const mounted = React.useSyncExternalStore(
     subscribe,
@@ -26,60 +36,68 @@ export default function SettingsPage() {
     () => false,
   );
 
+  const [resetError, setResetError] = React.useState<string | null>(null);
+  const [resetting, setResetting] = React.useState(false);
+  const completedCount = lessons.filter((lesson) =>
+    completedLessons.includes(lesson.id),
+  ).length;
   const handleReset = async () => {
     if (
-      typeof window !== "undefined" &&
-      confirm("هل أنت متأكد من حذف جميع البيانات؟")
-    ) {
-      try {
-        const supabase = createClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from("user_favorites").delete().eq("user_id", user.id);
-          await supabase.from("user_progress").delete().eq("user_id", user.id);
-          await supabase.from("user_settings").delete().eq("user_id", user.id);
-        }
-      } catch {
-        // Ignore errors
-      }
+      !window.confirm(
+        "هل تريد مسح المفضلة والتقدم وإعدادات التعلم؟ لا يمكن التراجع عن هذه الخطوة.",
+      )
+    )
+      return;
+    setResetting(true);
+    setResetError(null);
+    try {
+      if (accountId) await resetUserLearningData(accountId);
       clearData();
-      window.location.reload();
+    } catch {
+      setResetError(
+        "تعذّر إكمال إعادة التعيين. قد تكون بعض البيانات قد مُسحت؛ أعد تحميل الصفحة للتحقق ثم حاول مرة أخرى.",
+      );
+    } finally {
+      setResetting(false);
     }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in max-w-3xl mx-auto">
       <div className="text-right">
-        <h1 className="text-xl font-bold text-foreground">الإعدادات</h1>
-        <p className="text-xs text-muted-foreground mt-1">
+        <h1 className="heading-xl">الإعدادات</h1>
+        <p className="text-base text-muted-foreground mt-3">
           تخصيص تجربتك في الأكاديمية
         </p>
       </div>
 
+      {saveError && (
+        <p role="alert" className="text-sm text-destructive">
+          {saveError}
+        </p>
+      )}
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-card border border-border rounded-xl p-3 text-center">
           <BookOpen className="w-5 h-5 text-primary mx-auto mb-1" />
           <div className="text-lg font-bold text-foreground">
-            {completedLessons.length}
+            {completedCount}
           </div>
-          <div className="text-[10px] text-muted-foreground">دروس مكتملة</div>
+          <div className="text-xs text-muted-foreground">دروس مكتملة</div>
         </div>
         <div className="bg-card border border-border rounded-xl p-3 text-center">
           <Heart className="w-5 h-5 text-primary mx-auto mb-1" />
           <div className="text-lg font-bold text-foreground">
             {favorites.length}
           </div>
-          <div className="text-[10px] text-muted-foreground">مفضلة</div>
+          <div className="text-xs text-muted-foreground">مفضلة</div>
         </div>
         <div className="bg-card border border-border rounded-xl p-3 text-center">
           <Award className="w-5 h-5 text-primary mx-auto mb-1" />
           <div className="text-lg font-bold text-foreground">
-            {Math.round((completedLessons.length / 90) * 100)}%
+            {Math.round((completedCount / lessons.length) * 100)}%
           </div>
-          <div className="text-[10px] text-muted-foreground">التقدم</div>
+          <div className="text-xs text-muted-foreground">التقدم</div>
         </div>
       </div>
 
@@ -99,8 +117,9 @@ export default function SettingsPage() {
                 {(["light", "dark", "system"] as const).map((t) => (
                   <button
                     key={t}
+                    aria-pressed={theme === t}
                     onClick={() => setTheme(t)}
-                    className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
+                    className={`flex-1 min-h-11 py-2 rounded-lg text-sm font-medium transition-all border ${
                       theme === t
                         ? "bg-primary text-primary-foreground border border-primary"
                         : "bg-secondary/20 text-muted-foreground border border-border hover:border-primary/20"
@@ -123,8 +142,9 @@ export default function SettingsPage() {
               {(["small", "medium", "large"] as const).map((size) => (
                 <button
                   key={size}
+                  aria-pressed={settings.fontSize === size}
                   onClick={() => updateSettings({ fontSize: size })}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
+                  className={`flex-1 min-h-11 py-2 rounded-lg text-sm font-medium transition-all border ${
                     settings.fontSize === size
                       ? "bg-primary text-primary-foreground border border-primary"
                       : "bg-secondary/20 text-muted-foreground border border-border hover:border-primary/20"
@@ -147,20 +167,28 @@ export default function SettingsPage() {
           <h3 className="text-sm font-bold text-foreground">إمكانية الوصول</h3>
         </div>
         <div className="p-4 flex items-center justify-between">
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.reducedMotion}
-              onChange={(e) =>
-                updateSettings({ reducedMotion: e.target.checked })
-              }
-              className="sr-only peer"
-            />
-            <div className="w-9 h-5 bg-secondary/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-          </label>
+          <button
+            type="button"
+            role="switch"
+            aria-label="تقليل الحركة"
+            aria-checked={settings.reducedMotion}
+            onClick={() =>
+              updateSettings({ reducedMotion: !settings.reducedMotion })
+            }
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg"
+          >
+            <span
+              aria-hidden="true"
+              className={`relative h-6 w-11 rounded-full ${settings.reducedMotion ? "bg-primary" : "bg-secondary border border-border"}`}
+            >
+              <span
+                className={`absolute right-1 top-1 h-4 w-4 rounded-full transition-transform ${settings.reducedMotion ? "-translate-x-5 bg-primary-foreground" : "bg-foreground"}`}
+              />
+            </span>
+          </button>
           <div className="text-right">
             <div className="text-sm text-foreground">تقليل الحركة</div>
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               إيقاف التأثيرات المتحركة
             </div>
           </div>
@@ -176,11 +204,21 @@ export default function SettingsPage() {
         <div className="p-4">
           <button
             onClick={handleReset}
+            disabled={
+              resetting ||
+              pendingLessons.length > 0 ||
+              pendingFavorites.length > 0
+            }
             className="w-full py-2.5 rounded-lg border border-destructive/30 text-destructive text-xs font-medium hover:bg-destructive/10 transition-all"
           >
-            إعادة تعيين جميع البيانات
+            {resetting ? "جارٍ إعادة التعيين…" : "مسح تقدم التعلم والمفضلة"}
           </button>
-          <p className="text-[10px] text-muted-foreground mt-2 text-right">
+          {resetError && (
+            <p role="alert" className="text-sm text-destructive mt-3">
+              {resetError}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground mt-2 text-right">
             هذا سيحذف المفضلة والتقدم والإعدادات
           </p>
         </div>
@@ -200,10 +238,10 @@ export default function SettingsPage() {
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed mb-3">
             أكاديمية تفاعلية متكاملة لعشاق القهوة والباريستا وأصحاب المقاهي. تضم
-            أكثر من 90 درساً تعليمياً covering مشروبات القهوة، طرق التحضير،
-            المعدات، البن والتحميص، المصطلحات، إنشاء المقاهي، ودراسة التكاليف.
+            دروساً تعليمية تغطي مشروبات القهوة، طرق التحضير، المعدات، البن
+            والتحميص، المصطلحات، إنشاء المقاهي، ودراسة التكاليف.
           </p>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <span>الإصدار 1.0</span>
             <span className="mx-1">|</span>
             <span>2026</span>

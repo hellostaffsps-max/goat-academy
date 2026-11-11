@@ -6,16 +6,16 @@ import { ChevronLeft, Home } from "lucide-react";
 import { services } from "@/data/services";
 
 const breadcrumbMap: Record<string, string> = {
-  courses: "الدورات التدريبية",
+  courses: "الدروس",
   blog: "المدونة",
   tools: "الأدوات",
   about: "من نحن",
   consultant: "استشارة",
   services: "الخدمات",
-  downloads: "تحميلات",
-  "success-stories": "قصص النجاح",
-  explore: "استكشف",
-  paths: "مسارات",
+  downloads: "الموارد المجانية",
+  "success-stories": "أعمال وائل أرزيقات",
+  explore: "البحث في الأكاديمية",
+  paths: "مسارات التعلم",
   lesson: "درس",
   settings: "الإعدادات",
   favorites: "المفضلة",
@@ -55,13 +55,13 @@ export function BreadcrumbNav() {
   return (
     <nav
       aria-label="مسار التنقل"
-      className="px-5 py-2 border-b border-border/30 bg-background/50"
+      className="px-5 sm:px-8 py-1 border-b border-border/30 bg-background/50"
     >
-      <ol className="flex items-center gap-1.5 text-[11px] flex-wrap">
+      <ol className="flex items-center gap-1.5 text-sm flex-wrap">
         <li>
           <Link
             href="/"
-            className="inline-flex items-center gap-1 text-muted-foreground hover:text-accent transition-colors"
+            className="inline-flex min-h-11 items-center gap-1 text-muted-foreground hover:text-accent transition-colors"
           >
             <Home className="w-3 h-3" />
             <span>الرئيسية</span>
@@ -77,7 +77,7 @@ export function BreadcrumbNav() {
             ) : (
               <Link
                 href={item.href}
-                className="text-muted-foreground hover:text-accent transition-colors"
+                className="inline-flex min-h-11 items-center text-muted-foreground hover:text-accent transition-colors"
               >
                 {item.label}
               </Link>

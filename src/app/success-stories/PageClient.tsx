@@ -1,104 +1,59 @@
 "use client";
-
 import Link from "next/link";
 import { ProjectPortfolio } from "@/components/ProjectPortfolio";
 import { confirmedProject } from "@/data/projects";
-import {
-  ArrowLeft,
-  TrendingUp,
-  MapPin,
-  Coffee,
-} from "lucide-react";
+import { ArrowLeft, Coffee } from "lucide-react";
 import { useSupabaseSuccessStories } from "@/hooks/useSupabaseData";
 
 export default function SuccessStoriesPage() {
-  const { stories: dbStories, loading } = useSupabaseSuccessStories();
-  const stories = dbStories;
-
+  const { stories } = useSupabaseSuccessStories();
+  // Preserve independently added CMS projects without repeating the named portfolio.
+  const additional = stories.filter(
+    (s) => !confirmedProject(s.title) && !confirmedProject(s.slug),
+  );
   return (
-    <div className="animate-fade-in space-y-8 pb-8">
-      {/* Header */}
-      <section className="text-center py-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium mb-4 border border-accent/20">
-          <TrendingUp className="w-3.5 h-3.5" />
-          قصص النجاح
-        </div>
-        <h1 className="heading-xl mb-3">مشاريع ناجحة بنيناها معاً</h1>
-        <p className="body-base text-muted-foreground max-w-xl mx-auto">
-          أوصاف لأعمال Goat Journey في المقاهي وتطوير المشروبات والتدريب.
+    <div className="animate-fade-in space-y-12 pb-10">
+      <header className="max-w-3xl py-8 space-y-4">
+        <p className="text-sm font-semibold text-accent">أعمال المقاهي</p>
+        <h1 className="heading-xl">مشاريع ناجحة بنيناها معاً</h1>
+        <p className="body-lg text-muted-foreground">
+          تجارب مختلفة يجمعها الاهتمام بالبار والمشروب والفريق.
         </p>
-      </section>
-
+      </header>
       <ProjectPortfolio />
-
-      {/* Loading */}
-      {loading && dbStories.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-8 h-8 border-2 border-accent/20 border-t-accent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">جاري التحميل...</p>
-        </div>
-      )}
-
-      {/* Stories Grid */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {stories.map((story, i) => (
-            <div
-              key={story.id}
-              className="card-premium p-6 relative"
-              style={{ animationDelay: `${i * 0.05}s` }}
-            >
-
-
-              {/* Project image */}
-              <div className="flex items-center gap-3 mb-4">
-                {story.image ? (
-                  <img
-                    src={story.image}
-                    alt=""
-                    className="w-10 h-10 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center text-sm font-bold flex-shrink-0">
-                    {story.title.charAt(0)}
-                  </div>
-                )}
-              </div>
-
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                {confirmedProject(story.title)?.summary || story.description}
+      {additional.length > 0 && (
+        <section
+          aria-label="مشاريع إضافية"
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {additional.map((story) => (
+            <article key={story.id} className="card-premium p-6 space-y-3">
+              <h2 className="text-xl font-bold">{story.title}</h2>
+              <p className="text-sm leading-7 text-muted-foreground">
+                {story.description}
               </p>
-
-              <div className="flex items-center justify-between pt-4 border-t border-border/40">
-                <div>
-                  <div className="text-sm font-bold text-foreground">
-                    {story.title}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {story.location}
-                  </div>
-                </div>
-              </div>
-            </div>
+              {story.location && (
+                <p className="text-sm text-muted-foreground">
+                  {story.location}
+                </p>
+              )}
+            </article>
           ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="card-premium p-8 text-center">
-          <Coffee className="w-12 h-12 text-accent mx-auto mb-4" />
-          <h2 className="heading-lg mb-3">كن قصة نجاح التالية</h2>
-          <p className="body-base text-muted-foreground mb-6 max-w-lg mx-auto">
-            سواء كنت تخطط لفتح مقهى أو تريد تطوير مشروعك الحالي، نحن هنا
-            لمساعدتك.
-          </p>
-          <Link href="/consultant" className="btn-premium inline-flex">
-            احجز استشارتك الآن
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-        </div>
+        </section>
+      )}
+      <section className="card-premium p-8 text-center">
+        <Coffee
+          aria-hidden="true"
+          className="w-10 h-10 text-accent mx-auto mb-4"
+        />
+        <h2 className="heading-lg mb-3">لنبدأ قصة مشروعك</h2>
+        <p className="body-base text-muted-foreground mb-6 max-w-lg mx-auto">
+          تخطط لافتتاح مقهى أو تطوير البار والمنيو والفريق؟ احكِ لنا عن مشروعك.
+        </p>
+        <Link href="/consultant" className="btn-premium inline-flex">
+          ناقش مشروعك مع وائل{" "}
+          <ArrowLeft aria-hidden="true" className="w-4 h-4" />
+        </Link>
       </section>
     </div>
   );

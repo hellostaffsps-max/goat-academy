@@ -178,7 +178,7 @@ export default function AdminDashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase  mb-3">
                 الزيارات اليومية
               </h3>
               <div className="space-y-3">
@@ -212,7 +212,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <div>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase  mb-3">
                 الصفحات الأكثر زيارة
               </h3>
               <div className="space-y-2">

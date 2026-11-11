@@ -3,7 +3,7 @@ import Link from "next/link";
 export function FounderSection() {
   return (
     <section
-      className="section-padding grid md:grid-cols-2 gap-8 items-center"
+      className="section-padding grid md:grid-cols-2 lg:grid-cols-1 gap-8 items-center"
       id="about"
     >
       <Image
@@ -12,9 +12,9 @@ export function FounderSection() {
         height={600}
         sizes="(max-width: 768px) 100vw, 440px"
         alt="وائل أرزيقات — Wael Irzeqat"
-        className="rounded-3xl w-full max-w-sm mx-auto"
+        className="rounded-xl w-full max-w-sm mx-auto lg:hidden"
       />
-      <div className="space-y-5">
+      <div className="space-y-5 lg:max-w-4xl">
         <p className="text-accent">مؤسس Goat Journey</p>
         <h2 className="heading-lg">وائل أرزيقات — Wael Irzeqat</h2>
         <p className="body-base leading-8 text-muted-foreground">

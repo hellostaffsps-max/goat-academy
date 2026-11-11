@@ -19,23 +19,21 @@ export default function ErrorBoundary({
       <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
         <AlertTriangle className="w-8 h-8 text-destructive" />
       </div>
-      <h2 className="text-lg font-bold text-foreground mb-2">
-        حدث خطأ غير متوقع
-      </h2>
+      <h1 className="heading-lg text-foreground mb-2">حدث خطأ غير متوقع</h1>
       <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
         نعتذر عن هذا الخلل. يمكنك المحاولة مرة أخرى أو العودة للصفحة الرئيسية.
       </p>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap justify-center items-center gap-3">
         <button
           onClick={() => reset()}
-          className="bg-primary text-primary-foreground text-xs font-semibold px-5 py-2.5 rounded-lg inline-flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
+          className="bg-primary text-primary-foreground text-sm font-semibold min-h-11 px-5 py-2.5 rounded-lg inline-flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           إعادة المحاولة
         </button>
         <a
           href="/"
-          className="bg-secondary text-secondary-foreground border border-border text-xs font-semibold px-5 py-2.5 rounded-lg inline-flex items-center gap-1.5 hover:bg-secondary/80 transition-colors"
+          className="bg-secondary text-secondary-foreground border border-border text-sm font-semibold min-h-11 px-5 py-2.5 rounded-lg inline-flex items-center gap-1.5 hover:bg-secondary/80 transition-colors"
         >
           الصفحة الرئيسية
         </a>

@@ -16,7 +16,7 @@ export function WhatsAppButton() {
       onClick={() => trackContact("whatsapp")}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-20 sm:bottom-6 left-4 sm:left-6 z-50 w-12 h-12 rounded-full bg-[#25D366] text-white shadow-lg hover:scale-110 hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+      className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] sm:bottom-6 left-4 sm:left-6 z-30 w-12 h-12 rounded-full bg-[#25D366] text-white shadow-lg hover:scale-110 hover:shadow-xl transition-all duration-300 flex items-center justify-center"
       aria-label="تواصل عبر واتساب"
     >
       <MessageSquare className="w-6 h-6" />

@@ -26,11 +26,11 @@ export default async function HomePage() {
       <div className="animate-fade-in">
         <HeroSection />
         <FounderSection />
+        <SuccessStoriesSection />
         <ServicesSection />
         <PathsSection />
         <CoursesSection />
         <BlogSection />
-        <SuccessStoriesSection />
         <ToolsPreviewSection />
         <ResourcesSection />
       </div>

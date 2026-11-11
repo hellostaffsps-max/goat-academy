@@ -7,6 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        brand: {
+          yellow: "hsl(var(--brand-yellow))",
+          charcoal: "hsl(var(--brand-charcoal))",
+          offwhite: "hsl(var(--brand-offwhite))",
+          stone: "hsl(var(--brand-stone))",
+          cobalt: "hsl(var(--brand-cobalt))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

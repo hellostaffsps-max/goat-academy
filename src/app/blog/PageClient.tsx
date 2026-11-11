@@ -70,15 +70,16 @@ export default function BlogPage() {
       </section>
 
       {/* Category filters */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-6xl mx-auto">
         <div className="flex flex-wrap gap-2 justify-center">
           {categoryOptions.map((cat) => (
             <button
               key={cat.id}
+              aria-pressed={activeCategory === cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center gap-1.5 ${
+              className={`min-h-11 px-4 py-2 rounded-lg text-sm font-medium transition-all border flex items-center gap-1.5 ${
                 activeCategory === cat.id
-                  ? "bg-accent text-white border-accent"
+                  ? "bg-primary text-primary-foreground border-primary"
                   : "bg-card text-muted-foreground border-border hover:border-accent/40 hover:text-foreground"
               }`}
             >
@@ -98,7 +99,7 @@ export default function BlogPage() {
       )}
 
       {/* Articles */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <span className="text-xs text-muted-foreground">
             {filteredArticles.length} مقال

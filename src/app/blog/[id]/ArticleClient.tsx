@@ -18,59 +18,43 @@ export default function ArticlePage({ article }: { article: PublicArticle }) {
   const router = useRouter();
 
   return (
-    <div className="animate-fade-in -mx-4 -mt-4">
+    <div className="animate-fade-in max-w-3xl mx-auto">
       {/* Hero */}
       <div className="relative">
-        <div className="aspect-[21/9] sm:aspect-[16/6] bg-gradient-to-br from-secondary via-background to-secondary/50 relative overflow-hidden border-b border-border/50 rounded-b-2xl">
-          <div className="absolute inset-0 opacity-40 pointer-events-none">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full border border-border" />
-            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full border border-border/50" />
-            <div className="absolute top-1/4 left-12 w-36 h-36 rounded-full bg-accent/5 blur-xl" />
-          </div>
-
-          <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
-            <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              {article.category_label}
-            </span>
-          </div>
-
-          {/* Back button */}
-          <button
-            onClick={() => router.push("/blog")}
-            className="absolute top-4 left-4 w-8 h-8 rounded-full bg-background/80 backdrop-blur-md border border-border flex items-center justify-center hover:bg-background transition-all shadow-xs"
-          >
-            <ArrowRight className="w-4 h-4 text-foreground" />
-          </button>
-        </div>
+        <Link
+          href="/blog"
+          className="inline-flex min-h-11 items-center gap-2 text-sm mb-4"
+        >
+          <ArrowRight className="w-4 h-4" />
+          العودة للمدونة
+        </Link>
 
         {/* Title Card */}
-        <div className="mx-4 -mt-6 relative z-10 bg-card border border-border rounded-xl p-5 text-right shadow-sm">
-          <div className="flex items-center gap-2 mb-2 flex-wrap justify-end">
+        <div className="border-b border-border pb-8 text-right">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             {article.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-[9px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full border border-border/10 flex items-center gap-1"
+                className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full border border-border/10 flex items-center gap-1"
               >
                 <Tag className="w-2.5 h-2.5" />
                 {tag}
               </span>
             ))}
-            <span className="text-[9px] text-accent-foreground bg-accent/10 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs text-foreground bg-accent/10 px-2 py-0.5 rounded-full font-medium">
               {article.category_label}
             </span>
           </div>
-          <h1 className="text-base font-bold text-foreground mb-1 leading-tight">
-            {article.title}
-          </h1>
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <h1 className="heading-xl mb-4">{article.title}</h1>
+          <p className="text-lg text-muted-foreground leading-relaxed">
             {article.description}
           </p>
-          <div className="flex items-center gap-4 mt-3 justify-end border-t border-border/50 pt-3">
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-4 mt-6 border-t border-border/50 pt-3">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <Calendar className="w-3 h-3" />
-              {new Date(article.date).toLocaleDateString("ar-EG")}
+              {new Date(article.date).toLocaleDateString("ar-EG-u-nu-latn")}
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <User className="w-3 h-3" />
               {["وائل أرزيقات", "Wael Irzeqat", "فريق GoatJourney"].includes(
                 article.author,
@@ -80,7 +64,7 @@ export default function ArticlePage({ article }: { article: PublicArticle }) {
                 article.author
               )}
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <Clock className="w-3 h-3" />
               {article.read_time}
             </span>
@@ -90,9 +74,9 @@ export default function ArticlePage({ article }: { article: PublicArticle }) {
       </div>
 
       {/* Content */}
-      <div className="px-4 mt-4 space-y-4">
+      <div className="mt-8 space-y-6">
         {article.content ? (
-          <div className="bg-card border border-border rounded-xl p-5 text-right">
+          <div className="text-right">
             <LessonContent content={article.content} />
           </div>
         ) : (

@@ -55,7 +55,7 @@ export default function AuthLoginPage() {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
           <div className="flex items-center justify-center gap-2 mb-6">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Shield className="w-5 h-5 text-primary" />
@@ -70,7 +70,10 @@ export default function AuthLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="admin-email" className="block text-sm font-medium text-foreground mb-1.5">
+              <label
+                htmlFor="admin-email"
+                className="block text-sm font-medium text-foreground mb-1.5"
+              >
                 البريد الإلكتروني
               </label>
               <input
@@ -80,14 +83,17 @@ export default function AuthLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 placeholder="البريد الإلكتروني لحسابك"
                 autoFocus
               />
             </div>
 
             <div>
-              <label htmlFor="admin-password" className="block text-sm font-medium text-foreground mb-1.5">
+              <label
+                htmlFor="admin-password"
+                className="block text-sm font-medium text-foreground mb-1.5"
+              >
                 كلمة المرور
               </label>
               <div className="relative">
@@ -99,14 +105,16 @@ export default function AuthLoginPage() {
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all pl-10"
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all pl-10"
                   placeholder="••••••"
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                  aria-label={
+                    showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
+                  }
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute left-1 min-w-11 min-h-11 flex items-center justify-center top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />

@@ -4,8 +4,8 @@
   "description": "أكاديمية تفاعلية لتعلم القهوة وتأسيس المقاهي في فلسطين",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf9f6",
-  "theme_color": "#382f2c",
+  "background_color": "#F5F2E9",
+  "theme_color": "#2F2F2F",
   "orientation": "portrait-primary",
   "icons": [
     {

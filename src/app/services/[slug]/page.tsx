@@ -46,7 +46,7 @@ export default async function ServicePage({ params }: Props) {
           { name: s.name },
         ]}
       />
-      <header className="py-10 space-y-5">
+      <header className="py-8 sm:py-12 space-y-5 border-b border-border">
         <p className="text-accent" lang="en" dir="ltr">
           {s.englishName}
         </p>
@@ -63,7 +63,7 @@ export default async function ServicePage({ params }: Props) {
           ناقش احتياجك لهذه الخدمة
         </Link>
       </header>
-      <section className="space-y-4">
+      <section className="space-y-4 max-w-3xl">
         <h2 className="heading-lg">لمن هذه الخدمة؟</h2>
         <p className="body-base leading-8">{s.audience}</p>
       </section>
@@ -72,7 +72,9 @@ export default async function ServicePage({ params }: Props) {
         <ol className="grid md:grid-cols-3 gap-5">
           {s.steps.map((step, i) => (
             <li key={step.title} className="card-premium p-6 space-y-4">
-              <span className="text-accent text-2xl">0{i + 1}</span>
+              <span className="text-accent text-2xl tabular-nums">
+                0{i + 1}
+              </span>
               <h3 className="text-lg font-bold">{step.title}</h3>
               <p className="text-sm leading-7 text-muted-foreground">
                 {step.description}

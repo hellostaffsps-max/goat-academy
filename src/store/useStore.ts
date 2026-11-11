@@ -1,221 +1,320 @@
 "use client";
 
-import { create } from "zustand";
+import { create, type StoreApi, type UseBoundStore } from "zustand";
+import { useEffect } from "react";
 import {
-  getUserFavorites,
+  getUserLearningSnapshot,
   toggleUserFavorite,
-  getUserProgress,
   toggleUserProgress,
-  getUserSettings,
   updateUserSettings,
 } from "@/actions/user-data";
 import { checkBadges } from "@/lib/badges";
+import {
+  emptyLearningSnapshot,
+  learningStorageKey,
+  parseLearningSnapshot,
+  type LearningSnapshot,
+} from "@/lib/learning-storage";
 
-interface AppState {
-  // Favorites
-  favorites: string[];
+interface AppState extends LearningSnapshot {
+  initialized: boolean;
+  accountId: string | null;
+  saveError: string | null;
+  pendingFavorites: string[];
+  pendingLessons: string[];
+  badges: string[];
+  searchQuery: string;
+  selectedCategory: string | null;
   toggleFavorite: (id: string) => Promise<void>;
   isFavorite: (id: string) => boolean;
-
-  // Search
-  searchQuery: string;
   setSearchQuery: (query: string) => void;
-
-  // Selected category filter
-  selectedCategory: string | null;
   setSelectedCategory: (cat: string | null) => void;
-
-  // Completed lessons (progress tracking)
-  completedLessons: string[];
   toggleCompleted: (id: string) => Promise<void>;
   isCompleted: (id: string) => boolean;
-
-  // Badges / Achievements
-  badges: string[];
   awardBadges: () => void;
   hasBadge: (id: string) => boolean;
-
-  // Quiz tracking
-  quizPassed: string[];
   markQuizPassed: (pathId: string) => void;
-
-  // Tool usage tracking
-  toolsUsed: string[];
   trackToolUsage: (toolId: string) => void;
-
-  // Daily plan progress
-  dailyProgress: number;
   setDailyProgress: (n: number) => void;
-
-  // Settings
-  settings: {
-    fontSize: "small" | "medium" | "large";
-    reducedMotion: boolean;
-  };
-  updateSettings: (s: Partial<AppState["settings"]>) => Promise<void>;
-
-  // Auth sync
+  updateSettings: (
+    settings: Partial<LearningSnapshot["settings"]>,
+  ) => Promise<void>;
   syncFromServer: () => Promise<void>;
+  ensureInitialized: () => Promise<void>;
+  invalidateAccountScope: (accountId: string | null) => void;
   clearData: () => void;
 }
 
-export const useStore = create<AppState>()((set, get) => ({
-  // Defaults
-  favorites: [],
-  searchQuery: "",
-  selectedCategory: null,
-  completedLessons: [],
-  badges: [],
-  quizPassed: [],
-  toolsUsed: [],
-  dailyProgress: 0,
-  settings: {
-    fontSize: "medium",
-    reducedMotion: false,
-  },
+const readLocal = (accountId: string | null) => {
+  try {
+    return parseLearningSnapshot(
+      window.localStorage.getItem(learningStorageKey(accountId)),
+    );
+  } catch {
+    return emptyLearningSnapshot();
+  }
+};
+const toggle = (items: string[], id: string, enabled: boolean) =>
+  enabled ? [...new Set([...items, id])] : items.filter((item) => item !== id);
+function createLearningStore() {
+  let generation = 0;
+  let settingsQueue: Promise<void> = Promise.resolve();
+  let initialization: Promise<void> | undefined;
 
-  toggleFavorite: async (id) => {
-    try {
-      const isNowFav = await toggleUserFavorite(id);
+  const store = create<AppState>()((set, get) => ({
+    ...emptyLearningSnapshot(),
+    initialized: false,
+    accountId: null,
+    saveError: null,
+    pendingFavorites: [],
+    pendingLessons: [],
+    badges: [],
+    searchQuery: "",
+    selectedCategory: null,
+
+    toggleFavorite: async (id) => {
+      if (!get().initialized) await get().ensureInitialized();
+      if (!get().initialized || get().pendingFavorites.includes(id)) return;
+      const version = generation;
+      const accountId = get().accountId;
       set((state) => ({
-        favorites: isNowFav
-          ? [...state.favorites, id]
-          : state.favorites.filter((f) => f !== id),
+        pendingFavorites: [...state.pendingFavorites, id],
+        saveError: null,
       }));
-    } catch {
-      // Fallback: if not authenticated, toggle locally only
+      try {
+        const enabled = accountId
+          ? await toggleUserFavorite(id, accountId)
+          : !get().favorites.includes(id);
+        if (version !== generation) return;
+        set((state) => ({ favorites: toggle(state.favorites, id, enabled) }));
+      } catch {
+        if (version === generation)
+          set({
+            saveError:
+              "تعذّر حفظ المفضلة في حسابك. حاول مرة أخرى أو أعد تحميل الصفحة.",
+          });
+      } finally {
+        if (version === generation)
+          set((state) => ({
+            pendingFavorites: state.pendingFavorites.filter(
+              (item) => item !== id,
+            ),
+          }));
+      }
+    },
+    isFavorite: (id) => get().favorites.includes(id),
+    setSearchQuery: (searchQuery) => set({ searchQuery }),
+    setSelectedCategory: (selectedCategory) => set({ selectedCategory }),
+
+    toggleCompleted: async (id) => {
+      if (!get().initialized) await get().ensureInitialized();
+      if (!get().initialized || get().pendingLessons.includes(id)) return;
+      const version = generation;
+      const accountId = get().accountId;
       set((state) => ({
-        favorites: state.favorites.includes(id)
-          ? state.favorites.filter((f) => f !== id)
-          : [...state.favorites, id],
+        pendingLessons: [...state.pendingLessons, id],
+        saveError: null,
       }));
-    }
-  },
-
-  isFavorite: (id) => get().favorites.includes(id),
-
-  setSearchQuery: (query) => set({ searchQuery: query }),
-
-  setSelectedCategory: (cat) => set({ selectedCategory: cat }),
-
-  toggleCompleted: async (id) => {
-    try {
-      const isNowCompleted = await toggleUserProgress(id);
-      set((state) => {
-        const completedLessons = isNowCompleted
-          ? [...state.completedLessons, id]
-          : state.completedLessons.filter((c) => c !== id);
-        // Re-check badges after completion
-        const newBadges = checkBadges({
-          completedLessons,
-          quizPassed: state.quizPassed,
-          toolsUsed: state.toolsUsed,
+      try {
+        const enabled = accountId
+          ? await toggleUserProgress(id, accountId)
+          : !get().completedLessons.includes(id);
+        if (version !== generation) return;
+        set((state) => {
+          const completedLessons = toggle(state.completedLessons, id, enabled);
+          return {
+            completedLessons,
+            badges: checkBadges({ ...state, completedLessons }),
+          };
         });
-        return { completedLessons, badges: newBadges };
-      });
-    } catch {
-      // Fallback: if not authenticated, toggle locally only
+      } catch {
+        if (version === generation)
+          set({
+            saveError:
+              "تعذّر حفظ إكمال الدرس في حسابك. حاول مرة أخرى أو أعد تحميل الصفحة.",
+          });
+      } finally {
+        if (version === generation)
+          set((state) => ({
+            pendingLessons: state.pendingLessons.filter((item) => item !== id),
+          }));
+      }
+    },
+    isCompleted: (id) => get().completedLessons.includes(id),
+    awardBadges: () => set({ badges: checkBadges(get()) }),
+    hasBadge: (id) => get().badges.includes(id),
+    markQuizPassed: async (pathId) => {
+      if (!get().initialized) await get().ensureInitialized();
+      if (!get().initialized) return;
       set((state) => {
-        const completedLessons = state.completedLessons.includes(id)
-          ? state.completedLessons.filter((c) => c !== id)
-          : [...state.completedLessons, id];
-        const newBadges = checkBadges({
-          completedLessons,
-          quizPassed: state.quizPassed,
-          toolsUsed: state.toolsUsed,
-        });
-        return { completedLessons, badges: newBadges };
+        const quizPassed = [...new Set([...state.quizPassed, pathId])];
+        return { quizPassed, badges: checkBadges({ ...state, quizPassed }) };
       });
-    }
-  },
-
-  isCompleted: (id) => get().completedLessons.includes(id),
-
-  awardBadges: () => {
-    const { completedLessons, quizPassed, toolsUsed } = get();
-    const newBadges = checkBadges({ completedLessons, quizPassed, toolsUsed });
-    set({ badges: newBadges });
-  },
-
-  hasBadge: (id) => get().badges.includes(id),
-
-  markQuizPassed: (pathId) => {
-    set((state) => {
-      if (state.quizPassed.includes(pathId)) return state;
-      const quizPassed = [...state.quizPassed, pathId];
-      const newBadges = checkBadges({
-        completedLessons: state.completedLessons,
-        quizPassed,
-        toolsUsed: state.toolsUsed,
+    },
+    trackToolUsage: async (toolId) => {
+      if (!get().initialized) await get().ensureInitialized();
+      if (!get().initialized) return;
+      set((state) => {
+        const toolsUsed = [...new Set([...state.toolsUsed, toolId])];
+        return { toolsUsed, badges: checkBadges({ ...state, toolsUsed }) };
       });
-      return { quizPassed, badges: newBadges };
-    });
-  },
+    },
+    setDailyProgress: async (dailyProgress) => {
+      if (!get().initialized) await get().ensureInitialized();
+      if (get().initialized) set({ dailyProgress });
+    },
 
-  trackToolUsage: (toolId) => {
-    set((state) => {
-      if (state.toolsUsed.includes(toolId)) return state;
-      const toolsUsed = [...state.toolsUsed, toolId];
-      const newBadges = checkBadges({
-        completedLessons: state.completedLessons,
-        quizPassed: state.quizPassed,
-        toolsUsed,
+    updateSettings: async (settings) => {
+      if (!get().initialized) await get().ensureInitialized();
+      if (!get().initialized) return;
+      const version = generation;
+      const accountId = get().accountId;
+      const next = { ...get().settings, ...settings };
+      set({ settings: next, saveError: null });
+      if (!accountId) return;
+      settingsQueue = settingsQueue.then(async () => {
+        if (version !== generation) return;
+        try {
+          await updateUserSettings(next, accountId);
+        } catch {
+          if (version === generation)
+            set({
+              saveError:
+                "حُفظ المظهر على هذا الجهاز، وتعذّرت مزامنته مع حسابك.",
+            });
+        }
       });
-      return { toolsUsed, badges: newBadges };
-    });
-  },
+      await settingsQueue;
+    },
 
-  setDailyProgress: (n) => set({ dailyProgress: n }),
-
-  updateSettings: async (s) => {
-    const newSettings = { ...get().settings, ...s };
-    set({ settings: newSettings });
-    try {
-      await updateUserSettings({
-        fontSize: newSettings.fontSize,
-        reducedMotion: newSettings.reducedMotion,
-      });
-    } catch {
-      // Silently fail if not authenticated
-    }
-  },
-
-  syncFromServer: async () => {
-    try {
-      const [favorites, progress, settings] = await Promise.all([
-        getUserFavorites(),
-        getUserProgress(),
-        getUserSettings(),
-      ]);
-      const badges = checkBadges({
-        completedLessons: progress,
-        quizPassed: get().quizPassed,
-        toolsUsed: get().toolsUsed,
-      });
+    invalidateAccountScope: (accountId) => {
+      if (get().initialized && get().accountId === accountId) return;
+      generation += 1;
       set({
-        favorites,
-        completedLessons: progress,
-        badges,
-        settings: settings
-          ? {
-              fontSize: settings.font_size as "small" | "medium" | "large",
-              reducedMotion: settings.reduced_motion,
-            }
-          : get().settings,
+        ...emptyLearningSnapshot(),
+        accountId,
+        initialized: false,
+        badges: [],
+        pendingFavorites: [],
+        pendingLessons: [],
+        saveError: null,
       });
-    } catch {
-      // If not authenticated, keep local state
-    }
-  },
+    },
+    ensureInitialized: () => {
+      if (get().initialized) return Promise.resolve();
+      return initialization || get().syncFromServer();
+    },
+    syncFromServer: async () => {
+      const version = ++generation;
+      set({ initialized: false, pendingFavorites: [], pendingLessons: [] });
+      const request = (async () => {
+        try {
+          const remote = process.env.NEXT_PUBLIC_SUPABASE_URL
+            ? await getUserLearningSnapshot()
+            : null;
+          if (version !== generation) return;
+          const accountId = remote?.userId ?? null;
+          const local = readLocal(accountId);
+          const snapshot = remote?.userId
+            ? {
+                ...local,
+                favorites: [...new Set(remote.favorites)],
+                completedLessons: [...new Set(remote.progress)],
+                settings: remote.settings
+                  ? parseLearningSnapshot(
+                      JSON.stringify({
+                        settings: {
+                          fontSize: remote.settings.font_size,
+                          reducedMotion: remote.settings.reduced_motion,
+                        },
+                      }),
+                    ).settings
+                  : local.settings,
+              }
+            : local;
+          set({
+            ...snapshot,
+            accountId,
+            badges: checkBadges(snapshot),
+            initialized: true,
+            saveError: null,
+          });
+        } catch {
+          if (version !== generation) return;
+          // Never load an unverified account's cached progress into another session.
+          const local = readLocal(null);
+          set({
+            ...local,
+            accountId: null,
+            badges: checkBadges(local),
+            initialized: true,
+            saveError:
+              "تعذّر الاتصال بالحساب. تقدمك الحالي يُحفظ على هذا الجهاز كزائر.",
+          });
+        }
+      })();
+      initialization = request;
+      try {
+        await request;
+      } finally {
+        if (initialization === request) initialization = undefined;
+      }
+    },
+    clearData: () => {
+      generation += 1;
+      set({
+        ...emptyLearningSnapshot(),
+        badges: [],
+        saveError: null,
+        pendingFavorites: [],
+        pendingLessons: [],
+      });
+    },
+  }));
 
-  clearData: () =>
-    set({
-      favorites: [],
-      completedLessons: [],
-      badges: [],
-      quizPassed: [],
-      toolsUsed: [],
-      dailyProgress: 0,
-      settings: { fontSize: "medium", reducedMotion: false },
-    }),
-}));
+  // Runs only after the layout's client effect restores the appropriate account scope.
+  // Server render and first client render therefore use identical defaults.
+  store.subscribe((state) => {
+    if (!state.initialized || typeof window === "undefined") return;
+    const snapshot: LearningSnapshot = {
+      favorites: state.favorites,
+      completedLessons: state.completedLessons,
+      quizPassed: state.quizPassed,
+      toolsUsed: state.toolsUsed,
+      dailyProgress: state.dailyProgress,
+      settings: state.settings,
+    };
+    try {
+      window.localStorage.setItem(
+        learningStorageKey(state.accountId),
+        JSON.stringify(snapshot),
+      );
+    } catch {
+      /* Browser storage may be unavailable in private/restricted sessions. */
+    }
+  });
+
+  return store;
+}
+
+// A single browser instance survives route/chunk evaluation. Server rendering
+// retains deterministic empty state and never reads browser storage.
+const browserStoreKey = Symbol.for("goatjourney.learning-store.v1");
+const browserHost = globalThis as typeof globalThis & {
+  [browserStoreKey]?: UseBoundStore<StoreApi<AppState>>;
+};
+const learningStore =
+  typeof window === "undefined"
+    ? createLearningStore()
+    : (browserHost[browserStoreKey] ??= createLearningStore());
+
+function useLearningStore<T = AppState>(selector?: (state: AppState) => T): T {
+  const state = learningStore(selector ?? ((value) => value as unknown as T));
+  useEffect(() => {
+    // Each consumer can establish readiness, including a directly opened lesson.
+    // The shared promise prevents concurrent mounts from resetting one another.
+    void learningStore.getState().ensureInitialized();
+  }, []);
+  return state;
+}
+export const useStore = Object.assign(useLearningStore, learningStore);

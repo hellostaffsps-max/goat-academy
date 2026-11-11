@@ -4,48 +4,54 @@
 
 @layer base {
   :root {
-    /* Goat Journey — Premium Coffee Academy */
-    /* Goat.pdf pp.38–39: coffee, skin, warm gray and beige. */
-    --background: 30.00 20.00% 96.08%;
-    --foreground: 15.00 12.00% 19.61%;
-    --card: 0.00 0.00% 100.00%;
-    --card-foreground: 15.00 12.00% 19.61%;
-    --popover: 0.00 0.00% 100.00%;
-    --popover-foreground: 15.00 12.00% 19.61%;
-    --primary: 15.00 12.00% 19.61%;
-    --primary-foreground: 0.00 0.00% 100.00%;
-    --secondary: 30.00 13.04% 81.96%;
-    --secondary-foreground: 15.00 12.00% 19.61%;
-    --muted: 30.00 15.00% 92.16%;
-    --muted-foreground: 23.33 9.68% 36.47%; /* Darkened from 40% for 7:1 contrast */
-    --accent: 43.93 45.90% 76.08%; /* Darkened from 63% for better contrast */
-    --accent-foreground: 15.00 12.00% 19.61%;
-    --destructive: 0 62.8% 45%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 30.00 13.04% 81.96%;
-    --input: 30.00 16.90% 72.16%;
-    --ring: 15.00 12.00% 19.61%;
-    --radius: 0.75rem;
+    /* Approved yellow/charcoal palette: owner brief, 2026-11-11. */
+    --brand-yellow: 52.0812 90.7834% 57.451%;
+    --brand-charcoal: 0 0% 18.4314%;
+    --brand-offwhite: 45 37.5% 93.7255%;
+    --brand-stone: 72 2.8571% 65.6863%;
+    --brand-cobalt: 225.5056 70.0787% 50.1961%;
+    --background: var(--brand-offwhite);
+    --foreground: var(--brand-charcoal);
+    --card: 45 35% 98%;
+    --card-foreground: var(--brand-charcoal);
+    --popover: var(--brand-offwhite);
+    --popover-foreground: var(--brand-charcoal);
+    --primary: var(--brand-charcoal);
+    --primary-foreground: var(--brand-offwhite);
+    --secondary: 48 10% 87%;
+    --secondary-foreground: var(--brand-charcoal);
+    --muted: 45 14% 91%;
+    --muted-foreground: 70 3% 36%;
+    --accent: var(--brand-yellow);
+    --accent-foreground: var(--brand-charcoal);
+    --destructive: 0 63% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--brand-stone);
+    --input: 70 3% 43%;
+    --ring: var(--brand-cobalt);
+    --link: var(--brand-cobalt);
+    --radius: 0.625rem;
   }
-
   .dark {
-    --background: 15 12% 12%;
-    --foreground: 30 10% 96%;
-    --card: 15 12% 16%;
-    --card-foreground: 30 10% 96%;
-    --popover: 15 12% 16%;
-    --popover-foreground: 30 10% 96%;
-    --primary: 43.93 45.16% 76.08%;
-    --primary-foreground: 15 12% 12%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 30 10% 96%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 30 15% 65%; /* Lightened from 55% for better contrast on dark */
-    --accent: 43.93 45.16% 76.08%;
-    --accent-foreground: 15 12% 12%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 43.93 45.16% 76.08%;
+    --background: 0 0% 12%;
+    --foreground: var(--brand-offwhite);
+    --card: var(--brand-charcoal);
+    --card-foreground: var(--brand-offwhite);
+    --popover: var(--brand-charcoal);
+    --popover-foreground: var(--brand-offwhite);
+    --primary: var(--brand-yellow);
+    --primary-foreground: var(--brand-charcoal);
+    --secondary: 0 0% 23%;
+    --secondary-foreground: var(--brand-offwhite);
+    --muted: 0 0% 18%;
+    --muted-foreground: 60 5% 78%;
+    --accent: var(--brand-yellow);
+    --accent-foreground: var(--brand-charcoal);
+    --border: 0 0% 39%;
+    --input: var(--brand-stone);
+    --destructive: 0 91% 71%;
+    --ring: var(--brand-yellow);
+    --link: var(--brand-yellow);
   }
 
   * {
@@ -54,7 +60,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-rubik), 'Rubik', 'Tahoma', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-latin), var(--font-arabic), "Tahoma", sans-serif;
     direction: rtl;
   }
 
@@ -101,24 +107,51 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .animate-fade-in {
@@ -138,14 +171,30 @@
 }
 
 /* Stagger delays */
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.10s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.20s; }
-.stagger-5 { animation-delay: 0.25s; }
-.stagger-6 { animation-delay: 0.30s; }
-.stagger-7 { animation-delay: 0.35s; }
-.stagger-8 { animation-delay: 0.40s; }
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+.stagger-4 {
+  animation-delay: 0.2s;
+}
+.stagger-5 {
+  animation-delay: 0.25s;
+}
+.stagger-6 {
+  animation-delay: 0.3s;
+}
+.stagger-7 {
+  animation-delay: 0.35s;
+}
+.stagger-8 {
+  animation-delay: 0.4s;
+}
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
@@ -164,13 +213,17 @@
 
 /* Premium card — enhanced */
 .card-premium {
-  @apply bg-card border border-border rounded-2xl transition-all duration-300;
-  box-shadow: 0 1px 3px -1px hsl(var(--foreground) / 0.05), 0 1px 2px -1px hsl(var(--foreground) / 0.03);
+  @apply bg-card border border-border rounded-xl transition-all duration-300;
+  box-shadow:
+    0 1px 3px -1px hsl(var(--foreground) / 0.05),
+    0 1px 2px -1px hsl(var(--foreground) / 0.03);
 }
-.card-premium:hover {
-  @apply -translate-y-1 shadow-lg;
+a.card-premium:hover {
+  @apply shadow-lg;
   border-color: hsl(var(--accent) / 0.35);
-  box-shadow: 0 20px 40px -12px hsl(var(--accent) / 0.15), 0 8px 16px -8px hsl(var(--foreground) / 0.08);
+  box-shadow:
+    0 20px 40px -12px hsl(var(--accent) / 0.15),
+    0 8px 16px -8px hsl(var(--foreground) / 0.08);
 }
 
 /* Card image wrapper */
@@ -181,17 +234,13 @@
 .card-image > div {
   @apply transition-transform duration-500;
 }
-.card-premium:hover .card-image img,
-.card-premium:hover .card-image > div {
-  @apply scale-105;
-}
 
 /* Tag / Badge pill */
 .tag {
-  @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full border;
+  @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border;
 }
 .tag-accent {
-  @apply bg-accent/10 text-accent border-accent/20;
+  @apply bg-accent/10 text-foreground border-accent/20;
 }
 .tag-green {
   @apply bg-emerald-50 text-emerald-700 border-emerald-200;
@@ -208,7 +257,7 @@
 
 /* Card metadata row */
 .card-meta {
-  @apply flex items-center gap-3 text-[11px] text-muted-foreground;
+  @apply flex items-center gap-3 text-xs text-muted-foreground;
 }
 .card-meta-item {
   @apply inline-flex items-center gap-1;
@@ -238,26 +287,30 @@
 
 /* Section spacing */
 .section-padding {
-  @apply py-20 sm:py-28 px-4 sm:px-6 lg:px-8;
+  @apply py-12 sm:py-16;
 }
 
 /* Gradient backgrounds */
 .gradient-hero {
-  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(30 20% 94%) 50%, hsl(var(--background)) 100%);
+  background: hsl(var(--background));
 }
 .gradient-accent {
-  background: linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--accent) / 0.15) 0%,
+    hsl(var(--accent) / 0.05) 100%
+  );
 }
 .gradient-card {
-  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(30 20% 94%) 50%, hsl(var(--background)) 100%);
+  background: hsl(var(--background));
 }
 
 /* Typography */
 .heading-xl {
-  @apply text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight;
+  @apply text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.4] tracking-normal;
 }
 .heading-lg {
-  @apply text-2xl sm:text-3xl font-bold leading-tight tracking-tight;
+  @apply text-2xl sm:text-3xl font-bold leading-[1.4] tracking-normal;
 }
 .heading-md {
   @apply text-xl sm:text-2xl font-bold leading-tight;
@@ -271,19 +324,20 @@
 
 /* Lesson content typography */
 .lesson-content h2 {
-  @apply text-lg font-bold text-foreground mt-6 mb-3 tracking-tight;
+  @apply text-lg font-bold text-foreground mt-6 mb-3 tracking-normal;
 }
 .lesson-content h3 {
-  @apply text-base font-semibold text-foreground mt-4 mb-2 tracking-tight;
+  @apply text-base font-semibold text-foreground mt-4 mb-2 tracking-normal;
 }
 .lesson-content p {
-  @apply text-sm leading-relaxed text-muted-foreground mb-3;
+  @apply text-base leading-[1.9] text-foreground/90 mb-5;
 }
-.lesson-content ul, .lesson-content ol {
+.lesson-content ul,
+.lesson-content ol {
   @apply mr-5 mb-5 space-y-2;
 }
 .lesson-content li {
-  @apply text-sm text-muted-foreground leading-relaxed;
+  @apply text-base text-foreground/90 leading-[1.9];
 }
 .lesson-content table {
   @apply w-full text-sm mb-5 border-collapse;
@@ -312,14 +366,20 @@
   @apply text-foreground;
 }
 .nav-item.active::after {
-  content: '';
+  content: "";
   @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent;
 }
 
 /* Font size settings */
-html.text-small { font-size: 14px; }
-html.text-medium { font-size: 16px; }
-html.text-large { font-size: 18px; }
+html.text-small {
+  font-size: 14px;
+}
+html.text-medium {
+  font-size: 16px;
+}
+html.text-large {
+  font-size: 18px;
+}
 
 /* Reduced motion override */
 html.reduce-motion .animate-fade-in,
@@ -341,8 +401,7 @@ html.reduce-motion .group-hover\:scale-105 {
 }
 .dark .brand-logo {
   filter: none;
-  background: #ffffff;
-  border-radius: 0.5rem;
+  background: transparent;
 }
 
 /* Glass effect */
@@ -355,7 +414,7 @@ html.reduce-motion .group-hover\:scale-105 {
 /* WhatsApp button */
 .whatsapp-float {
   @apply fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-transform duration-300 hover:scale-110;
-  background: #25D366;
+  background: #25d366;
 }
 
 /* Sticky CTA */
@@ -365,8 +424,12 @@ html.reduce-motion .group-hover\:scale-105 {
 
 /* Marquee animation */
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 .animate-marquee {
   animation: marquee 30s linear infinite;
@@ -377,6 +440,124 @@ html.reduce-motion .group-hover\:scale-105 {
   }
 }
 
-/* Beige is a surface/accent color; use coffee for readable accent text. */
-.text-accent { color: #665b54; }
-.dark .text-accent { color: #decfa6; }
+/* Yellow is a surface highlight, not low-contrast body text. */
+.text-accent {
+  color: hsl(var(--foreground));
+}
+.dark .text-accent {
+  color: hsl(var(--accent));
+}
+.hover\:text-accent:hover,
+.group:hover .group-hover\:text-accent {
+  color: hsl(var(--link));
+}
+
+/* Keep navigation targets visible below the persistent header. */
+html {
+  scroll-padding-top: 10rem;
+}
+body {
+  line-height: 1.7;
+}
+::selection {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+.heading-xl,
+.heading-lg,
+.heading-md {
+  text-wrap: balance;
+}
+.lesson-content {
+  overflow-wrap: anywhere;
+}
+.lesson-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Local brand fonts; retain rem-based reader size preferences. */
+body {
+  font-size: 1.125rem;
+  font-synthesis: none;
+}
+[lang="en"],
+.font-latin,
+.tabular-nums {
+  font-family: var(--font-latin), var(--font-arabic), sans-serif;
+}
+
+.brand-logo {
+  color: hsl(var(--foreground));
+}
+.dark .brand-logo {
+  background: transparent;
+}
+
+.admin-workspace {
+  font-size: 1rem;
+}
+.body-base {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+.heading-xl {
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+}
+.lesson-content h2,
+.lesson-content h3 {
+  letter-spacing: 0;
+}
+
+.academy-shell
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+.academy-shell textarea,
+.academy-shell select {
+  font-size: 1rem;
+}
+
+.lesson-content a {
+  color: hsl(var(--link));
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.academy-shell .btn-premium:disabled,
+.academy-shell .btn-accent:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Keep mobile navigation clear of the final content and system home indicator. */
+@media (max-width: 639px) {
+  .academy-shell {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+  html {
+    scroll-padding-top: 1rem;
+  }
+}
+.academy-shell main {
+  overflow-wrap: anywhere;
+}
+.btn-premium,
+.btn-accent {
+  min-height: 3rem;
+}

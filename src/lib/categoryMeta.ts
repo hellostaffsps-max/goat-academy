@@ -15,15 +15,17 @@ export interface CategoryMeta {
 }
 
 export const categoryMeta: Record<string, CategoryMeta> = {
-  drinks:    { icon: Coffee,     gradient: "from-amber-500/10 to-orange-500/5" },
-  homebrew:  { icon: Flame,      gradient: "from-rose-500/10 to-pink-500/5" },
-  equipment: { icon: Wrench,     gradient: "from-sky-500/10 to-blue-500/5" },
-  beans:     { icon: Bean,       gradient: "from-lime-500/10 to-emerald-500/5" },
-  terms:     { icon: BookOpen,   gradient: "from-violet-500/10 to-purple-500/5" },
-  cafe:      { icon: Store,      gradient: "from-teal-500/10 to-cyan-500/5" },
-  costing:   { icon: Calculator, gradient: "from-yellow-500/10 to-amber-500/5" },
+  drinks: { icon: Coffee, gradient: "from-secondary to-muted" },
+  homebrew: { icon: Flame, gradient: "from-secondary to-muted" },
+  equipment: { icon: Wrench, gradient: "from-secondary to-muted" },
+  beans: { icon: Bean, gradient: "from-secondary to-muted" },
+  terms: { icon: BookOpen, gradient: "from-secondary to-muted" },
+  cafe: { icon: Store, gradient: "from-secondary to-muted" },
+  costing: { icon: Calculator, gradient: "from-secondary to-muted" },
 };
 
 export function getCategoryMeta(catId: string): CategoryMeta {
-  return categoryMeta[catId] || { icon: Coffee, gradient: "from-muted to-muted/50" };
+  return (
+    categoryMeta[catId] || { icon: Coffee, gradient: "from-secondary to-muted" }
+  );
 }

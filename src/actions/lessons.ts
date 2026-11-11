@@ -123,7 +123,7 @@ export async function updateLesson(id: string, lesson: Partial<LessonInput>) {
 
   const { data, error } = await supabase
     .from("lessons")
-    .update(payload)
+    .update({ ...payload, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
     .single();

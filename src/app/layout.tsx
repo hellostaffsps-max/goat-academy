@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Rubik } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -11,11 +11,22 @@ import { site } from "@/lib/site";
 import { getPublicSiteContent } from "@/lib/public-content";
 import { PublicContentProvider } from "@/components/PublicContentProvider";
 
-const rubik = Rubik({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-rubik",
+const arabic = localFont({
+  src: [
+    { path: "./fonts/IBMPlexSansArabic-Regular.ttf", weight: "400" },
+    { path: "./fonts/IBMPlexSansArabic-Medium.ttf", weight: "500" },
+    { path: "./fonts/IBMPlexSansArabic-SemiBold.ttf", weight: "600" },
+    { path: "./fonts/IBMPlexSansArabic-Bold.ttf", weight: "700" },
+  ],
+  variable: "--font-arabic",
   display: "swap",
+  preload: false,
+});
+const latin = localFont({
+  src: [{ path: "./fonts/Manrope-Variable.ttf", weight: "400 800" }],
+  variable: "--font-latin",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -43,9 +54,13 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION || "u97VcP99mGZIfrU6Iq_qNQgWI1YNGR8ir4IUnHl2tJg",
+    google:
+      process.env.GOOGLE_SITE_VERIFICATION ||
+      "u97VcP99mGZIfrU6Iq_qNQgWI1YNGR8ir4IUnHl2tJg",
     other: {
-      "msvalidate.01": process.env.BING_SITE_VERIFICATION || "BEC298E9F259E7065BF4851AFD492032",
+      "msvalidate.01":
+        process.env.BING_SITE_VERIFICATION ||
+        "BEC298E9F259E7065BF4851AFD492032",
     },
   },
 };
@@ -65,10 +80,10 @@ export default async function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={rubik.variable}
+      className={`${arabic.variable} ${latin.variable}`}
       suppressHydrationWarning
     >
-      <body className={rubik.className}>
+      <body>
         <StructuredData />
         <Analytics />
         <PublicContentProvider data={{ siteContent }}>

@@ -27,7 +27,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/tools",
     "/downloads",
     "/success-stories",
-    ...projects.map((p) => `/projects/${p.slug}`),
+    ...projects
+      .filter((p) => p.scope.length > 0)
+      .map((p) => `/projects/${p.slug}`),
     ...services.map((s) => `/services/${s.slug}`),
     ...Object.keys(downloadResources).map((s) => `/downloads/${s}`),
   ];

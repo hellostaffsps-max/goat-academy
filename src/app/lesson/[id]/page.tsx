@@ -33,6 +33,9 @@ export default async function Page({ params }: Props) {
     .slice(0, 4)
     .map((l) => ({ ...l, content: "" }));
   const nav = getLessonNavigation(lesson.slug, lessons, paths);
+  const navigationOptions = paths
+    .filter((path) => path.lessons.includes(lesson.slug))
+    .map((path) => getLessonNavigation(lesson.slug, lessons, paths, path.slug));
   return (
     <>
       <JsonLd
@@ -59,6 +62,7 @@ export default async function Page({ params }: Props) {
         lesson={lesson}
         relatedLessons={relatedLessons}
         nav={nav}
+        navigationOptions={navigationOptions}
       />
     </>
   );

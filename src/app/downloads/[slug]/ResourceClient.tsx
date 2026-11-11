@@ -76,7 +76,7 @@ export default function ResourceDetailPage({
             <BookOpen className="w-3 h-3" />
             وثيقة جاهزة للتحميل والطباعة
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 ">
             {resource.title}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">

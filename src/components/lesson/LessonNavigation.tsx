@@ -1,132 +1,120 @@
 "use client";
-
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface LessonNavigationProps {
-  prev: { id: string; title: string } | null;
-  next: { id: string; title: string } | null;
-  pathName: string | null;
-  lessonIndex: number;
-  totalLessons: number;
-}
+import { useStore } from "@/store/useStore";
 
 export function LessonProgressBar({
   lessonIndex,
   totalLessons,
   pathName,
+  lessonSlugs,
 }: {
   lessonIndex: number;
   totalLessons: number;
   pathName: string | null;
+  lessonSlugs: string[];
 }) {
-  const progress =
-    totalLessons > 0 ? Math.round((lessonIndex / totalLessons) * 100) : 0;
-
+  const completedLessons = useStore((state) => state.completedLessons);
+  const completed = lessonSlugs.filter((slug) =>
+    completedLessons.includes(slug),
+  ).length;
+  const progress = totalLessons
+    ? Math.round((completed / totalLessons) * 100)
+    : 0;
   return (
-    <div className="bg-card border border-border rounded-xl p-4 text-right">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] text-muted-foreground font-medium">
-          {progress}%
-        </span>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-foreground">
-            الدرس {lessonIndex} من {totalLessons}
-          </span>
-          {pathName && (
-            <span className="text-[10px] bg-accent/10 text-accent-foreground border border-accent/20 px-2 py-0.5 rounded-full">
-              {pathName}
-            </span>
-          )}
+    <section
+      className="bg-card border border-border rounded-xl p-4 text-right"
+      aria-label="تقدمك في التعلم"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <p className="text-sm font-semibold">{pathName || "سلسلة الدروس"}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            أنت في الدرس {lessonIndex} من {totalLessons}
+          </p>
         </div>
+        <p className="text-sm text-muted-foreground">
+          أنجزت {completed} من {totalLessons} · {progress}%
+        </p>
       </div>
-      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+      <div
+        role="progressbar"
+        aria-label="الدروس المكتملة"
+        aria-valuenow={progress}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        className="h-2 bg-secondary rounded-full overflow-hidden"
+      >
         <div
-          className="h-full bg-accent rounded-full transition-all duration-500"
+          className="h-full bg-accent rounded-full transition-all"
           style={{ width: `${progress}%` }}
         />
       </div>
-    </div>
+    </section>
   );
 }
 
 export function LessonPrevNext({
   prev,
   next,
+  pathId,
 }: {
   prev: { id: string; title: string } | null;
   next: { id: string; title: string } | null;
+  pathId?: string | null;
 }) {
+  const href = (id: string) =>
+    `/lesson/${id}${pathId ? `?path=${encodeURIComponent(pathId)}` : ""}`;
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {prev ? (
+    <nav className="grid sm:grid-cols-2 gap-3" aria-label="التنقل بين الدروس">
+      {prev && (
         <Link
-          href={`/lesson/${prev.id}`}
-          className={cn(
-            "flex items-center gap-2 p-3 rounded-xl border border-border bg-card hover:border-accent/40 hover:bg-accent/5 transition-all text-right",
-            !next && "col-span-1"
-          )}
+          href={href(prev.id)}
+          className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-right"
         >
-          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-          <div className="min-w-0">
-            <span className="text-[10px] text-muted-foreground block">
+          <ChevronRight className="w-5 h-5 shrink-0" />
+          <span>
+            <span className="text-xs text-muted-foreground block">
               الدرس السابق
             </span>
-            <span className="text-xs font-semibold text-foreground truncate block">
+            <span className="text-sm font-semibold block mt-1">
               {prev.title}
             </span>
-          </div>
+          </span>
         </Link>
-      ) : (
-        <div className="p-3 rounded-xl border border-border/40 bg-secondary/30 text-right opacity-50">
-          <span className="text-[10px] text-muted-foreground block">
-            الدرس السابق
-          </span>
-          <span className="text-xs font-semibold text-muted-foreground truncate block">
-            بداية المسار
-          </span>
-        </div>
       )}
-
       {next ? (
         <Link
-          href={`/lesson/${next.id}`}
-          className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card hover:border-accent/40 hover:bg-accent/5 transition-all text-right flex-row-reverse"
+          href={href(next.id)}
+          className="flex items-center justify-between gap-3 p-4 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-right"
         >
-          <ChevronLeft className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-          <div className="min-w-0 text-left">
-            <span className="text-[10px] text-muted-foreground block">
+          <span>
+            <span className="text-xs text-muted-foreground block">
               الدرس التالي
             </span>
-            <span className="text-xs font-semibold text-foreground truncate block">
+            <span className="text-sm font-semibold block mt-1">
               {next.title}
             </span>
-          </div>
+          </span>
+          <ChevronLeft className="w-5 h-5 shrink-0" />
         </Link>
       ) : (
-        <div className="p-3 rounded-xl border border-border/40 bg-secondary/30 text-right opacity-50">
-          <span className="text-[10px] text-muted-foreground block">
-            الدرس التالي
-          </span>
-          <span className="text-xs font-semibold text-muted-foreground truncate block">
-            نهاية المسار
-          </span>
+        <div className="p-4 rounded-xl border border-border bg-secondary/30 text-sm leading-relaxed">
+          وصلت إلى آخر درس. راجع تقدمك في المسار للانتقال إلى الاختبار.
         </div>
       )}
-    </div>
+    </nav>
   );
 }
 
 export function BackToPath({ pathId }: { pathId: string | null }) {
-  if (!pathId) return null;
   return (
     <Link
-      href={`/paths`}
-      className="flex items-center justify-center gap-2 p-3 rounded-xl border border-border bg-card hover:border-accent/40 hover:bg-accent/5 transition-all text-xs font-semibold text-foreground"
+      href={pathId ? `/paths?path=${encodeURIComponent(pathId)}` : "/courses"}
+      className="flex items-center justify-center gap-2 min-h-12 p-3 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-sm font-semibold"
     >
-      <BookOpen className="w-3.5 h-3.5 text-accent" />
-      العودة لمسارات التعلم
+      <BookOpen className="w-4 h-4" />
+      {pathId ? "العودة إلى هذا المسار" : "العودة إلى مكتبة الدروس"}
     </Link>
   );
 }

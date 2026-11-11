@@ -11,8 +11,8 @@ export function BlogSection() {
 
   return (
     <section id="blog" className="section-padding gradient-card">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-right max-w-3xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium mb-4 border border-accent/20">
             <Tag className="w-3.5 h-3.5" />
             المدونة

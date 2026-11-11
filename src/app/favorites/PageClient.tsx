@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils";
 import { getCategoryMeta } from "@/lib/categoryMeta";
 
 export default function FavoritesPage() {
-  const { favorites, toggleFavorite } = useStore();
+  const {
+    favorites,
+    toggleFavorite,
+    pendingFavorites,
+    saveError,
+    initialized,
+  } = useStore();
   const { lessons } = useSupabaseLessons();
 
   const favLessons = favorites
@@ -18,13 +24,22 @@ export default function FavoritesPage() {
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="text-right">
-        <h2 className="text-xl font-bold text-foreground">المفضلة</h2>
-        <p className="text-xs text-muted-foreground mt-1">
+        <h1 className="heading-xl">المفضلة</h1>
+        <p className="text-base text-muted-foreground mt-3">
           {favLessons.length} درس في المفضلة
         </p>
       </div>
 
-      {favLessons.length === 0 ? (
+      {saveError && (
+        <p role="alert" className="text-sm text-destructive">
+          {saveError}
+        </p>
+      )}
+      {!initialized ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          جارٍ تحميل المفضلة…
+        </p>
+      ) : favLessons.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-4">
             <Heart className="w-8 h-8 text-primary" />
@@ -34,8 +49,8 @@ export default function FavoritesPage() {
             اضغط على قلب أي درس لإضافته هنا
           </p>
           <Link
-            href="/explore"
-            className="mt-4 bg-primary text-primary-foreground text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-all inline-block"
+            href="/courses"
+            className="mt-4 bg-primary text-primary-foreground text-sm font-semibold min-h-12 px-5 py-3 rounded-xl hover:bg-primary/90 transition-all inline-block"
           >
             استكشف الدروس
           </Link>
@@ -53,29 +68,29 @@ export default function FavoritesPage() {
                 className="card-premium overflow-hidden group"
               >
                 <Link
-                  href={`/lesson/${lesson.id}`}
+                  href={`/lesson/${lesson.slug || lesson.id}`}
                   className="block w-full p-4 text-right flex items-start gap-4"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap justify-end">
-                      <span className="text-[9px] text-accent-foreground bg-accent/10 px-1.5 py-0.5 rounded font-medium">
+                      <span className="text-xs text-foreground bg-accent/10 px-1.5 py-0.5 rounded font-medium">
                         {lesson.subcategory}
                       </span>
                     </div>
                     <h4 className="text-sm font-semibold text-foreground mb-0.5">
                       {lesson.title}
                     </h4>
-                    <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                       {lesson.description}
                     </p>
                     <div className="flex items-center gap-3 mt-2 justify-end">
                       {lesson.read_time && (
-                        <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                        <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                           <Clock className="w-3 h-3" />
                           {lesson.read_time}
                         </span>
                       )}
-                      <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground font-medium">
+                      <span className="flex items-center gap-0.5 text-xs text-muted-foreground font-medium">
                         <Star
                           className="w-3 h-3 text-accent"
                           fill="currentColor"
@@ -98,8 +113,19 @@ export default function FavoritesPage() {
                 </Link>
                 <div className="px-4 pb-3 flex justify-end">
                   <button
-                    onClick={() => toggleFavorite(lesson.id)}
-                    className="flex items-center gap-1 text-[10px] text-destructive/80 hover:text-destructive transition-colors px-2 py-1 rounded-lg hover:bg-destructive/10 font-medium"
+                    onClick={() =>
+                      void toggleFavorite(
+                        favorites.includes(lesson.slug)
+                          ? lesson.slug
+                          : lesson.id,
+                      )
+                    }
+                    disabled={
+                      pendingFavorites.includes(lesson.slug) ||
+                      pendingFavorites.includes(lesson.id)
+                    }
+                    aria-label={`إزالة ${lesson.title} من المفضلة`}
+                    className="flex items-center gap-1 min-h-11 text-sm text-destructive hover:text-destructive transition-colors px-3 py-2 rounded-lg hover:bg-destructive/10 font-medium"
                   >
                     <Trash2 className="w-3 h-3" />
                     إزالة

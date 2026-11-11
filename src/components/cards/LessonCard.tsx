@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, Users, ArrowLeft } from "lucide-react";
+import { Clock, ArrowLeft } from "lucide-react";
 import { getCategoryMeta } from "@/lib/categoryMeta";
 import {
   levelLabels,
@@ -43,6 +43,8 @@ export function LessonCard({
   const LevelIcon = meta.icon;
   const level = getLevelForLesson(difficulty);
   const levelClass = levelColors[level];
+  const isDiagram =
+    image?.includes("/images/lessons/") || image?.endsWith(".svg");
   const displayCategory = subcategory || category;
 
   return (
@@ -59,9 +61,8 @@ export function LessonCard({
               src={image}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              className={`w-full h-full ${isDiagram ? "object-contain bg-brand-offwhite" : "object-cover"}`}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           </div>
         ) : (
           <div
@@ -87,12 +88,12 @@ export function LessonCard({
         </div>
 
         {/* Title */}
-        <h3 className="text-sm font-bold text-foreground mb-1.5 line-clamp-2 leading-snug group-hover:text-accent transition-colors">
+        <h3 className="text-base font-semibold text-foreground mb-2 line-clamp-2 leading-snug group-hover:text-accent transition-colors">
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-3">
           {description}
         </p>
 
@@ -101,10 +102,6 @@ export function LessonCard({
           <span className="card-meta-item">
             <Clock className="w-3 h-3" />
             {readTime || read_time || "١٥ دقيقة"}
-          </span>
-          <span className="card-meta-item">
-            <Users className="w-3 h-3" />
-            150 متعلم
           </span>
         </div>
       </div>

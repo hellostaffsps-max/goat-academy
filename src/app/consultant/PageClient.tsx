@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { trackContact } from "@/lib/analytics";
 import { site } from "@/lib/site";
 import {
@@ -68,7 +68,6 @@ export default function ConsultantPage({
   initialServices?: string[];
   serviceSlug?: string;
 }) {
-  const router = useRouter();
   const [step, setStep] = useState(1);
 
   // Form states
@@ -83,8 +82,32 @@ export default function ConsultantPage({
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [errorField, setErrorField] = useState("");
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const previousView = useRef({ step, submitted });
+  useEffect(() => {
+    if (error && errorField) document.getElementById(errorField)?.focus();
+  }, [error, errorField, step]);
+  useEffect(() => {
+    const changed =
+      previousView.current.step !== step ||
+      previousView.current.submitted !== submitted;
+    previousView.current = { step, submitted };
+    if (changed && !error) stepHeadingRef.current?.focus();
+  }, [step, submitted, error]);
+
+  const clearError = () => {
+    setError("");
+    setErrorField("");
+  };
+  const normalizedPhone = phone
+    .trim()
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[\s().-]/g, "");
 
   const handleServiceChange = (serviceId: string) => {
+    clearError();
     setSelectedServices((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId)
@@ -93,29 +116,31 @@ export default function ConsultantPage({
   };
 
   const validateStep = (s: number): boolean => {
-    setError("");
+    const fail = (message: string, field: string) => {
+      setError(message);
+      setErrorField(field);
+      setStep(s);
+      return false;
+    };
     if (s === 1) {
-      if (!name.trim()) {
-        setError("الرجاء إدخال الاسم الكامل");
-        return false;
-      }
-      if (!phone.trim()) {
-        setError("الرجاء إدخال رقم الهاتف");
-        return false;
-      }
+      if (!name.trim())
+        return fail("الرجاء إدخال الاسم الكامل", "consultant-name");
+      if (!/^\+?\d{7,15}$/.test(normalizedPhone))
+        return fail(
+          "أدخل رقم هاتف صحيحاً من 7 إلى 15 رقماً، مع رمز البلد عند الحاجة.",
+          "consultant-phone",
+        );
+      if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+        return fail(
+          "تحقق من البريد الإلكتروني، مثل name@example.com، أو اتركه فارغاً.",
+          "consultant-email",
+        );
     }
-    if (s === 2) {
-      if (!city) {
-        setError("الرجاء اختيار المدينة");
-        return false;
-      }
-    }
-    if (s === 3) {
-      if (selectedServices.length === 0) {
-        setError("الرجاء اختيار خدمة واحدة على الأقل");
-        return false;
-      }
-    }
+    if (s === 2 && !city)
+      return fail("الرجاء اختيار المدينة", "consultant-city");
+    if (s === 3 && selectedServices.length === 0)
+      return fail("الرجاء اختيار خدمة واحدة على الأقل", "consultant-services");
+    clearError();
     return true;
   };
 
@@ -126,7 +151,7 @@ export default function ConsultantPage({
   };
 
   const prevStep = () => {
-    setError("");
+    clearError();
     if (step > 1) setStep(step - 1);
   };
 
@@ -139,7 +164,7 @@ export default function ConsultantPage({
     return `*طلب تدريب أو استشارة قهوة - Goat Journey*
 ----------------------------------------
 *الاسم الكامل:* ${name}
-*رقم الهاتف:* ${phone}
+*رقم الهاتف:* ${normalizedPhone}
 *البريد الإلكتروني:* ${email || "غير متوفر"}
 *اسم المقهى/المشروع:* ${cafeName || "غير محدد بعد"}
 *المدينة:* ${city}
@@ -179,7 +204,7 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
     setSelectedServices(initialServices);
     setNotes("");
     setSubmitted(false);
-    setError("");
+    clearError();
   };
 
   const progressPercent = ((step - 1) / (steps.length - 1)) * 100;
@@ -188,25 +213,23 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in pb-12">
       {/* Back Button */}
       <div className="flex justify-end">
-        <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        <Link
+          href="/services"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <span>الرجوع</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          <ArrowRight aria-hidden="true" className="w-4 h-4" />
+          <span>استعرض خدمات التدريب والاستشارات</span>
+        </Link>
       </div>
 
       {/* Header */}
       <div className="text-right space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 text-accent-foreground text-[10px] font-medium border border-accent/20">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 text-foreground text-xs font-medium border border-accent/20">
           <Sparkles className="w-3 h-3" />
           خدمات الاستشارات وتأسيس المقاهي في فلسطين
         </div>
-        <h1 className="text-2xl font-bold text-foreground">
-          طلب تدريب أو استشارة قهوة
-        </h1>
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <h1 className="heading-xl">طلب تدريب أو استشارة قهوة</h1>
+        <p className="text-base text-muted-foreground leading-relaxed">
           خطط لمشروع مقهاك بذكاء ودقة. نساعدك في التأسيس، إعداد المنيو، تدريب
           طاقم الباريستا، وتجهيز دراسات الجدوى المالية بالشيكل ₪.
         </p>
@@ -217,26 +240,30 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
           <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-6 h-6 text-emerald-600" />
           </div>
-          <h2 className="text-lg font-bold text-foreground">
+          <h2
+            ref={stepHeadingRef}
+            tabIndex={-1}
+            className="text-lg font-bold text-foreground"
+          >
             تم إعداد طلبك بنجاح!
           </h2>
-          <p className="text-xs text-muted-foreground leading-relaxed max-w-md mx-auto">
+          <p className="text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
             شكراً لاهتمامك. إذا تم تحويلك لتطبيق واتساب أو البريد الإلكتروني،
             يرجى إرسال الرسالة المجهزة لبدء التواصل فوراً مع المستشار.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <a
-              href="https://wa.me/970594136723"
+              href={`https://wa.me/${site.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-accent text-accent-foreground text-xs font-semibold px-5 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 hover:opacity-90"
+              className="bg-accent text-accent-foreground text-sm font-semibold min-h-11 px-5 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 hover:opacity-90"
             >
               <MessageSquare className="w-4 h-4" />
               محادثة مباشرة عبر واتساب
             </a>
             <button
               onClick={resetForm}
-              className="bg-secondary text-secondary-foreground border border-border text-xs font-semibold px-5 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 hover:bg-secondary/80"
+              className="bg-secondary text-secondary-foreground border border-border text-sm font-semibold min-h-11 px-5 py-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 hover:bg-secondary/80"
             >
               <RotateCcw className="w-4 h-4" />
               تقديم طلب جديد
@@ -248,41 +275,52 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
           {/* Quick WhatsApp Contact */}
           <div className="card-premium p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-right">
             <div className="space-y-0.5">
-              <h3 className="text-xs font-bold text-foreground">
+              <h3 className="text-sm font-bold text-foreground">
                 تواصل سريع ومباشر
               </h3>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 يمكنك الضغط للتحدث معنا مباشرة عبر الواتساب دون تعبئة النموذج
               </p>
             </div>
             <a
-              href="https://wa.me/${site.whatsapp}?text=مرحباً،%20أود%20الاستفسار%20عن%20خدمات%20الاستشارة%20وتأسيس%20المقاهي"
+              href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent("مرحباً، أود الاستفسار عن خدمات الاستشارة وتأسيس المقاهي")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-accent text-accent-foreground text-xs font-semibold px-4 py-2 rounded-lg inline-flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity self-end sm:self-center"
+              className="bg-accent text-accent-foreground text-sm font-semibold min-h-11 px-4 py-2 rounded-lg inline-flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity self-end sm:self-center"
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              واتساب: 970594136723+
+              واتساب <bdi>+{site.whatsapp}</bdi>
             </a>
           </div>
 
           {/* Multi-step Form */}
-          <div className="card-premium overflow-hidden">
+          <form
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (step < 4) nextStep();
+            }}
+            className="card-premium overflow-hidden"
+          >
             {/* Progress Bar */}
             <div className="px-6 pt-6 pb-2">
-              <div className="flex items-center justify-between mb-3">
+              <ol
+                aria-label="خطوات طلب الاستشارة"
+                className="flex items-center justify-between gap-2 mb-3"
+              >
                 {steps.map((s) => {
                   const Icon = s.icon;
                   const isActive = step >= s.id;
                   const isCurrent = step === s.id;
                   return (
-                    <div
+                    <li
                       key={s.id}
+                      aria-current={isCurrent ? "step" : undefined}
                       className="flex flex-col items-center gap-1.5"
                     >
                       <div
                         className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold transition-all",
+                          "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
                           isCurrent
                             ? "bg-accent text-accent-foreground ring-2 ring-accent/30"
                             : isActive
@@ -294,17 +332,24 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
                       </div>
                       <span
                         className={cn(
-                          "text-[9px] font-medium hidden sm:block",
+                          "text-xs sm:text-sm font-medium",
                           isCurrent ? "text-accent" : "text-muted-foreground",
                         )}
                       >
                         {s.label}
                       </span>
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
-              <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+              </ol>
+              <div
+                role="progressbar"
+                aria-label="تقدم طلب الاستشارة"
+                aria-valuemin={1}
+                aria-valuemax={steps.length}
+                aria-valuenow={step}
+                className="h-1.5 rounded-full bg-secondary overflow-hidden"
+              >
                 <div
                   className="h-full bg-accent transition-all duration-500 ease-out rounded-full"
                   style={{ width: `${progressPercent}%` }}
@@ -315,7 +360,11 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
             {/* Step Content */}
             <div className="p-6 text-right space-y-5">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 text-xs px-4 py-2.5 rounded-lg flex items-center gap-2">
+                <div
+                  id="consultant-error"
+                  role="alert"
+                  className="bg-destructive/10 border border-destructive/30 text-destructive text-sm px-4 py-3 rounded-lg flex items-center gap-2"
+                >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
                   {error}
                 </div>
@@ -324,52 +373,110 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
               {/* Step 1: Contact Info */}
               {step === 1 && (
                 <div className="space-y-4 animate-fade-in">
-                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <h3
+                    ref={stepHeadingRef}
+                    tabIndex={-1}
+                    className="text-lg font-bold text-foreground flex items-center gap-2 scroll-mt-44"
+                  >
                     <User className="w-4 h-4 text-accent" />
                     بيانات التواصل
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                      <label
+                        htmlFor="consultant-name"
+                        className="text-sm font-medium text-foreground flex items-center gap-1"
+                      >
                         <User className="w-3 h-3" />
                         الاسم الكامل <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
+                        id="consultant-name"
+                        name="name"
+                        aria-invalid={
+                          errorField === "consultant-name" || undefined
+                        }
+                        aria-describedby={
+                          errorField === "consultant-name"
+                            ? "consultant-error"
+                            : undefined
+                        }
+                        autoComplete="name"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          clearError();
+                          setName(e.target.value);
+                        }}
                         placeholder="الاسم الأول والأخير"
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-right"
+                        className="w-full min-h-12 bg-secondary/30 border border-input rounded-lg px-3 py-2.5 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-right"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                      <label
+                        htmlFor="consultant-phone"
+                        className="text-sm font-medium text-foreground flex items-center gap-1"
+                      >
                         <Phone className="w-3 h-3" />
                         رقم الهاتف / الواتساب{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
+                        inputMode="tel"
+                        maxLength={30}
                         required
+                        id="consultant-phone"
+                        name="phone"
+                        aria-invalid={
+                          errorField === "consultant-phone" || undefined
+                        }
+                        aria-describedby={
+                          errorField === "consultant-phone"
+                            ? "consultant-error"
+                            : undefined
+                        }
+                        autoComplete="tel"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => {
+                          clearError();
+                          setPhone(e.target.value);
+                        }}
                         placeholder="059XXXXXXX"
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-left"
+                        className="w-full min-h-12 bg-secondary/30 border border-input rounded-lg px-3 py-2.5 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-left"
                         dir="ltr"
                       />
                     </div>
                     <div className="space-y-1 sm:col-span-2">
-                      <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                      <label
+                        htmlFor="consultant-email"
+                        className="text-sm font-medium text-foreground flex items-center gap-1"
+                      >
                         <MailIcon className="w-3 h-3" />
-                        البريد الإلكتروني
+                        البريد الإلكتروني (اختياري)
                       </label>
                       <input
                         type="email"
+                        maxLength={254}
+                        id="consultant-email"
+                        name="email"
+                        aria-invalid={
+                          errorField === "consultant-email" || undefined
+                        }
+                        aria-describedby={
+                          errorField === "consultant-email"
+                            ? "consultant-error"
+                            : undefined
+                        }
+                        autoComplete="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          clearError();
+                          setEmail(e.target.value);
+                        }}
                         placeholder="example@domain.com"
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-left"
+                        className="w-full min-h-12 bg-secondary/30 border border-input rounded-lg px-3 py-2.5 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-left"
                         dir="ltr"
                       />
                     </div>
@@ -380,35 +487,73 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
               {/* Step 2: Project Info */}
               {step === 2 && (
                 <div className="space-y-4 animate-fade-in">
-                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <h3
+                    ref={stepHeadingRef}
+                    tabIndex={-1}
+                    className="text-lg font-bold text-foreground flex items-center gap-2 scroll-mt-44"
+                  >
                     <Store className="w-4 h-4 text-accent" />
                     تفاصيل المشروع
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                      <label
+                        htmlFor="consultant-cafe"
+                        className="text-sm font-medium text-foreground flex items-center gap-1"
+                      >
                         <Store className="w-3 h-3" />
                         اسم المقهى / المشروع المقترح
                       </label>
                       <input
                         type="text"
+                        id="consultant-cafe"
+                        name="cafeName"
+                        aria-invalid={
+                          errorField === "consultant-cafe" || undefined
+                        }
+                        aria-describedby={
+                          errorField === "consultant-cafe"
+                            ? "consultant-error"
+                            : undefined
+                        }
+                        autoComplete="organization"
                         value={cafeName}
-                        onChange={(e) => setCafeName(e.target.value)}
+                        onChange={(e) => {
+                          clearError();
+                          setCafeName(e.target.value);
+                        }}
                         placeholder="مثال: مقهى كرز"
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-right"
+                        className="w-full min-h-12 bg-secondary/30 border border-input rounded-lg px-3 py-2.5 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-right"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                      <label
+                        htmlFor="consultant-city"
+                        className="text-sm font-medium text-foreground flex items-center gap-1"
+                      >
                         <MapPin className="w-3 h-3" />
                         المدينة في فلسطين{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <select
                         required
+                        id="consultant-city"
+                        name="city"
+                        aria-invalid={
+                          errorField === "consultant-city" || undefined
+                        }
+                        aria-describedby={
+                          errorField === "consultant-city"
+                            ? "consultant-error"
+                            : undefined
+                        }
+                        autoComplete="address-level2"
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-right"
+                        onChange={(e) => {
+                          clearError();
+                          setCity(e.target.value);
+                        }}
+                        className="w-full min-h-12 bg-secondary/30 border border-input rounded-lg px-3 py-2.5 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-right"
                       >
                         <option value="">اختر المدينة</option>
                         {palestinianCities.map((c) => (
@@ -419,14 +564,30 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
                       </select>
                     </div>
                     <div className="space-y-1 sm:col-span-2">
-                      <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                      <label
+                        htmlFor="consultant-budget"
+                        className="text-sm font-medium text-foreground flex items-center gap-1"
+                      >
                         <Wallet className="w-3 h-3" />
                         الميزانية التقديرية للتجهيز
                       </label>
                       <select
+                        id="consultant-budget"
+                        name="budget"
+                        aria-invalid={
+                          errorField === "consultant-budget" || undefined
+                        }
+                        aria-describedby={
+                          errorField === "consultant-budget"
+                            ? "consultant-error"
+                            : undefined
+                        }
                         value={budget}
-                        onChange={(e) => setBudget(e.target.value)}
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-right"
+                        onChange={(e) => {
+                          clearError();
+                          setBudget(e.target.value);
+                        }}
+                        className="w-full min-h-12 bg-secondary/30 border border-input rounded-lg px-3 py-2.5 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-right"
                       >
                         <option value="">اختر الميزانية المتوقعة</option>
                         {budgetOptions.map((b) => (
@@ -443,19 +604,35 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
               {/* Step 3: Services */}
               {step === 3 && (
                 <div className="space-y-4 animate-fade-in">
-                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <h3
+                    ref={stepHeadingRef}
+                    tabIndex={-1}
+                    className="text-lg font-bold text-foreground flex items-center gap-2 scroll-mt-44"
+                  >
                     <ClipboardList className="w-4 h-4 text-accent" />
                     الخدمات المطلوبة
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     اختر الخدمات التي تحتاجها (يمكن اختيار أكثر من خدمة)
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <fieldset
+                    id="consultant-services"
+                    tabIndex={-1}
+                    aria-describedby={
+                      errorField === "consultant-services"
+                        ? "consultant-error"
+                        : undefined
+                    }
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                  >
+                    <legend className="sr-only">
+                      الخدمات المطلوبة، اختر خدمة واحدة على الأقل
+                    </legend>
                     {serviceOptions.map((s) => (
                       <label
                         key={s.id}
                         className={cn(
-                          "flex items-center gap-2.5 p-3 rounded-lg border text-xs cursor-pointer transition-colors select-none",
+                          "flex min-h-12 items-center gap-2.5 p-3 rounded-lg border text-sm cursor-pointer transition-colors select-none",
                           selectedServices.includes(s.id)
                             ? "bg-accent/10 border-accent/40 text-foreground"
                             : "bg-secondary/10 border-border/50 text-muted-foreground hover:bg-secondary/20",
@@ -465,66 +642,73 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
                           type="checkbox"
                           checked={selectedServices.includes(s.id)}
                           onChange={() => handleServiceChange(s.id)}
-                          className="rounded border-border text-accent focus:ring-accent"
+                          className="size-4 shrink-0 rounded border-border accent-primary focus:ring-accent"
                         />
                         <span>{s.label}</span>
                       </label>
                     ))}
-                  </div>
+                  </fieldset>
                 </div>
               )}
 
               {/* Step 4: Review & Submit */}
               {step === 4 && (
                 <div className="space-y-4 animate-fade-in">
-                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <h3
+                    ref={stepHeadingRef}
+                    tabIndex={-1}
+                    className="text-lg font-bold text-foreground flex items-center gap-2 scroll-mt-44"
+                  >
                     <Send className="w-4 h-4 text-accent" />
-                    مراجعة وإرسال
+                    مراجعة الطلب وتجهيز الرسالة
                   </h3>
 
                   <div className="space-y-3 text-right">
-                    <div className="bg-secondary/30 rounded-lg p-4 space-y-2 text-xs">
-                      <div className="flex justify-between">
+                    <div className="bg-secondary/30 rounded-lg p-4 space-y-2 text-sm">
+                      <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                         <span className="text-muted-foreground">الاسم:</span>
-                        <span className="font-medium text-foreground">
+                        <span className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]">
                           {name}
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                         <span className="text-muted-foreground">الهاتف:</span>
-                        <span className="font-medium text-foreground" dir="ltr">
+                        <span
+                          className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]"
+                          dir="ltr"
+                        >
                           {phone}
                         </span>
                       </div>
                       {email && (
-                        <div className="flex justify-between">
+                        <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                           <span className="text-muted-foreground">البريد:</span>
                           <span
-                            className="font-medium text-foreground"
+                            className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]"
                             dir="ltr"
                           >
                             {email}
                           </span>
                         </div>
                       )}
-                      <div className="flex justify-between">
+                      <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                         <span className="text-muted-foreground">المشروع:</span>
-                        <span className="font-medium text-foreground">
+                        <span className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]">
                           {cafeName || "غير محدد"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                         <span className="text-muted-foreground">المدينة:</span>
-                        <span className="font-medium text-foreground">
+                        <span className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]">
                           {city}
                         </span>
                       </div>
                       {budget && (
-                        <div className="flex justify-between">
+                        <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                           <span className="text-muted-foreground">
                             الميزانية:
                           </span>
-                          <span className="font-medium text-foreground">
+                          <span className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]">
                             {budget}
                           </span>
                         </div>
@@ -537,7 +721,7 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
                           {selectedServices.map((id) => (
                             <span
                               key={id}
-                              className="bg-accent/15 text-accent text-[10px] font-medium px-2 py-0.5 rounded-full"
+                              className="bg-accent/15 text-accent text-xs font-medium px-2 py-0.5 rounded-full"
                             >
                               {serviceOptions.find((s) => s.id === id)?.label}
                             </span>
@@ -547,34 +731,44 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-muted-foreground">
+                      <label
+                        htmlFor="consultant-notes"
+                        className="text-sm font-medium text-foreground"
+                      >
                         تفاصيل إضافية عن مشروعك
                       </label>
                       <textarea
+                        id="consultant-notes"
+                        name="notes"
+                        maxLength={3000}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         rows={3}
                         placeholder="اكتب هنا أي تفاصيل إضافية..."
-                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-accent transition-colors text-right resize-none"
+                        className="w-full bg-secondary/30 border border-border rounded-lg px-3 py-2 text-base text-foreground focus-visible:ring-2 focus-visible:ring-ring focus:border-accent transition-colors text-right resize-y min-h-28"
                       />
                     </div>
 
+                    <p className="text-sm leading-7 text-muted-foreground">
+                      سنفتح رسالة جاهزة في التطبيق الذي تختاره. راجعها واضغط
+                      إرسال هناك؛ لا يُرسل النموذج تلقائياً.
+                    </p>
                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
                       <button
                         type="button"
                         onClick={handleWhatsAppSubmit}
-                        className="flex-1 bg-accent text-accent-foreground text-xs font-semibold py-3 px-4 rounded-lg inline-flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                        className="flex-1 bg-accent text-accent-foreground text-sm font-semibold min-h-11 py-3 px-4 rounded-lg inline-flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        إرسال الطلب للواتساب
+                        فتح الطلب في واتساب
                       </button>
                       <button
                         type="button"
                         onClick={handleEmailSubmit}
-                        className="flex-1 bg-primary text-primary-foreground text-xs font-semibold py-3 px-4 rounded-lg inline-flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
+                        className="flex-1 bg-primary text-primary-foreground text-sm font-semibold min-h-11 py-3 px-4 rounded-lg inline-flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
                       >
                         <Mail className="w-4 h-4" />
-                        إرسال للبريد الإلكتروني
+                        فتح الطلب في البريد
                       </button>
                     </div>
                   </div>
@@ -585,10 +779,11 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
             {/* Navigation */}
             <div className="px-6 pb-6 flex items-center justify-between gap-3">
               <button
+                type="button"
                 onClick={prevStep}
                 disabled={step === 1}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all",
+                  "inline-flex items-center gap-1.5 min-h-11 px-4 py-2 rounded-lg text-sm font-medium transition-all",
                   step === 1
                     ? "text-muted-foreground cursor-not-allowed opacity-50"
                     : "text-foreground hover:bg-secondary border border-border",
@@ -598,26 +793,26 @@ ${notes || "لا توجد تفاصيل إضافية"}`;
                 السابق
               </button>
 
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 الخطوة {step} من {steps.length}
               </span>
 
               {step < 4 && (
                 <button
-                  onClick={nextStep}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium bg-accent text-accent-foreground hover:opacity-90 transition-opacity"
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 min-h-11 px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition-opacity"
                 >
                   التالي
                   <ArrowLeft className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
-          </div>
+          </form>
 
-          <p className="text-[10px] text-muted-foreground text-center">
-            سيتم توجيه طلبك مباشرة إلى البريد الإلكتروني{" "}
+          <p className="text-sm text-muted-foreground text-center">
+            اختر التواصل عبر البريد الإلكتروني{" "}
             <strong className="text-foreground">
-              gaotjourney.ps@gmail.com
+              <bdi>{site.email}</bdi>
             </strong>{" "}
             أو حساب الواتساب.
           </p>

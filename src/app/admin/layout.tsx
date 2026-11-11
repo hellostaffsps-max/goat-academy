@@ -15,11 +15,11 @@ export default async function AdminLayout({
     redirect("/auth/login");
   }
   return (
-    <div className="min-h-screen bg-background flex" dir="rtl">
+    <div className="admin-workspace min-h-screen bg-background flex" dir="rtl">
       <AdminSidebar />
-      <div className="flex-1 lg:mr-64">
+      <div className="flex-1 min-w-0 lg:mr-64">
         <AdminHeader />
-        <main className="p-6">{children}</main>
+        <main className="p-5 lg:p-8">{children}</main>
       </div>
     </div>
   );

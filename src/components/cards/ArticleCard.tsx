@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Clock, BookOpen, ArrowLeft, Calendar } from "lucide-react";
-import { getCategoryMeta } from "@/lib/categoryMeta";
 
 interface ArticleCardProps {
   id: string;
@@ -27,7 +26,6 @@ export function ArticleCard({
   date,
   index = 0,
 }: ArticleCardProps) {
-  const meta = getCategoryMeta(category);
   const displayCategory = categoryLabel || subcategory || category;
 
   return (
@@ -36,15 +34,11 @@ export function ArticleCard({
       className="card-premium group flex flex-col h-full"
       style={{ animationDelay: `${index * 0.05}s` }}
     >
-      {/* Image area */}
-      <div className="card-image aspect-[16/10] mx-4 mt-4 mb-3">
-        <div className={`w-full h-full rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center`}>
-          <BookOpen className="w-10 h-10 text-accent/50 group-hover:text-accent/70 transition-colors duration-500" />
-        </div>
+      <div className="px-5 pt-5 pb-4">
+        <BookOpen className="w-7 h-7 text-foreground" />
       </div>
-
       {/* Content */}
-      <div className="flex-1 px-4 pb-3 flex flex-col">
+      <div className="flex-1 px-5 pb-5 flex flex-col">
         {/* Tags */}
         <div className="flex items-center gap-2 mb-2.5 flex-wrap">
           <span className="tag tag-accent">{displayCategory}</span>
@@ -55,18 +49,18 @@ export function ArticleCard({
           {date && (
             <span className="tag tag-slate flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {new Date(date).toLocaleDateString("ar-EG")}
+              {new Date(date).toLocaleDateString("ar-EG-u-nu-latn")}
             </span>
           )}
         </div>
 
         {/* Title */}
-        <h3 className="text-sm font-bold text-foreground mb-1.5 line-clamp-2 leading-snug group-hover:text-accent transition-colors">
+        <h3 className="text-xl font-semibold text-foreground mb-1.5 line-clamp-2 leading-snug group-hover:text-accent transition-colors">
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground line-clamp-2 leading-relaxed mb-3">
           {description}
         </p>
       </div>

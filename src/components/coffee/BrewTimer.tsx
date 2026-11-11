@@ -17,7 +17,11 @@ interface BrewTimerProps {
   ratio?: number;
 }
 
-export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio = 15 }: BrewTimerProps) {
+export function BrewTimer({
+  defaultCoffeeWeight = 15,
+  methodName = "V60",
+  ratio = 15,
+}: BrewTimerProps) {
   const [coffeeWeight, setCoffeeWeight] = useState<number>(defaultCoffeeWeight);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [elapsed, setElapsed] = useState<number>(0);
@@ -33,12 +37,15 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
       const ctx = new AudioCtx();
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
-      
+
       osc.type = "sine";
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
       gainNode.gain.setValueAtTime(0.08, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-      
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        ctx.currentTime + duration,
+      );
+
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
       osc.start();
@@ -83,7 +90,7 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
         instruction: "انتظر حتى يترشح كامل الماء في الإبريق. قهوتك جاهزة الآن!",
         duration: 50,
         targetWater: totalWater,
-      }
+      },
     ];
   }, [coffeeWeight, ratio]);
 
@@ -158,7 +165,7 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
 
   // Current step details
   const currentStep = steps[activeStep] || steps[steps.length - 1];
-  
+
   // Calculate progress percent for visual rendering
   let currentStepElapsed = elapsed;
   const activeStepDuration = currentStep.duration;
@@ -167,7 +174,10 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
     accumulatedBefore += steps[i].duration;
   }
   currentStepElapsed = elapsed - accumulatedBefore;
-  const progressPercent = Math.min((currentStepElapsed / activeStepDuration) * 100, 100);
+  const progressPercent = Math.min(
+    (currentStepElapsed / activeStepDuration) * 100,
+    100,
+  );
 
   return (
     <div className="card-premium p-6 text-right border border-border/80 bg-card/60 backdrop-blur-sm space-y-5">
@@ -178,7 +188,9 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
           <span>تنبيهات صوتية مفعّلة</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-foreground">مساعد التحضير التفاعلي ({methodName})</span>
+          <span className="text-xs font-bold text-foreground">
+            مساعد التحضير التفاعلي ({methodName})
+          </span>
           <Coffee className="w-4 h-4 text-accent" />
         </div>
       </div>
@@ -190,7 +202,10 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
           {/* Big Circular Clock Representation */}
           <div className="relative w-36 h-36 flex items-center justify-center">
             {/* SVG circle backdrop */}
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <svg
+              className="w-full h-full transform -rotate-90"
+              viewBox="0 0 100 100"
+            >
               <circle
                 cx="50"
                 cy="50"
@@ -210,8 +225,12 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
               />
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-2xl font-black font-mono text-foreground tracking-wider select-none">{formatTime(elapsed)}</span>
-              <span className="text-[9px] text-muted-foreground font-mono mt-0.5">من {formatTime(totalDuration)}</span>
+              <span className="text-2xl font-bold font-mono text-foreground  select-none">
+                {formatTime(elapsed)}
+              </span>
+              <span className="text-[9px] text-muted-foreground font-mono mt-0.5">
+                من {formatTime(totalDuration)}
+              </span>
             </div>
           </div>
 
@@ -228,10 +247,16 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
               onClick={handleToggle}
               className={cn(
                 "w-12 h-12 rounded-xl flex items-center justify-center shadow-md transition-transform hover:scale-105 active:scale-95",
-                isRunning ? "bg-amber-600 text-white" : "bg-primary text-primary-foreground"
+                isRunning
+                  ? "bg-amber-600 text-white"
+                  : "bg-primary text-primary-foreground",
               )}
             >
-              {isRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
+              {isRunning ? (
+                <Pause className="w-5 h-5" />
+              ) : (
+                <Play className="w-5 h-5 fill-current" />
+              )}
             </button>
           </div>
         </div>
@@ -240,7 +265,9 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
         <div className="sm:col-span-3 space-y-4">
           {/* Coffee Weight Config */}
           <div className="flex items-center justify-end gap-2 bg-secondary/25 border border-border/40 p-2.5 rounded-xl">
-            <span className="text-[10px] text-muted-foreground font-mono">1 : {ratio} (نسبة الماء)</span>
+            <span className="text-[10px] text-muted-foreground font-mono">
+              1 : {ratio} (نسبة الماء)
+            </span>
             <div className="w-px h-3 bg-border/60" />
             <input
               type="number"
@@ -248,19 +275,27 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
               max="60"
               value={coffeeWeight}
               disabled={isRunning || elapsed > 0}
-              onChange={(e) => setCoffeeWeight(parseFloat(e.target.value) || 15)}
+              onChange={(e) =>
+                setCoffeeWeight(parseFloat(e.target.value) || 15)
+              }
               className="w-10 bg-transparent text-center border-b border-border/60 text-xs font-bold font-mono focus:outline-none focus:border-accent text-foreground disabled:opacity-75"
             />
-            <label className="text-[10px] font-semibold text-muted-foreground">تعديل وزن البن (جرام):</label>
+            <label className="text-[10px] font-semibold text-muted-foreground">
+              تعديل وزن البن (جرام):
+            </label>
           </div>
 
           {/* Current Step Title & Text */}
           <div className="space-y-2">
             <div className="flex items-center justify-end gap-1.5">
-              <span className="text-xs font-bold text-accent">{currentStep.title}</span>
+              <span className="text-xs font-bold text-accent">
+                {currentStep.title}
+              </span>
               <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent/10 border border-accent/20 text-accent text-[9px] font-bold font-mono">
                 <Sparkles className="w-2.5 h-2.5" />
-                <span>الخطوة {activeStep + 1} / {steps.length}</span>
+                <span>
+                  الخطوة {activeStep + 1} / {steps.length}
+                </span>
               </div>
             </div>
 
@@ -268,7 +303,7 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
               <p className="text-xs text-foreground font-medium leading-relaxed">
                 {currentStep.instruction}
               </p>
-              
+
               {/* Step Mini progress bar */}
               <div className="space-y-1">
                 <div className="h-1 bg-secondary rounded-full overflow-hidden">
@@ -278,7 +313,12 @@ export function BrewTimer({ defaultCoffeeWeight = 15, methodName = "V60", ratio 
                   />
                 </div>
                 <div className="flex justify-between text-[9px] text-muted-foreground font-mono">
-                  <span>{formatTime(activeStepDuration - Math.round(currentStepElapsed))} متبقي</span>
+                  <span>
+                    {formatTime(
+                      activeStepDuration - Math.round(currentStepElapsed),
+                    )}{" "}
+                    متبقي
+                  </span>
                   <span>الوزن المستهدف: {currentStep.targetWater} جرام</span>
                 </div>
               </div>
