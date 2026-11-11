@@ -119,7 +119,7 @@ export default function LessonPageClient({
             <SocialShare title={lesson.title} />
           </div>
         </div>
-        <div className="aspect-[1200/630] overflow-hidden rounded-xl bg-secondary border border-border/50">
+        <div className="relative aspect-[1200/630] overflow-hidden rounded-xl bg-secondary border border-border/50">
           {lesson.image ? (
             <ContentImage
               src={lesson.image}
