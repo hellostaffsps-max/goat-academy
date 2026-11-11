@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useClientPathname } from "@/hooks/useClientPathname";
 import {
   Home,
   Newspaper,
@@ -174,7 +175,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [settings.reducedMotion]);
 
-  const pathname = usePathname();
+  const pathname = useClientPathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const isLearningPage = [
     "/courses",
@@ -319,7 +320,9 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
       </main>
 
       <Footer />
-      {!isLearningPage && pathname !== "/consultant" && <WhatsAppButton />}
+      {pathname && !isLearningPage && pathname !== "/consultant" && (
+        <WhatsAppButton />
+      )}
 
       <nav
         className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]"

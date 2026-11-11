@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useClientPathname } from "@/hooks/useClientPathname";
 import { ChevronLeft, Home } from "lucide-react";
 import { services } from "@/data/services";
 
@@ -23,7 +23,7 @@ const breadcrumbMap: Record<string, string> = {
 };
 
 export function BreadcrumbNav() {
-  const pathname = usePathname();
+  const pathname = useClientPathname();
 
   // Hide on home, admin, and auth pages
   if (
